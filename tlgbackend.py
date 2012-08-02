@@ -30,16 +30,12 @@ class TaskListGenerator:
     #def run(self):
 
 
-if __name__ == '__main__':
-    import tlgflaws
-    
-    #s= ('H\xc3\xa4matopoese')
-    #s= s.decode('utf-8', errors='replace')
-    #s= s.encode('utf-8', errors='replace')
-    #print s
-    #sys.exit(0)
-    
-    
+
+
+
+import tlgflaws
+
+def testSingleThread():
     tlg= TaskListGenerator()
 
     cg= CatGraphInterface(graphname='dewiki')
@@ -47,25 +43,56 @@ if __name__ == '__main__':
             - set(cg.getPagesInCategory(getCategoryID('dewiki_p', 'Meerkatzenverwandte'), 7))   \
             - set(cg.getPagesInCategory(getCategoryID('dewiki_p', 'Astrobiologie'), 7))
     
-    print "%d pages" % len(pages)
+    flaw= tlgflaws.FFArticleFetchTest()
+    for k in range(0, 3):
+        for i in pages:
+            action= flaw.createAction(i)
+            tlg.actionQueue.put(action)
+        
+    print "%d actions" % tlg.actionQueue.qsize()
     sys.stdout.flush()
 
-    flaw= tlgflaws.FFArticleFetchTest()
-    for i in pages:
-        action= flaw.createAction(i)
-        tlg.actionQueue.put(action)
-        
-    for i in range(0, 1):
-        dprint(0, "******** before thread start %d" % i)
-        tlg.workerThreads.append(WorkerThread(tlg.actionQueue, tlg.resultQueue))
-        #tlg.workerThreads[-1].start()
-        tlg.workerThreads[-1].run()
+    WorkerThread(tlg.actionQueue, tlg.resultQueue).run()
     
-    def drainQueue():
+    try:
         while not tlg.resultQueue.empty():
             foo= tlg.resultQueue.get()
-            #foo= foo.decode('utf-8', errors='replace').decode('utf-8', errors='replace')
-            print foo
+            print foo   #.decode('utf-8', errors='replace')
+    except UnicodeEncodeError, UnicodeDecodeError:
+        print " ************** ", foo
+        raise
+
+def testMultiThread(nthreads):
+    tlg= TaskListGenerator()
+
+    cg= CatGraphInterface(graphname='dewiki')
+    pages= set(cg.getPagesInCategory(getCategoryID('dewiki_p', 'Biologie'), 2)) \
+            - set(cg.getPagesInCategory(getCategoryID('dewiki_p', 'Meerkatzenverwandte'), 7))   \
+            - set(cg.getPagesInCategory(getCategoryID('dewiki_p', 'Astrobiologie'), 7))
+    
+    flaw= tlgflaws.FFArticleFetchTest()
+    for k in range(0, 3):
+        for i in pages:
+            action= flaw.createAction(i)
+            tlg.actionQueue.put(action)
+
+    print "%d actions" % tlg.actionQueue.qsize()
+    sys.stdout.flush()
+        
+    for i in range(0, nthreads):
+        dprint(0, "******** before thread start %d" % i)
+        tlg.workerThreads.append(WorkerThread(tlg.actionQueue, tlg.resultQueue))
+        tlg.workerThreads[-1].start()
+        #~ tlg.workerThreads[-1].run()
+    
+    def drainQueue():
+        try:
+            while not tlg.resultQueue.empty():
+                foo= tlg.resultQueue.get()
+                print(foo)
+        except UnicodeEncodeError, UnicodeDecodeError:
+            print " ************** ", foo.decode('utf-8', errors='replace')
+            raise
 
     while threading.activeCount()>1:
         drainQueue()
@@ -75,9 +102,23 @@ if __name__ == '__main__':
         i.join()
     
     drainQueue()
+
+
+
+if __name__ == '__main__':
+    import caching
     
-    from caching import FileBasedCache
-    print("cache hits: %d\ncache misses: %d" % (FileBasedCache.hits, FileBasedCache.misses))
+    caching.PageIDCache= caching.PageIDMemCache
+    
+    #~ testSingleThread()
+    testMultiThread(10)
+    
+    print("cache stats:")
+    for i in caching.Stats.__dict__:
+        if i[:2] != '__':
+            print "%11s: %s" % (i, caching.Stats.__dict__[i])
+
+    sys.exit(1)
     
 
 

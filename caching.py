@@ -14,6 +14,11 @@ from utils import *
 def MakeTimestamp(unixtime):
     return time.strftime("%Y%m%d%H%M%S", time.gmtime(unixtime))
 
+class Stats:
+    memHits= 0
+    diskHits= 0
+    misses= 0
+
 # base class for cache entries
 # cache entries are implemented as context managers, to be used with the "with" statement, see __main__ chunk below.
 class FileBasedCache:
@@ -24,8 +29,6 @@ class FileBasedCache:
     suffix= '.cache'
     tmpSuffix= '.tmp'
     numSubdirs= 256
-    hits= 0
-    misses= 0
     
     def __init__(self, identifier, expirytimestamp):
         # todo: evaluate if we might ever hit a filename length limit and if so, hash the id with md5 or something.
@@ -57,22 +60,31 @@ class FileBasedCache:
                 assert(stat.S_ISDIR(dirstat.st_mode))
             except OSError:
                 os.mkdir(subdir)
-        
-            
-    def __enter__(self):        
+    
+    @staticmethod
+    def doGlob(subdir, identifier):
+        res= []
+        files= os.listdir(subdir)
+        for f in files:
+            if f.find(identifier)>=0 and f.rfind('.tmp')<0:
+                res.append(f)
+        return sorted(res)
+    
+    def __enter__(self):
         # todo: check for identifier-DATE.cache.tmp and wait some time if it exists.
 
         subdir= self.getSubdir(self.identifier)
         basename= subdir + '/' + self.identifier
         # check if we have a cache entry for this id
-        globbed= sorted(glob.glob('%s-??????????????%s' % (basename, FileBasedCache.suffix)))
+        #globbed= sorted(glob.glob('%s-??????????????%s' % (basename, FileBasedCache.suffix)))
+        globbed= self.doGlob(subdir, self.identifier)
         now= MakeTimestamp(time.time())
         while len(globbed) and not self.isHit(globbed[0], now):
-            fn= globbed.pop(0)
+            fn= subdir + '/' + globbed.pop(0)
             dprint(3, 'removing %s' % fn)
             os.unlink(fn)
         if len(globbed):
-            self.filename= globbed.pop()
+            self.filename= subdir + '/' + globbed.pop()
         else:
             self.filename= '%s-%s%s' % (basename, self.expirytimestamp, FileBasedCache.suffix)
         
@@ -84,12 +96,12 @@ class FileBasedCache:
             self.file= open(self.filename, 'r')
             self.hit= True
             dprint(3, "hit %s!" % self.filename)
-            FileBasedCache.hits+= 1
+            Stats.diskHits+= 1
         except OSError:
             # append suffix so other instances won't read the file while we are writing it
             self.file= open(self.filename + FileBasedCache.tmpSuffix, 'w')
             dprint(3, "miss %s!" % self.filename)
-            FileBasedCache.misses+= 1
+            Stats.misses+= 1
         
         return self
     
@@ -171,6 +183,7 @@ class ListCache(FileBasedCache):
 # behaves like a list of dicts 
 # dict entries as described at https://wiki.toolserver.org/view/Database_schema#Page
 # TODO is this useful at all, or is it better to use ID-based caches only?
+# TODO check whether it actually makes sense to cache single articles. direct SQL queries may be faster, depending on server load.
 class __PageCache(ListCache):
     def __init__(self, wiki, pageTitle):
         assert(str(pageID)==pageID) # be sure they passed us a string. is this "the" proper way to do this in python?
@@ -179,9 +192,9 @@ class __PageCache(ListCache):
         self.wiki= wiki
     
     def __enter__(self):
-        from tlgcatgraph import CatGraphInterface
         ListCache.__enter__(self)
         if not self.hit:
+            from tlgcatgraph import CatGraphInterface
             entry= getPageByTitle(self.wiki, self.pageTitle)
             for e in entry:
                 self.append({'page_id': e[0],
@@ -208,9 +221,13 @@ class __PageCache(ListCache):
 
 
 
-# a cache for a page entry
+# a cache for a page entry. caches both im memory and on disk.
 # dict entries as described at https://wiki.toolserver.org/view/Database_schema#Page
-class PageIDCache(DictCache):
+# TODO check whether it actually makes sense to cache single articles like this. direct SQL queries may be faster, depending on server load.
+class PageIDMemDiskCache(DictCache):
+    cacheDict= dict()
+    dictLock= threading.Lock()
+
     def __init__(self, wiki, pageID):
         assert(int(pageID)==pageID) # be sure they passed us an int. is this "the" proper way to do this in python?
         DictCache.__init__(self, "page-ID-%s-%s" % (wiki, pageID), 10*60)
@@ -218,9 +235,14 @@ class PageIDCache(DictCache):
         self.wiki= wiki
     
     def __enter__(self):
-        from tlgcatgraph import CatGraphInterface
         DictCache.__enter__(self)
+        if self.identifier in PageIDCache.cacheDict:
+            #print "self in dict!"
+            Stats.memHits+= 1
+            return PageIDCache.cacheDict[self.identifier]
+        
         if not self.hit:
+            from tlgcatgraph import CatGraphInterface
             entry= getPageByID(self.wiki, self.pageID)
             if len(entry)>0:
                 e= entry[0]
@@ -235,13 +257,77 @@ class PageIDCache(DictCache):
                 self['page_touched']= e[8]
                 self['page_latest']= e[9]
                 self['page_len']= e[10]
+
+        self.file.close()
+
+        try:
+            PageIDCache.dictLock.acquire()
+            PageIDCache.cacheDict[self.identifier]= self
+        finally:
+            PageIDCache.dictLock.release()
+        
         return self
 
 
-# a cache for a page entry
-# dict entries as described at https://wiki.toolserver.org/view/Database_schema#Page
+# a page cache entry - behaves the same as PageIDCache but only caches in memory. this is probably best for articles.
+class PageIDMemCache:
+    cacheDict= dict()
+    dictLock= threading.Lock()
+
+    def __init__(self, wiki, pageID):
+        assert(int(pageID)==pageID) # be sure they passed us an int. is this "the" proper way to do this in python?
+        self.identifier= "page-ID-%s-%s" % (wiki, pageID)
+        self.pageID= pageID
+        self.wiki= wiki
+        self.values= dict()
+    
+    def __enter__(self):
+        if self.identifier in PageIDMemCache.cacheDict:
+            #print "self in dict!"
+            Stats.memHits+= 1
+            return PageIDMemCache.cacheDict[self.identifier]
+        
+        from tlgcatgraph import CatGraphInterface
+        entry= getPageByID(self.wiki, self.pageID)
+        if len(entry)>0:
+            e= entry[0]
+            self['page_id']= e[0]
+            self['page_namespace']= e[1]
+            self['page_title']= e[2]
+            self['page_restriction']= e[3]
+            self['page_counter']= e[4]
+            self['page_is_redirect']= e[5]
+            self['page_is_new']= e[6]
+            self['page_random']= e[7]
+            self['page_touched']= e[8]
+            self['page_latest']= e[9]
+            self['page_len']= e[10]
+            
+        try:
+            PageIDMemCache.dictLock.acquire()
+            PageIDMemCache.cacheDict[self.identifier]= self
+        finally:
+            PageIDMemCache.dictLock.release()
+
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        pass
+        
+    def __iter__(self):
+        return iter(self.values)
+    
+    def __getitem__(self, key):
+        return self.values[key]
+    
+    def __setitem__(self, key, value):
+        self.values[key]= value
+
+
+# a fake page cache entry - does not cache the query result. for testing.
 class PageIDFakeCache:
     def __init__(self, wiki, pageID):
+        assert(int(pageID)==pageID) # be sure they passed us an int. is this "the" proper way to do this in python?
         self.pageID= pageID
         self.wiki= wiki
         self.values= dict()
@@ -275,6 +361,9 @@ class PageIDFakeCache:
     
     def __setitem__(self, key, value):
         self.values[key]= value
+
+PageIDCache= PageIDFakeCache
+
 
 # initialization
 if threading.currentThread().name == 'MainThread':
