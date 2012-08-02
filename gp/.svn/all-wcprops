@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svnroot/daniel/!svn/ver/625/duesenstuff/trunk/gpClient/python/gp
+END
+client.py
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svnroot/daniel/!svn/ver/616/duesenstuff/trunk/gpClient/python/gp/client.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svnroot/daniel/!svn/ver/488/duesenstuff/trunk/gpClient/python/gp/__init__.py
+END
+mediawiki.py
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svnroot/daniel/!svn/ver/625/duesenstuff/trunk/gpClient/python/gp/mediawiki.py
+END
+mysql.py
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svnroot/daniel/!svn/ver/625/duesenstuff/trunk/gpClient/python/gp/mysql.py
+END

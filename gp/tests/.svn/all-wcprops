@@ -1,0 +1,89 @@
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svnroot/daniel/!svn/ver/584/duesenstuff/trunk/gpClient/python/gp/tests
+END
+arc_fuzzer.py
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svnroot/daniel/!svn/ver/503/duesenstuff/trunk/gpClient/python/gp/tests/arc_fuzzer.py
+END
+tcp_fuzzer.py
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svnroot/daniel/!svn/ver/503/duesenstuff/trunk/gpClient/python/gp/tests/tcp_fuzzer.py
+END
+client_test.py
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svnroot/daniel/!svn/ver/479/duesenstuff/trunk/gpClient/python/gp/tests/client_test.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svnroot/daniel/!svn/ver/488/duesenstuff/trunk/gpClient/python/gp/tests/__init__.py
+END
+fuzzer_base.py
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svnroot/daniel/!svn/ver/503/duesenstuff/trunk/gpClient/python/gp/tests/fuzzer_base.py
+END
+crud_fuzzer.py
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svnroot/daniel/!svn/ver/503/duesenstuff/trunk/gpClient/python/gp/tests/crud_fuzzer.py
+END
+mediawiki_test.py
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svnroot/daniel/!svn/ver/488/duesenstuff/trunk/gpClient/python/gp/tests/mediawiki_test.py
+END
+mysql_test.py
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svnroot/daniel/!svn/ver/584/duesenstuff/trunk/gpClient/python/gp/tests/mysql_test.py
+END
+test_config.py
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svnroot/daniel/!svn/ver/482/duesenstuff/trunk/gpClient/python/gp/tests/test_config.py
+END
+gp.test.data
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svnroot/daniel/!svn/ver/474/duesenstuff/trunk/gpClient/python/gp/tests/gp.test.data
+END
+server_test.py
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svnroot/daniel/!svn/ver/529/duesenstuff/trunk/gpClient/python/gp/tests/server_test.py
+END
+core_test.py
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svnroot/daniel/!svn/ver/571/duesenstuff/trunk/gpClient/python/gp/tests/core_test.py
+END
+slave_test.py
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svnroot/daniel/!svn/ver/482/duesenstuff/trunk/gpClient/python/gp/tests/slave_test.py
+END
+test_base.py
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svnroot/daniel/!svn/ver/486/duesenstuff/trunk/gpClient/python/gp/tests/test_base.py
+END

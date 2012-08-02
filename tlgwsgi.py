@@ -7,7 +7,7 @@ def myapp(environ, start_response):
     return ['Hello World!\n']
 
 if __name__ == "__main__":
-    # change this to "flup.server.scgi" when/if fcgid is installed on the toolserver
+    # change this to "flup.server.fcgi" when/if fcgid is installed on the toolserver
     from flup.server.cgi import WSGIServer
     import cgitb
     cgitb.enable()
