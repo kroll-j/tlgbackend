@@ -30,11 +30,6 @@ class FileBasedCache:
     tmpSuffix= '.tmp'
     numSubdirs= 256
     
-    def __init__(self, identifier, expirytimestamp):
-        # todo: evaluate if we might ever hit a filename length limit and if so, hash the id with md5 or something.
-        self.identifier= identifier
-        self.expirytimestamp= expirytimestamp
-    
     @staticmethod
     def getSubdirNum(identifier):
         return binascii.crc32(identifier) % FileBasedCache.numSubdirs
@@ -60,6 +55,20 @@ class FileBasedCache:
                 assert(stat.S_ISDIR(dirstat.st_mode))
             except OSError:
                 os.mkdir(subdir)
+        
+        FileBasedCache.cleanupCache()
+    
+        
+    @staticmethod
+    def cleanupCache():
+        now= MakeTimestamp(time.time())
+        #match= re.match(".*-([0-9]{14})\.cache", filename)
+        for root, dirs, files in os.walk(FileBasedCache.cacheDir, topdown=False):
+            for name in files:
+                match= re.match(".*-([0-9]{14})\.cache.*", name)
+                if match != None and match.group(1) < now:
+                    print "removing old cache file: ", match.group(1)
+                    os.remove(os.path.join(root, name))
     
     @staticmethod
     def doGlob(subdir, identifier):
@@ -69,6 +78,11 @@ class FileBasedCache:
             if f.find(identifier)>=0 and f.rfind('.tmp')<0:
                 res.append(f)
         return sorted(res)
+    
+    def __init__(self, identifier, expirytimestamp):
+        # todo: evaluate if we might ever hit a filename length limit and if so, hash the id with md5 or something.
+        self.identifier= identifier
+        self.expirytimestamp= expirytimestamp
     
     def __enter__(self):
         # todo: check for identifier-DATE.cache.tmp and wait some time if it exists.
@@ -114,6 +128,7 @@ class FileBasedCache:
     
     @staticmethod
     def isHit(filename, now):
+        # todo: compile regex
         match= re.match(".*-([0-9]{14})\.cache", filename)
         expires= match.group(1)
         if expires > now: return True
