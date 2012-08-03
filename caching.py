@@ -67,7 +67,7 @@ class FileBasedCache:
             for name in files:
                 match= re.match(".*-([0-9]{14})\.cache.*", name)
                 if match != None and match.group(1) < now:
-                    print "removing old cache file: ", match.group(1)
+                    print "removing old cache file:", name
                     os.remove(os.path.join(root, name))
     
     @staticmethod
@@ -194,19 +194,27 @@ class ListCache(FileBasedCache):
         if not self.hit:
             self.write(json.dumps(what) + "\n")
 
-# a cache for a page entry (old class -- the idea was to cache based on title instead of ID)
-class __PageCache(ListCache):
-    def __init__(self, wiki, pageTitle):
-        assert(str(pageID)==pageID) # be sure they passed us a string. is this "the" proper way to do this in python?
-        ListCache.__init__(self, "page-title-%s-%s" % (wiki, pageTitle), 10*60)
+# cache a page in memory and on disk by title
+# searching for a page entry by title takes ages so caching pages on disk does make sense.
+class PageTitleDiskCache(ListCache):
+    def __init__(self, wiki, pageTitle, namespace='*', lifetime=30*60):
+        print pageTitle
+        assert(str(pageTitle)==pageTitle) # be sure they passed us a string. is this "the" proper way to do this in python?
+        nsfid= namespace
+        if namespace=='*': nsfid= 'all'
+        else: assert(int(namespace)==namespace)
+        ListCache.__init__(self, "page-title-%s-%s-%s" % (wiki, pageTitle, nsfid), lifetime)
         self.pageTitle= pageTitle
         self.wiki= wiki
+        self.namespace= namespace
     
     def __enter__(self):
         ListCache.__enter__(self)
         if not self.hit:
-            from tlgcatgraph import CatGraphInterface
-            entry= getPageByTitle(self.wiki, self.pageTitle)
+            #from tlgcatgraph import CatGraphInterface
+            cur= getCursors()[self.wiki]
+            cur.execute("SELECT * FROM page WHERE page_title = %s AND page_namespace = %s", (self.pageTitle, self.namespace))
+            entry= cur.fetchall()
             for e in entry:
                 self.append({'page_id': e[0],
                              'page_namespace': e[1],
@@ -230,27 +238,85 @@ class __PageCache(ListCache):
     def findRowWithNamespace(self, nsID):
         return self.findRowWithFieldValue('page_namespace', nsID)
 
+# cache a page by title in memory
+# todo: make a base class for MemCache
+class PageTitleMemCache:
+    cacheDict= dict()
+    dictLock= threading.Lock()
+
+    def __init__(self, wiki, pageTitle):
+        assert(str(pageTitle)==pageTitle) # be sure they passed us a string. is this "the" proper way to do this in python?
+        self.identifier= "page-title-%s-%s" % (wiki, pageTitle)
+        self.pageTitle= pageTitle
+        self.wiki= wiki
+        self.values= list()
+    
+    def __enter__(self):
+        if self.identifier in PageTitleMemCache.cacheDict:
+            Stats.memHits+= 1
+            return PageTitleMemCache.cacheDict[self.identifier]
+        
+        Stats.misses+= 1
+        from tlgcatgraph import CatGraphInterface
+        entry= getPageByTitle(self.wiki, self.pageTitle)
+        for e in entry:
+            self.values.append({'page_id': e[0],
+                                'page_namespace': e[1],
+                                'page_title': e[2],
+                                'page_restriction': e[3],
+                                'page_counter': e[4],
+                                'page_is_redirect': e[5],
+                                'page_is_new': e[6],
+                                'page_random': e[7],
+                                'page_touched': e[8],
+                                'page_latest': e[9],
+                                'page_len': e[10]})
+        return self
+    
+    def __exit__(self, exc_type, exc_value, traceback):
+        pass
+        
+    def __iter__(self):
+        return iter(self.values)
+    
+    def __getitem__(self, key):
+        return self.values[key]
+    
+    def __setitem__(self, key, value):
+        self.values[key]= value
+
+    def findRowWithFieldValue(self, field, fieldValue):
+        for e in self.values:
+            if e[field]==fieldValue:
+                return e
+        return None
+    
+    def findRowWithNamespace(self, nsID):
+        return self.findRowWithFieldValue('page_namespace', nsID)
+
+# default
+PageTitleCache= PageTitleDiskCache
 
 
 # a cache for a page entry. caches both im memory and on disk.
 # dict entries as described at https://wiki.toolserver.org/view/Database_schema#Page
-# TODO check whether it actually makes sense to cache single articles like this. direct SQL queries may be faster, depending on server load.
 class PageIDMemDiskCache(DictCache):
     cacheDict= dict()
     dictLock= threading.Lock()
 
-    def __init__(self, wiki, pageID):
+    def __init__(self, wiki, pageID, lifetime=1*60*60):
         assert(int(pageID)==pageID) # be sure they passed us an int. is this "the" proper way to do this in python?
-        DictCache.__init__(self, "page-ID-%s-%s" % (wiki, pageID), 10*60)
+        DictCache.__init__(self, "page-ID-%s-%s" % (wiki, pageID), lifetime)
         self.pageID= pageID
         self.wiki= wiki
     
     def __enter__(self):
+        #~ print "PageIDMemDiskCache.__enter__"
         DictCache.__enter__(self)
-        if self.identifier in PageIDCache.cacheDict:
+        if self.identifier in PageIDMemDiskCache.cacheDict:
             #print "self in dict!"
             Stats.memHits+= 1
-            return PageIDCache.cacheDict[self.identifier]
+            return PageIDMemDiskCache.cacheDict[self.identifier]
         
         if not self.hit:
             from tlgcatgraph import CatGraphInterface
@@ -272,15 +338,15 @@ class PageIDMemDiskCache(DictCache):
         self.file.close()
 
         try:
-            PageIDCache.dictLock.acquire()
-            PageIDCache.cacheDict[self.identifier]= self
+            PageIDMemDiskCache.dictLock.acquire()
+            PageIDMemDiskCache.cacheDict[self.identifier]= self
         finally:
-            PageIDCache.dictLock.release()
+            PageIDMemDiskCache.dictLock.release()
         
         return self
 
 
-# a page cache entry - behaves the same as PageIDCache but only caches in memory. this is probably best for articles.
+# a page cache entry - behaves the same as PageIDMemDiskCache but only caches in memory. this is probably best for articles.
 class PageIDMemCache:
     cacheDict= dict()
     dictLock= threading.Lock()
@@ -294,11 +360,10 @@ class PageIDMemCache:
     
     def __enter__(self):
         if self.identifier in PageIDMemCache.cacheDict:
-            #print "self in dict!"
             Stats.memHits+= 1
             return PageIDMemCache.cacheDict[self.identifier]
         
-        from tlgcatgraph import CatGraphInterface
+        Stats.misses+= 1
         entry= getPageByID(self.wiki, self.pageID)
         if len(entry)>0:
             e= entry[0]
@@ -344,7 +409,6 @@ class PageIDFakeCache:
         self.values= dict()
     
     def __enter__(self):
-        from tlgcatgraph import CatGraphInterface
         entry= getPageByID(self.wiki, self.pageID)
         if len(entry)>0:
             e= entry[0]
@@ -373,7 +437,7 @@ class PageIDFakeCache:
     def __setitem__(self, key, value):
         self.values[key]= value
 
-PageIDCache= PageIDFakeCache
+PageIDCache= PageIDMemDiskCache
 
 
 # initialization
@@ -405,3 +469,4 @@ if __name__ == '__main__':
             lcache.append(MakeTimestamp(time.time()))
         print "values:"
         for i in lcache:  print "\t", i
+

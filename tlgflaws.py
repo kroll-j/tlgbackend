@@ -53,7 +53,7 @@ class FFArticleFetchTest(FlawFinder):
             dprint(3, "%s: execute begin" % (self.parent.description))
             
             for i in self.pages:
-                with caching.PageIDCache('dewiki_p', i) as page:
+                with caching.PageIDMemCache('dewiki_p', i) as page:
                     if 'page_title' in page:
                         #print page['page_title']
                         resultQueue.put(page['page_title'])

@@ -35,22 +35,23 @@ class TaskListGenerator:
 
 import tlgflaws
 
-def testSingleThread():
-    tlg= TaskListGenerator()
-
+def testCreateActions(tlg):
     cg= CatGraphInterface(graphname='dewiki')
-    pages= set(cg.getPagesInCategory(getCategoryID('dewiki_p', 'Biologie'), 2)) \
-            - set(cg.getPagesInCategory(getCategoryID('dewiki_p', 'Meerkatzenverwandte'), 7))   \
-            - set(cg.getPagesInCategory(getCategoryID('dewiki_p', 'Astrobiologie'), 7))
+    pages= cg.executeSearchString('Biologie -Meerkatzenverwandte -Astrobiologie', 7)
     
     flaw= tlgflaws.FFArticleFetchTest()
     for k in range(0, 3):
         for i in pages:
-            action= flaw.createAction(i)
+            action= flaw.createAction( (i,) )
             tlg.actionQueue.put(action)
         
-    print "%d actions" % tlg.actionQueue.qsize()
-    sys.stdout.flush()
+
+def testSingleThread():
+    tlg= TaskListGenerator()
+
+    testCreateActions(tlg)
+    
+    numActions= tlg.actionQueue.qsize()
 
     WorkerThread(tlg.actionQueue, tlg.resultQueue).run()
     
@@ -62,22 +63,15 @@ def testSingleThread():
         print " ************** ", foo
         raise
 
+    print "numActions=%d" % numActions
+    sys.stdout.flush()
+
 def testMultiThread(nthreads):
     tlg= TaskListGenerator()
 
-    cg= CatGraphInterface(graphname='dewiki')
-    pages= set(cg.getPagesInCategory(getCategoryID('dewiki_p', 'Biologie'), 2)) \
-            - set(cg.getPagesInCategory(getCategoryID('dewiki_p', 'Meerkatzenverwandte'), 7))   \
-            - set(cg.getPagesInCategory(getCategoryID('dewiki_p', 'Astrobiologie'), 7))
+    testCreateActions(tlg)
     
-    flaw= tlgflaws.FFArticleFetchTest()
-    for k in range(0, 3):
-        for i in pages:
-            action= flaw.createAction(i)
-            tlg.actionQueue.put(action)
-
-    print "%d actions" % tlg.actionQueue.qsize()
-    sys.stdout.flush()
+    numActions= tlg.actionQueue.qsize()
         
     for i in range(0, nthreads):
         dprint(0, "******** before thread start %d" % i)
@@ -103,6 +97,8 @@ def testMultiThread(nthreads):
     
     drainQueue()
 
+    print "numActions=%d" % numActions
+    sys.stdout.flush()
 
 
 if __name__ == '__main__':
