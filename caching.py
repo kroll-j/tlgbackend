@@ -312,11 +312,12 @@ class PageIDMemDiskCache(DictCache):
     
     def __enter__(self):
         #~ print "PageIDMemDiskCache.__enter__"
-        DictCache.__enter__(self)
         if self.identifier in PageIDMemDiskCache.cacheDict:
-            #print "self in dict!"
             Stats.memHits+= 1
+            self.hit= True
             return PageIDMemDiskCache.cacheDict[self.identifier]
+
+        DictCache.__enter__(self)
         
         if not self.hit:
             from tlgcatgraph import CatGraphInterface
@@ -437,7 +438,8 @@ class PageIDFakeCache:
     def __setitem__(self, key, value):
         self.values[key]= value
 
-PageIDCache= PageIDMemDiskCache
+# default
+PageIDCache= PageIDMemCache
 
 
 # initialization

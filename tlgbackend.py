@@ -3,6 +3,8 @@
 import time
 import Queue
 import threading
+import tlgflaws
+
 from tlgcatgraph import CatGraphInterface
 from utils import *
 
@@ -33,88 +35,64 @@ class TaskListGenerator:
 
 
 
-import tlgflaws
 
-def testCreateActions(tlg):
-    cg= CatGraphInterface(graphname='dewiki')
-    pages= cg.executeSearchString('Biologie -Meerkatzenverwandte -Astrobiologie', 7)
-    
-    flaw= tlgflaws.FFArticleFetchTest()
-    for k in range(0, 3):
-        for i in pages:
-            action= flaw.createAction( (i,) )
-            tlg.actionQueue.put(action)
+class test:
+    def __init__(self):
+        self.tlg= TaskListGenerator()
+
+    def createActions(self):
+        cg= CatGraphInterface(graphname='dewiki')
+        pages= cg.executeSearchString('Biologie -Meerkatzenverwandte -Astrobiologie', 2)
         
-
-def testSingleThread():
-    tlg= TaskListGenerator()
-
-    testCreateActions(tlg)
+        flaw= tlgflaws.FFArticleFetchTest()
+        for k in range(0, 3):
+            for i in pages:
+                action= flaw.createAction( 'dewiki_p', (i,) )
+                self.tlg.actionQueue.put(action)
     
-    numActions= tlg.actionQueue.qsize()
-
-    WorkerThread(tlg.actionQueue, tlg.resultQueue).run()
-    
-    try:
-        while not tlg.resultQueue.empty():
-            foo= tlg.resultQueue.get()
-            print foo   #.decode('utf-8', errors='replace')
-    except UnicodeEncodeError, UnicodeDecodeError:
-        print " ************** ", foo
-        raise
-
-    print "numActions=%d" % numActions
-    sys.stdout.flush()
-
-def testMultiThread(nthreads):
-    tlg= TaskListGenerator()
-
-    testCreateActions(tlg)
-    
-    numActions= tlg.actionQueue.qsize()
-        
-    for i in range(0, nthreads):
-        dprint(0, "******** before thread start %d" % i)
-        tlg.workerThreads.append(WorkerThread(tlg.actionQueue, tlg.resultQueue))
-        tlg.workerThreads[-1].start()
-        #~ tlg.workerThreads[-1].run()
-    
-    def drainQueue():
+    def drainQueue(self):
         try:
-            while not tlg.resultQueue.empty():
-                foo= tlg.resultQueue.get()
+            while not self.tlg.resultQueue.empty():
+                foo= self.tlg.resultQueue.get()
                 print(foo)
-        except UnicodeEncodeError, UnicodeDecodeError:  # wtf?!
-            print " ************** ", foo.decode('utf-8', errors='replace')
+        except (UnicodeEncodeError, UnicodeDecodeError) as exception:  # wtf?!
             raise
 
-    while threading.activeCount()>1:
-        drainQueue()
-        time.sleep(0.5)
+    def testSingleThread(self):
+        self.createActions()
+        numActions= self.tlg.actionQueue.qsize()
+        WorkerThread(self.tlg.actionQueue, self.tlg.resultQueue).run()
+        self.drainQueue()
+        print "numActions=%d" % numActions
+        sys.stdout.flush()
 
-    for i in tlg.workerThreads:
-        i.join()
-    
-    drainQueue()
-
-    print "numActions=%d" % numActions
-    sys.stdout.flush()
+    def testMultiThread(self, nthreads):
+        self.createActions()
+        numActions= self.tlg.actionQueue.qsize()
+        for i in range(0, nthreads):
+            dprint(0, "******** before thread start %d" % i)
+            self.tlg.workerThreads.append(WorkerThread(self.tlg.actionQueue, self.tlg.resultQueue))
+            self.tlg.workerThreads[-1].start()
+        while threading.activeCount()>1:
+            self.drainQueue()
+            time.sleep(0.5)
+        for i in self.tlg.workerThreads:
+            i.join()
+        self.drainQueue()
+        print "numActions=%d" % numActions
+        sys.stdout.flush()
 
 
 if __name__ == '__main__':
     import caching
-    
-    caching.PageIDCache= caching.PageIDMemCache
-    
-    #~ testSingleThread()
-    testMultiThread(12)
+        
+    test().testSingleThread()
+    #~ test().testMultiThread(10)
     
     print("cache stats:")
     for i in caching.Stats.__dict__:
         if i[:2] != '__':
             print "%11s: %s" % (i, caching.Stats.__dict__[i])
-
-    sys.exit(1)
     
 
 
