@@ -90,7 +90,7 @@ def testMultiThread(nthreads):
             while not tlg.resultQueue.empty():
                 foo= tlg.resultQueue.get()
                 print(foo)
-        except UnicodeEncodeError, UnicodeDecodeError:
+        except UnicodeEncodeError, UnicodeDecodeError:  # wtf?!
             print " ************** ", foo.decode('utf-8', errors='replace')
             raise
 
