@@ -44,7 +44,7 @@ class test:
         cg= CatGraphInterface(graphname='dewiki')
         pages= cg.executeSearchString('Biologie -Meerkatzenverwandte -Astrobiologie', 2)
         
-        flaw= tlgflaws.FFArticleFetchTest()
+        flaw= tlgflaws.FFUnlucky()
         for k in range(0, 3):
             for i in pages:
                 action= flaw.createAction( 'dewiki_p', (i,) )
@@ -54,7 +54,7 @@ class test:
         try:
             while not self.tlg.resultQueue.empty():
                 foo= self.tlg.resultQueue.get()
-                print(foo)
+                print foo.encodeAsJSON()
         except (UnicodeEncodeError, UnicodeDecodeError) as exception:  # wtf?!
             raise
 

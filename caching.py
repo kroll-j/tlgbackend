@@ -198,7 +198,6 @@ class ListCache(FileBasedCache):
 # searching for a page entry by title takes ages so caching pages on disk does make sense.
 class PageTitleDiskCache(ListCache):
     def __init__(self, wiki, pageTitle, namespace='*', lifetime=30*60):
-        print pageTitle
         assert(str(pageTitle)==pageTitle) # be sure they passed us a string. is this "the" proper way to do this in python?
         nsfid= namespace
         if namespace=='*': nsfid= 'all'
@@ -311,7 +310,6 @@ class PageIDMemDiskCache(DictCache):
         self.wiki= wiki
     
     def __enter__(self):
-        #~ print "PageIDMemDiskCache.__enter__"
         if self.identifier in PageIDMemDiskCache.cacheDict:
             Stats.memHits+= 1
             self.hit= True
