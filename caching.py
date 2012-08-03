@@ -194,11 +194,7 @@ class ListCache(FileBasedCache):
         if not self.hit:
             self.write(json.dumps(what) + "\n")
 
-# a cache for a page entry
-# behaves like a list of dicts 
-# dict entries as described at https://wiki.toolserver.org/view/Database_schema#Page
-# TODO is this useful at all, or is it better to use ID-based caches only?
-# TODO check whether it actually makes sense to cache single articles. direct SQL queries may be faster, depending on server load.
+# a cache for a page entry (old class -- the idea was to cache based on title instead of ID)
 class __PageCache(ListCache):
     def __init__(self, wiki, pageTitle):
         assert(str(pageID)==pageID) # be sure they passed us a string. is this "the" proper way to do this in python?
