@@ -111,7 +111,7 @@ if __name__ == '__main__':
     caching.PageIDCache= caching.PageIDMemCache
     
     #~ testSingleThread()
-    testMultiThread(10)
+    testMultiThread(12)
     
     print("cache stats:")
     for i in caching.Stats.__dict__:
