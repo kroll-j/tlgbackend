@@ -8,7 +8,7 @@ import tlgflaws
 from tlgcatgraph import CatGraphInterface
 from utils import *
 
-# a worker thread which fetches actions from a queue and executes them
+## a worker thread which fetches actions from a queue and executes them
 class WorkerThread(threading.Thread):
     def __init__(self, actionQueue, resultQueue):
         threading.Thread.__init__(self)
@@ -22,15 +22,21 @@ class WorkerThread(threading.Thread):
         except Queue.Empty:
             return
 
-# main app class
+## main app class
 class TaskListGenerator:
     def __init__(self):
         self.actionQueue= Queue.Queue()
         self.resultQueue= Queue.Queue()
         self.workerThreads= []
     
-    #def run(self):
-
+    ## find flaws and print results to output file.
+    # @param queryString The query string. See CatGraphInterface.executeSearchString documentation.
+    # @param queryDepth Search recursion depth.
+    # @param wiki The wiki name ('dewiki', not 'dewiki_p').
+    # @param stdout Standard output, a file-like object.
+    # @param stderr Standard error, a file-like object.
+    def run(self, queryString, queryDepth, wiki, stdout=sys.stdout, stderr=sys.stderr):
+        pass
 
 
 
@@ -84,15 +90,15 @@ class test:
 
 
 if __name__ == '__main__':
-    import caching
+    #~ import caching
         
     test().testSingleThread()
     #~ test().testMultiThread(10)
     
-    print("cache stats:")
-    for i in caching.Stats.__dict__:
-        if i[:2] != '__':
-            print "%11s: %s" % (i, caching.Stats.__dict__[i])
+    #~ print("cache stats:")
+    #~ for i in caching.Stats.__dict__:
+        #~ if i[:2] != '__':
+            #~ print "%11s: %s" % (i, caching.Stats.__dict__[i])
     
 
 

@@ -1,5 +1,9 @@
 #!/usr/bin/python
 # task list generator - caching utility classes
+# this is not used anymore since i now use beaker.cache.
+# todo: look into dogpile.cache as it is supposedly 'the better beaker'.
+# http://stackoverflow.com/questions/9213043/why-beaker-library-is-so-popular-in-python-web-development
+# http://dogpilecache.readthedocs.org/en/latest/usage.html
 import os
 import re
 import sys

@@ -6,7 +6,6 @@ import time
 import json
 import Queue
 import random
-import caching
 import tlgbackend
 from utils import *
 
@@ -34,7 +33,7 @@ class TlgAction:
 
 # the result of a TlgAction, describing a flawed article
 class TlgResult:
-    # page: the full page result, i.e. caching.PageIDCache.values
+    # page: a dict containing the full page result page_title, page_id etc.
     def __init__(self, wiki, page, flawfinder):
         self.wiki= wiki
         self.page= page
@@ -69,10 +68,10 @@ class FFUnlucky(FlawFinder):
             
             for i in self.pages:
                 if i % 13 == 0: # unlucky ID!
-                    with caching.PageIDCache(self.wiki, i) as page:
-                        if 'page_title' in page:
-                            resultQueue.put(TlgResult(self.wiki, page.values, self.parent))
-                
+                    rows= getPageByID(self.wiki, i)
+                    if len(rows):
+                        resultQueue.put(TlgResult(self.wiki, rows[0], self.parent))
+            
             dprint(3, "%s: execute end" % (self.parent.description))
 
     def __init__(self):

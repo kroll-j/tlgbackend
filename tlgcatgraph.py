@@ -3,7 +3,6 @@
 import time
 from gp import *
 from utils import *
-from caching import PageTitleCache, PageTitleDiskCache
 
 class CatGraphInterface:
     def __init__(self, host='willow.toolserver.org', port=6666, graphname=None):
@@ -13,24 +12,25 @@ class CatGraphInterface:
         self.wikiname= graphname + '_p'
     
     def getPagesInCategory(self, category, depth=2):
-        with PageTitleDiskCache(self.wikiname, category, NS_CATEGORY, 8*60*60) as page:  # cache categories on disk for 8 hours
-            catrow= page.findRowWithNamespace(NS_CATEGORY)
-            if catrow:
-                result= []
-                # convert list of tuples to simple list. is there a faster (i.e. built-in) way to do this?
-                for i in self.gp.capture_traverse_successors(catrow['page_id'], depth):
-                    result.append(i[0])
-                return result
-            else:
-                # category not found. return empty result. (would it be better to throw an exception here?)
-                return []
+        catID= getCategoryID(self.wikiname, category)
+        if catID!=None:
+            result= []
+            # convert list of tuples to simple list. is there a faster (i.e. built-in) way to do this?
+            for i in self.gp.capture_traverse_successors(catID, depth):
+                result.append(i[0])
+            return result
+        else:
+            # category not found. return empty result. (would it be better to throw an exception here?)
+            return []
     
-    # execute a search engine-style string
-    # operators '+' (intersection) and '-' (difference) are supported
-    # e. g. "Biology Art +Apes -Cats" searches for everything in Biology or Art and in Apes, not in Cats
-    # search parameters are evaluated from left to right, i.e. results might differ depending on order.
-    # on the first category, any '+' operator is ignored, while a '-' operator yields an empty result.
-    # the "depth" parameter is applied to each category.
+    ## execute a search engine-style string
+    #  operators '+' (intersection) and '-' (difference) are supported
+    #  e. g. "Biology Art +Apes -Cats" searches for everything in Biology or Art and in Apes, not in Cats
+    #  search parameters are evaluated from left to right, i.e. results might differ depending on order.
+    #  on the first category, any '+' operator is ignored, while a '-' operator yields an empty result.
+    #  the "depth" parameter is applied to each category.
+    #  @param string The search string.
+    #  @param depth The search depth.
     def executeSearchString(self, string, depth):
         result= set()
         n= 0
@@ -63,10 +63,9 @@ if __name__ == '__main__':
     
     t= time.time()
     for category in ['Biologie', 'Katzen', 'Foo', 'Astrobiologie']:
-        with PageTitleDiskCache('dewiki_p', category, NS_CATEGORY, 8*60*60) as page:
-            catrow= page.findRowWithNamespace(NS_CATEGORY)
-            if catrow:
-                cg.gp.capture_traverse_successors(catrow['page_id'], depth)
+        catID= getCategoryID('dewiki_p', category)
+        if catID:
+            cg.gp.capture_traverse_successors(catID, depth)
     traw= time.time()-t
     
     search= '+Biologie -Katzen -Astrobiologie Foo'
