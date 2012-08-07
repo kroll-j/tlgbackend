@@ -20,6 +20,7 @@ class WorkerThread(threading.Thread):
     def run(self):
         try:
             while True: 
+                # todo: catch exceptions from execute()
                 self.actionQueue.get(True, 0).execute(self.resultQueue)
         except Queue.Empty:
             return
@@ -74,7 +75,7 @@ class TaskListGenerator:
         self.drainResultQueue()
         
         # sort by length of flaw list
-        sortedResults= sorted(self.mergedResults, key= lambda result: len( self.mergedResults[result]['flaws'] ))
+        sortedResults= sorted(self.mergedResults, key= lambda result: -len( self.mergedResults[result]['flaws'] ))
         
         # print results
         for i in sortedResults:
@@ -155,7 +156,7 @@ class test:
 
 
 if __name__ == '__main__':
-    TaskListGenerator().run('dewiki', 'Biologie -Meerkatzenverwandte -Astrobiologie', 2, 'Unlucky')
+    TaskListGenerator().run('dewiki', 'Biologie -Meerkatzenverwandte -Astrobiologie', 2, 'MissingSourcesTemplates Unlucky')
     
     pass
     

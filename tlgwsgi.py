@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # task list generator - wsgi interface to the backend
-import tlgbackend
+import os
+import sys
 
 
 # general procedure of things:
@@ -10,8 +11,10 @@ import tlgbackend
 
 
 def myapp(environ, start_response):
+    import tlgbackend
     start_response('200 OK', [('Content-Type', 'text/plain')])
-    return ['Hello World!\n']
+    #~ return ['Hello World!\n']
+    return '\n'.join(sys.path)
 
 if __name__ == "__main__":
     # change this to "flup.server.fcgi" when/if fcgid is installed on the toolserver

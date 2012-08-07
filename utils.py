@@ -13,11 +13,11 @@ else:
     beakerCacheDir= sys.path[0] + '/beaker-cache'
 
 cache_regions.update({
-    'pages': {          # cache page ID results 1 hour in memory
+    'mem1h': {          # cache 1 hour in memory, e. g. page ID results
         'expire': 60*60,
         'type': 'memory'
     },
-    'categoryIDs': {    # cache category title => ID mappings 24h on disk
+    'disk24h': {        # cache 24h on disk, e. g. category title => ID mappings
         'expire': 60*60*24,
         'type': 'file',
         'data_dir': beakerCacheDir,
@@ -57,7 +57,7 @@ def getCursors():
 
 # get page entries matching a given page_title and optional namespace
 # returns a tuple of dicts containing the result rows, or a tuple with length 0 if not found
-@cache_region('pages', 'pageTitles')
+@cache_region('mem1h', 'pageTitles')
 def getPageByTitle(wiki, pageTitle, pageNamespace=None):
     cur= getCursors()[wiki]
     query= "SELECT * FROM page WHERE page_title = %s"
@@ -70,7 +70,7 @@ def getPageByTitle(wiki, pageTitle, pageNamespace=None):
 
 # get a page entry given its page_id
 # returns a tuple of dicts containing the result row, or a tuple with length 0 if not found
-@cache_region('pages', 'pageIDs')
+@cache_region('mem1h', 'pageIDs')
 def getPageByID(wiki, pageID):
     cur= getCursors()[wiki]
     cur.execute("SELECT * FROM page WHERE page_id = %s", (pageID,))
@@ -78,7 +78,7 @@ def getPageByID(wiki, pageID):
 
 # find a category ID given its title
 # returns category ID, or None if not found
-@cache_region('categoryIDs')
+@cache_region('disk24h')
 def getCategoryID(wiki, catTitle):
     page= getPageByTitle(wiki, catTitle, NS_CATEGORY)
     if len(page)!=0:
@@ -86,6 +86,19 @@ def getCategoryID(wiki, catTitle):
     else:
         return None
 
+## find everything that links to this page (table 'pagelinks')
+@cache_region('mem1h')
+def getPagelinksForID(wiki, pageID):
+    cur= getCursors()[wiki]
+    cur.execute("SELECT * FROM pagelinks WHERE pl_from = %s", (pageID,))
+    return cur.fetchall()
+
+## find templates of this page (table 'categorylinks')
+@cache_region('mem1h')
+def getTemplatelinksForID(wiki, pageID):
+    cur= getCursors()[wiki]
+    cur.execute("SELECT * FROM templatelinks WHERE tl_from = %s", (pageID,))
+    return cur.fetchall()
 
 debuglevel= 1
 def dprint(level, *args):

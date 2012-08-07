@@ -100,6 +100,46 @@ FlawTesters.register(FTUnlucky)
 
 
 
+## 
+class FTMissingSourcesTemplates(FlawTester):
+    # store the names of 'missing sources' templates for different language versions.
+    # this list is (and probably will always be) incomplete.
+    # i know of no centralized list of such template names.
+    templateNamesForWikis= {
+        'dewiki_p': [ 'Belege_fehlen' ],
+        'enwiki_p': [ 'Refimprove' ]
+    }
+    
+    # our action class
+    class Action(TlgAction):
+        def execute(self, resultQueue):
+            dprint(3, "%s: execute begin" % (self.parent.description))
+            
+            for i in self.pages:
+                templatelinks= getTemplatelinksForID(self.wiki, i)
+                for template in templatelinks:
+                    tl_title= template['tl_title']
+                    try:
+                        if tl_title in FTMissingSourcesTemplates.templateNamesForWikis[self.wiki]:
+                            rows= getPageByID(self.wiki, i)
+                            if len(rows):
+                                resultQueue.put(TlgResult(self.wiki, rows[0], self.parent))
+                    except KeyError:
+                        # we have no template names for this language version.
+                        pass
+            
+            dprint(3, "%s: execute end" % (self.parent.description))
+
+    def __init__(self):
+        FlawTester.__init__(self, 'MissingSourcesTemplates', 'Find pages with \'missing sources\' templates')
+    
+    def createAction(self, wiki, pages):
+        return self.Action(self, wiki, pages)
+
+FlawTesters.register(FTMissingSourcesTemplates)
+
+
+
 if __name__ == '__main__':
     FTUnlucky().createAction( 'dewiki_p', [2,4,26] ).execute(Queue.Queue())
     pass
