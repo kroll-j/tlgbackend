@@ -90,8 +90,8 @@ def getCategoryID(wiki, catTitle):
 debuglevel= 1
 def dprint(level, *args):
     if(debuglevel>=level):
-        sys.stdout.write(*args)
-        sys.stdout.write("\n")
+        sys.stderr.write(*args)
+        sys.stderr.write("\n")
 
 __WikiToServerMapLock= threading.Lock()
 # get mapping for wikiname => sql server

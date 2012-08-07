@@ -6,11 +6,24 @@ import time
 import json
 import Queue
 import random
-import tlgbackend
 from utils import *
 
-# base class for flaw finders
-class FlawFinder:
+## flaw tester class information
+class FlawTesters:
+    classInfos= dict()
+    lock= threading.Lock()
+    
+    @staticmethod
+    def register(klass):
+        try:
+            FlawTesters.lock.acquire()
+            FlawTesters.classInfos[klass().shortname]= klass
+        finally:
+            FlawTesters.lock.release()
+    
+
+## base class for flaw testers
+class FlawTester:
     def __init__(self, shortname, description):
         self.shortname= shortname
         self.description= description
@@ -20,7 +33,7 @@ class FlawFinder:
         raise NotImplementedError("execute() not implemented")
 
 
-# base class for actions to be executed by task list generator
+## base class for actions to be executed by task list generator
 class TlgAction:
     def __init__(self, parent, wiki, pages):
         self.parent= parent
@@ -31,36 +44,39 @@ class TlgAction:
         raise NotImplementedError("execute() not implemented")
 
 
-# the result of a TlgAction, describing a flawed article
+## the result of a TlgAction, describing a flawed article
 class TlgResult:
     # page: a dict containing the full page result page_title, page_id etc.
-    def __init__(self, wiki, page, flawfinder):
+    def __init__(self, wiki, page, flawtester):
         self.wiki= wiki
         self.page= page
-        self.flawfinder= flawfinder
+        self.flawtester= flawtester
     
     def encodeAsJSON(self):
-        return json.dumps( { 'wiki': self.wiki, 'page': self.page, 'ffname': self.flawfinder.shortname, 'ffdesc': self.flawfinder.description } )
+        return json.dumps( { 'wiki': self.wiki, 'page': self.page, 'found-by': self.FlawTester } )
 
-# an example flaw finder which does nothing
-class FFNop(FlawFinder):
+
+## an example flaw tester which does nothing
+class FTNop(FlawTester):
     # our action class
     class Action(TlgAction):
         def execute(self, resultQueue):
-            dprint(0, "%s: execute begin" % (self.parent.description))
-            time.sleep(random.random())     # do "work"
-            dprint(0, "%s: execute end" % (self.parent.description))
+            dprint(3, "%s: execute begin" % (self.parent.description))
+            time.sleep(0.1)     #(random.random()*.1+.1)     # do "work"
+            dprint(3, "%s: execute end" % (self.parent.description))
 
     def __init__(self):
-        FlawFinder.__init__(self, self.__class__.__name__, "FlawFinder Test Class")
+        FlawTester.__init__(self, 'Nop', 'FlawTester Test Class')
     
     # create a no-op action object
     def createAction(self, wiki, pages):
         return self.Action(self, wiki, pages)
 
+FlawTesters.register(FTNop)
 
-# example flaw finder which detects pages whose ID mod 13 == 0
-class FFUnlucky(FlawFinder):
+
+## example flaw tester which detects pages whose ID mod 13 == 0
+class FTUnlucky(FlawTester):
     # our action class
     class Action(TlgAction):
         def execute(self, resultQueue):
@@ -75,14 +91,16 @@ class FFUnlucky(FlawFinder):
             dprint(3, "%s: execute end" % (self.parent.description))
 
     def __init__(self):
-        FlawFinder.__init__(self, self.__class__.__name__, "Find pages whose ID mod 13 == 0")
+        FlawTester.__init__(self, 'Unlucky', 'Find pages whose ID mod 13 == 0')
     
     def createAction(self, wiki, pages):
         return self.Action(self, wiki, pages)
 
+FlawTesters.register(FTUnlucky)
+
 
 
 if __name__ == '__main__':
-    FFUnlucky().createAction( 'dewiki_p', [2,4,26] ).execute(Queue.Queue())
+    FTUnlucky().createAction( 'dewiki_p', [2,4,26] ).execute(Queue.Queue())
     pass
 
