@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import os
 import sys
 import MySQLdb
 import MySQLdb.cursors 
@@ -6,11 +7,8 @@ import threading
 
 from beaker.cache import cache_region, cache_regions
 
-# we use something relative to the script dir for the cache, for now. 
-if sys.path[0]=='':                     # did pdb eat our path?
-    beakerCacheDir= './beaker-cache'    # use pwd
-else:
-    beakerCacheDir= sys.path[0] + '/beaker-cache'
+# use a cache dir in user store, with a date appended so changed cache structures of newer commits can't confuse things...
+beakerCacheDir= '/mnt/user-store/jkroll/tlgbackend/20120808/beaker-cache'
 
 cache_regions.update({
     'mem1h': {          # cache 1 hour in memory, e. g. page ID results
@@ -119,7 +117,7 @@ def getWikiServerMap():
             __WikiToServerMapLock.acquire() # just in case someone calls this from different threads in parallel.
             def getWikiServerMapping():
                 dprint(2, "getWikiServerMapping called")
-                conn= MySQLdb.connect(read_default_file='~/.my.cnf')
+                conn= MySQLdb.connect(read_default_file=os.path.expanduser('~')+'/.my.cnf')
                 cur= conn.cursor()
                 cur.execute("SELECT dbname, server FROM toolserver.wiki WHERE family = 'wikipedia'")
                 ret= dict(cur.fetchall())
@@ -151,7 +149,7 @@ class DictCache(dict):
 def getConnections():
     class Connections(DictCache):
         def createEntry(self, key):
-            return MySQLdb.connect( read_default_file="~/.my.cnf", host=key, use_unicode=False, cursorclass=MySQLdb.cursors.DictCursor )
+            return MySQLdb.connect( read_default_file=os.path.expanduser('~')+"/.my.cnf", host=key, use_unicode=False, cursorclass=MySQLdb.cursors.DictCursor )
     return CachedThreadValue('SQLConnections', Connections)
 
 if threading.currentThread().name == 'MainThread':
@@ -163,6 +161,6 @@ if __name__ == '__main__':
     print getCursors()['dewiki_p']
     print getCursors()
     print getPageByID('dewiki_p', 917280)
-    print getPageByTitle('dewiki_p', "Hauptseite")
-    print getPageByTitle('dewiki_p', "Biologie", NS_CATEGORY)
-    print getCategoryID('dewiki_p', "Biologie")
+    #~ print getPageByTitle('dewiki_p', "Hauptseite")
+    #~ print getPageByTitle('dewiki_p', "Biologie", NS_CATEGORY)
+    #~ print getCategoryID('dewiki_p', "Biologie")

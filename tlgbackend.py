@@ -28,29 +28,28 @@ class WorkerThread(threading.Thread):
 ## main app class
 class TaskListGenerator:
     def __init__(self):
-        self.actionQueue= Queue.Queue()         # actions to process
-        self.resultQueue= Queue.Queue()   # results of actions 
-        self.mergedResults= {}                    # final merged results, one entry per article
+        self.actionQueue= Queue.Queue()     # actions to process
+        self.resultQueue= Queue.Queue()     # results of actions 
+        self.mergedResults= {}              # final merged results, one entry per article
         self.workerThreads= []
         self.cg= None
+    
+    def listFlaws(self):
+        infos= {}
+        for i in FlawTesters.classInfos:
+            tester= FlawTesters.classInfos[i]()
+            infos[tester.shortname]= tester.description
+        print json.dumps(infos)
     
     ## find flaws and print results to output file.
     # @param wiki The wiki graph name ('dewiki', not 'dewiki_p').
     # @param queryString The query string. See CatGraphInterface.executeSearchString documentation.
     # @param queryDepth Search recursion depth.
     # @param flaws String of flaw detector names
-    # @param stdout Standard output, a file-like object.
-    # @param stderr Standard error, a file-like object.
-    def run(self, wiki, queryString, queryDepth, flaws, stdout=sys.stdout, stderr=sys.stderr):
-        sys.stdout= stdout
-        sys.stderr= stderr
+    def run(self, wiki, queryString, queryDepth, flaws):
         self.cg= CatGraphInterface(graphname=wiki)
         pageIDs= self.cg.executeSearchString(queryString, queryDepth)
-        
-        #~ for i in FlawTesters.classInfos:
-            #~ klass= FlawTesters.classInfos[i]
-            #~ print klass().shortname, "--", klass().description
-        
+                
         # create the actions for every article x every flaw
         for flawname in flaws.split():
             try:
@@ -156,7 +155,9 @@ class test:
 
 
 if __name__ == '__main__':
-    TaskListGenerator().run('dewiki', 'Biologie -Meerkatzenverwandte -Astrobiologie', 2, 'MissingSourcesTemplates Unlucky')
+    TaskListGenerator().listFlaws()
+    TaskListGenerator().run('dewiki', 'Biologie +Eukaryoten -Rhizarien', 5, 'MissingSourcesTemplates')
+    
     
     pass
     
