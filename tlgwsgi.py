@@ -74,6 +74,7 @@ def myapp(environ, start_response):
 if __name__ == "__main__":
     # change this to "flup.server.fcgi" when/if fcgid is installed on the toolserver
     from flup.server.cgi import WSGIServer
+    # enable pretty stack traces
     import cgitb
     cgitb.enable()
     WSGIServer(myapp).run()

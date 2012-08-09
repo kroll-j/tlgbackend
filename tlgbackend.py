@@ -28,10 +28,13 @@ class WorkerThread(threading.Thread):
 ## main app class
 class TaskListGenerator:
     def __init__(self):
-        self.actionQueue= Queue.Queue()     # actions to process
-        self.resultQueue= Queue.Queue()     # results of actions 
+        self.actionQueue= Queue.LifoQueue() # actions to process
+        self.resultQueue= Queue.LifoQueue() # results of actions 
         self.mergedResults= {}              # final merged results, one entry per article
         self.workerThreads= []
+        # todo: check connection limit when several instances of the script are running
+        self.numWorkerThreads= 7
+        self.wiki= None
         self.cg= None
     
     def listFlaws(self):
@@ -47,6 +50,7 @@ class TaskListGenerator:
     # @param queryDepth Search recursion depth.
     # @param flaws String of flaw detector names
     def run(self, wiki, queryString, queryDepth, flaws):
+        self.wiki= wiki
         self.cg= CatGraphInterface(graphname=wiki)
         pageIDs= self.cg.executeSearchString(queryString, queryDepth)
                 
@@ -83,10 +87,14 @@ class TaskListGenerator:
         return True
     
     def createActions(self, flaw, wiki, pageIDs):
-        for id in pageIDs:
-            action= flaw.createAction( 'dewiki_p', (id,) )
+        pagesLeft= len(pageIDs)
+        pagesPerAction= min( flaw.getPreferredPagesPerAction(), pagesLeft/self.numWorkerThreads )
+        while pagesLeft:
+            start= max(0, pagesLeft-pagesPerAction)
+            action= flaw.createAction( self.wiki+'_p', pageIDs[start:pagesLeft] )
             self.actionQueue.put(action)
-
+            pagesLeft-= (pagesLeft-start)
+            
     def drainResultQueue(self):
         while not self.resultQueue.empty():
             result= self.resultQueue.get()
@@ -99,8 +107,8 @@ class TaskListGenerator:
                 self.mergedResults[key]= { 'page': result.page, 'flaws': [result.flawtester.shortname] }
 
     # create and start worker threads
-    def initThreads(self, numThreads=12):
-        for i in range(0, numThreads):
+    def initThreads(self):
+        for i in range(0, self.numWorkerThreads):
             self.workerThreads.append(WorkerThread(self.actionQueue, self.resultQueue))
             self.workerThreads[-1].start()
 
@@ -155,21 +163,7 @@ class test:
 
 
 if __name__ == '__main__':
-    TaskListGenerator().listFlaws()
+    #~ TaskListGenerator().listFlaws()
     TaskListGenerator().run('dewiki', 'Biologie +Eukaryoten -Rhizarien', 5, 'MissingSourcesTemplates')
     
-    
-    pass
-    
-    #~ import caching
-        
-    #~ test().testSingleThread()
-    #~ test().testMultiThread(10)
-    
-    #~ print("cache stats:")
-    #~ for i in caching.Stats.__dict__:
-        #~ if i[:2] != '__':
-            #~ print "%11s: %s" % (i, caching.Stats.__dict__[i])
-    
-
 

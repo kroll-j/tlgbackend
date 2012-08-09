@@ -54,7 +54,7 @@ class CatGraphInterface:
                 if n!=0:
                     result-= set(self.getPagesInCategory(category, depth))
             n+= 1
-        return result
+        return list(result)
         
 
 if __name__ == '__main__':
