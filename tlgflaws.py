@@ -17,24 +17,23 @@ class FlawTesters:
     def register(klass):
         try:
             FlawTesters.lock.acquire()
-            FlawTesters.classInfos[klass().shortname]= klass
+            FlawTesters.classInfos[klass.shortname]= klass
         finally:
             FlawTesters.lock.release()
     
 
 ## base class for flaw testers
 class FlawTester:
-    def __init__(self, shortname, description):
-        self.shortname= shortname
-        self.description= description
+    def __init__(self, tlg):
+        self.tlg= tlg
     
     ## 
     def getPreferredPagesPerAction(self):
         return 1
     
     ## this method should return an object of some class derived from TlgAction
-    def createAction(self, wiki, pages):
-        raise NotImplementedError("execute() not implemented")
+    def createActions(self, wiki, pages, actionQueue):
+        raise NotImplementedError("createActions not implemented")
 
 
 ## base class for actions to be executed by task list generator
@@ -47,6 +46,10 @@ class TlgAction:
     ## test the pages and put TlgResults describing flawed pages into resultQueue 
     def execute(self, resultQueue):
         raise NotImplementedError("execute() not implemented")
+    
+    ## in subclasses, return False here if this action needs to wait for the result of other actions.
+    def canExecute(self):
+        return True
 
 
 ## the result of a TlgAction, describing a flawed page
@@ -61,6 +64,9 @@ class TlgResult:
 
 ## an example flaw tester which does nothing
 class FTNop(FlawTester):
+    shortname= 'Nop'
+    description= 'FlawTester Test Class'
+    
     # our action class
     class Action(TlgAction):
         def execute(self, resultQueue):
@@ -68,18 +74,18 @@ class FTNop(FlawTester):
             time.sleep(0.1) # do "work"
             dprint(3, "%s: execute end" % (self.parent.description))
 
-    def __init__(self):
-        FlawTester.__init__(self, 'Nop', 'FlawTester Test Class')
-    
     # create a no-op action object
-    def createAction(self, wiki, pages):
-        return self.Action(self, wiki, pages)
+    def createActions(self, wiki, pages, actionQueue):
+        actionQueue.put(self.Action(self, wiki, pages))
 
 FlawTesters.register(FTNop)
 
 
 ## example flaw tester which detects pages whose ID mod 13 == 0
 class FTUnlucky(FlawTester):
+    shortname= 'Unlucky'
+    description= 'Find pages whose ID mod 13 == 0'
+    
     # our action class
     class Action(TlgAction):
         def execute(self, resultQueue):
@@ -93,11 +99,8 @@ class FTUnlucky(FlawTester):
             
             dprint(3, "%s: execute end" % (self.parent.description))
 
-    def __init__(self):
-        FlawTester.__init__(self, 'Unlucky', 'Find pages whose ID mod 13 == 0')
-    
-    def createAction(self, wiki, pages):
-        return self.Action(self, wiki, pages)
+    def createActions(self, wiki, pages, actionQueue):
+        actionQueue.put(self.Action(self, wiki, pages))
 
 FlawTesters.register(FTUnlucky)
 
@@ -105,6 +108,9 @@ FlawTesters.register(FTUnlucky)
 
 ## 
 class FTMissingSourcesTemplates(FlawTester):
+    shortname= 'MissingSourcesTemplates'
+    description= 'Find pages with \'missing sources\' templates'
+    
     # store the names of 'missing sources' templates for different language versions.
     # this list is (and probably will always be) incomplete.
     # i know of no centralized list of such template names.
@@ -137,19 +143,46 @@ class FTMissingSourcesTemplates(FlawTester):
             
             dprint(3, "%s: execute end" % (self.parent.description))
 
-    def __init__(self):
-        FlawTester.__init__(self, 'MissingSourcesTemplates', 'Find pages with \'missing sources\' templates')
-    
     def getPreferredPagesPerAction(self):
         return 200
 
-    def createAction(self, wiki, pages):
-        return self.Action(self, wiki, pages)
+    def createActions(self, wiki, pages, actionQueue):
+        actionQueue.put(self.Action(self, wiki, pages))
 
 FlawTesters.register(FTMissingSourcesTemplates)
 
 
+## 
+class FTPageSize(FlawTester):
+    shortname= 'PageSize'
+    description= 'Find very small/very large pages, relative to mean page size in result set'
+    
+    # our action class
+    class Action(TlgAction):
+        def execute(self, resultQueue):
+            dprint(3, "%s: execute begin" % (self.parent.description))
+            
+            for i in self.pages:
+                if i % 13 == 0: # unlucky ID!
+                    rows= getPageByID(self.wiki, i)
+                    if len(rows):
+                        resultQueue.put(TlgResult(self.wiki, rows[0], self.parent))
+            
+            dprint(3, "%s: execute end" % (self.parent.description))
+
+    def __init__(self, tlg):
+        FlawTester.__init__(self, tlg)
+        self.pagesLeft= len(tlg.getPages())
+    
+    def createActions(self, wiki, pages, actionQueue):
+        actionQueue.put(self.Action(self, wiki, pages))
+
+FlawTesters.register(FTPageSize)
+
+
+
+
 
 if __name__ == '__main__':
-    FTMissingSourcesTemplates().createAction( 'dewiki_p', [2,4,26] ).execute(Queue.LifoQueue())
-
+    #~ FTMissingSourcesTemplates().createActions( 'dewiki_p', [2,4,26] ).execute(Queue.LifoQueue())
+    pass

@@ -18,10 +18,16 @@ class WorkerThread(threading.Thread):
         self.resultQueue= resultQueue
     
     def run(self):
+        # todo: create connections here
         try:
             while True: 
                 # todo: catch exceptions from execute()
-                self.actionQueue.get(True, 0).execute(self.resultQueue)
+                action= self.actionQueue.get(True, 0)
+                # 
+                if action.canExecute():
+                    action.execute(self.resultQueue)
+                else:
+                    self.actionQueue.put(action)
         except Queue.Empty:
             return
 
@@ -32,6 +38,7 @@ class TaskListGenerator:
         self.resultQueue= Queue.LifoQueue() # results of actions 
         self.mergedResults= {}              # final merged results, one entry per article
         self.workerThreads= []
+        self.pagesToTest= []                # page IDs to test for flaws
         # todo: check connection limit when several instances of the script are running
         self.numWorkerThreads= 7
         self.wiki= None
@@ -40,8 +47,8 @@ class TaskListGenerator:
     def listFlaws(self):
         infos= {}
         for i in FlawTesters.classInfos:
-            tester= FlawTesters.classInfos[i]()
-            infos[tester.shortname]= tester.description
+            ci= FlawTesters.classInfos[i]
+            infos[ci.shortname]= ci.description
         print json.dumps(infos)
     
     ## find flaws and print results to output file.
@@ -52,16 +59,16 @@ class TaskListGenerator:
     def run(self, wiki, queryString, queryDepth, flaws):
         self.wiki= wiki
         self.cg= CatGraphInterface(graphname=wiki)
-        pageIDs= self.cg.executeSearchString(queryString, queryDepth)
+        self.pagesToTest= self.cg.executeSearchString(queryString, queryDepth)
                 
         # create the actions for every article x every flaw
         for flawname in flaws.split():
             try:
-                flaw= FlawTesters.classInfos[flawname]()
+                flaw= FlawTesters.classInfos[flawname](self)
             except KeyError:
                 dprint(0, 'Unknown flaw %s' % flawname)
                 return False
-            self.createActions(flaw, wiki, pageIDs)
+            self.createActions(flaw, wiki, self.pagesToTest)
             
         dprint(0, "%d actions to process" % self.actionQueue.qsize())
         
@@ -86,13 +93,16 @@ class TaskListGenerator:
         
         return True
     
-    def createActions(self, flaw, wiki, pageIDs):
-        pagesLeft= len(pageIDs)
+    ## get IDs of all the pages to be tested for flaws
+    def getPageIDs(self):
+        return self.pagesToTest
+    
+    def createActions(self, flaw, wiki, pagesToTest):
+        pagesLeft= len(pagesToTest)
         pagesPerAction= min( flaw.getPreferredPagesPerAction(), pagesLeft/self.numWorkerThreads )
         while pagesLeft:
             start= max(0, pagesLeft-pagesPerAction)
-            action= flaw.createAction( self.wiki+'_p', pageIDs[start:pagesLeft] )
-            self.actionQueue.put(action)
+            flaw.createActions( self.wiki+'_p', pagesToTest[start:pagesLeft], self.actionQueue )
             pagesLeft-= (pagesLeft-start)
             
     def drainResultQueue(self):
@@ -163,7 +173,7 @@ class test:
 
 
 if __name__ == '__main__':
-    #~ TaskListGenerator().listFlaws()
+    TaskListGenerator().listFlaws()
     TaskListGenerator().run('dewiki', 'Biologie +Eukaryoten -Rhizarien', 5, 'MissingSourcesTemplates')
     
 
