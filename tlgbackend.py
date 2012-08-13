@@ -10,6 +10,8 @@ from tlgcatgraph import CatGraphInterface
 from tlgflaws import FlawTesters
 from utils import *
 
+# todo: check what happens when uncaught exceptions get thrown (script doesn't exit)
+
 ## a worker thread which fetches actions from a queue and executes them
 class WorkerThread(threading.Thread):
     def __init__(self, actionQueue, resultQueue):
@@ -22,11 +24,13 @@ class WorkerThread(threading.Thread):
         try:
             while True: 
                 # todo: catch exceptions from execute()
+                # todo: if there are only actions left which cannot be run, exit the thread
                 action= self.actionQueue.get(True, 0)
                 # 
                 if action.canExecute():
                     action.execute(self.resultQueue)
                 else:
+                    dprint(0, "re-queueing action " + str(action) + " from %s, queue len=%d" % (action.parent.shortname, self.actionQueue.qsize()))
                     self.actionQueue.put(action)
         except Queue.Empty:
             return
@@ -34,13 +38,13 @@ class WorkerThread(threading.Thread):
 ## main app class
 class TaskListGenerator:
     def __init__(self):
-        self.actionQueue= Queue.LifoQueue() # actions to process
-        self.resultQueue= Queue.LifoQueue() # results of actions 
+        self.actionQueue= Queue.Queue()     # actions to process
+        self.resultQueue= Queue.Queue()     # results of actions 
         self.mergedResults= {}              # final merged results, one entry per article
         self.workerThreads= []
         self.pagesToTest= []                # page IDs to test for flaws
         # todo: check connection limit when several instances of the script are running
-        self.numWorkerThreads= 7
+        self.numWorkerThreads= 1
         self.wiki= None
         self.cg= None
     
@@ -60,8 +64,8 @@ class TaskListGenerator:
         self.wiki= wiki
         self.cg= CatGraphInterface(graphname=wiki)
         self.pagesToTest= self.cg.executeSearchString(queryString, queryDepth)
-                
-        # create the actions for every article x every flaw
+        
+        # create the actions for every page x every flaw
         for flawname in flaws.split():
             try:
                 flaw= FlawTesters.classInfos[flawname](self)
@@ -70,7 +74,8 @@ class TaskListGenerator:
                 return False
             self.createActions(flaw, wiki, self.pagesToTest)
             
-        dprint(0, "%d actions to process" % self.actionQueue.qsize())
+        numActions= self.actionQueue.qsize()
+        dprint(0, "%d pages to test, %d actions to process" % (len(self.pagesToTest), numActions))
         
         # spawn the worker threads
         self.initThreads()
@@ -78,7 +83,8 @@ class TaskListGenerator:
         # process results as they are created
         while threading.activeCount()>1:
             self.drainResultQueue()
-            time.sleep(0.5)
+            dprint(0, "%d/%d actions processed" % (numActions-self.actionQueue.qsize(), numActions))
+            time.sleep(0.25)
         for i in self.workerThreads:
             i.join()
         # process the last results
@@ -173,7 +179,7 @@ class test:
 
 
 if __name__ == '__main__':
-    TaskListGenerator().listFlaws()
-    TaskListGenerator().run('dewiki', 'Biologie +Eukaryoten -Rhizarien', 5, 'MissingSourcesTemplates')
+    #~ TaskListGenerator().listFlaws()
+    TaskListGenerator().run('dewiki', 'Biologie +Eukaryoten -Rhizarien', 5, 'PageSize')
     
 

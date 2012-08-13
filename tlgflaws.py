@@ -3,6 +3,7 @@
 import os
 import sys
 import time
+import math
 import json
 import Queue
 import random
@@ -126,7 +127,7 @@ class FTMissingSourcesTemplates(FlawTester):
                         
             cur= getCursors()[self.wiki]
             format_strings = ','.join(['%s'] * len(self.pages))
-            cur.execute("SELECT * FROM templatelinks WHERE tl_from IN (%s)" % format_strings, self.pages)
+            cur.execute("SELECT tl_title, tl_from FROM templatelinks WHERE tl_from IN (%s)" % format_strings, self.pages)
             sqlres= cur.fetchall()
 
             for templatelink in sqlres:
@@ -157,32 +158,68 @@ class FTPageSize(FlawTester):
     shortname= 'PageSize'
     description= 'Find very small/very large pages, relative to mean page size in result set'
     
-    # our action class
     class Action(TlgAction):
-        def execute(self, resultQueue):
-            dprint(3, "%s: execute begin" % (self.parent.description))
-            
-            for i in self.pages:
-                if i % 13 == 0: # unlucky ID!
-                    rows= getPageByID(self.wiki, i)
-                    if len(rows):
-                        resultQueue.put(TlgResult(self.wiki, rows[0], self.parent))
-            
-            dprint(3, "%s: execute end" % (self.parent.description))
+        def execute(self, resultQueue):            
+            cur= getCursors()[self.wiki]
+            format_strings = ','.join(['%s'] * len(self.pages))
+            cur.execute("SELECT page_id, page_len FROM page WHERE page_id IN (%s) AND page_namespace = 0" % format_strings, self.pages)
+            rows= cur.fetchall()
+            try:
+                self.parent.pageLengthLock.acquire()
+                for row in rows:
+                    pagelen= row['page_len']
+                    self.parent.pageLengths[row['page_id']]= pagelen
+                    self.parent.lengthSum+= pagelen
+                self.parent.pagesLeft-= len(self.pages)
+            finally:
+                self.parent.pageLengthLock.release()
 
+    class FinalAction(TlgAction):
+        def execute(self, resultQueue):
+            pageLengths= self.parent.pageLengths
+            avg= self.parent.lengthSum / float(len(pageLengths))
+            sum= 0
+            for i in pageLengths:
+                delta= pageLengths[i]-avg
+                sum+= delta*delta
+            stddev= math.sqrt(sum/len(pageLengths))
+            dprint(0, "FinalAction.execute() lengthSum = %d pages = %d avg length = %f stddev = %f" % (self.parent.lengthSum, len(pageLengths), avg, stddev))
+
+            for i in pageLengths:
+                delta= pageLengths[i]-avg
+                if delta > stddev*8:
+                    resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, i)[0], self.parent))
+                if pageLengths[i] < avg / 4:
+                    resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, i)[0], self.parent))
+            
+        def canExecute(self):
+            return self.parent.pagesLeft == 0
+            
     def __init__(self, tlg):
         FlawTester.__init__(self, tlg)
-        self.pagesLeft= len(tlg.getPages())
+        self.pagesLeft= len(tlg.getPageIDs())
+        self.finalActionCreated= False
+        self.pageLengths= {}
+        self.pageLengthLock= threading.Lock()
+        self.lengthSum= 0
+    
+    def getPreferredPagesPerAction(self):
+        return 50
     
     def createActions(self, wiki, pages, actionQueue):
         actionQueue.put(self.Action(self, wiki, pages))
+        if not self.finalActionCreated: 
+            actionQueue.put(self.FinalAction(self, wiki, self.tlg.getPageIDs))
+            self.finalActionCreated= True
 
 FlawTesters.register(FTPageSize)
 
 
 
-
-
 if __name__ == '__main__':
     #~ FTMissingSourcesTemplates().createActions( 'dewiki_p', [2,4,26] ).execute(Queue.LifoQueue())
-    pass
+    #~ pass
+    from tlgbackend import TaskListGenerator
+    TaskListGenerator().run('dewiki', 'Biologie +Eukaryoten -Rhizarien', 6, 'PageSize')
+    #~ stddevtest()
+    
