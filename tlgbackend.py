@@ -105,8 +105,9 @@ class TaskListGenerator:
         # process the last results
         self.drainResultQueue()
         
-        # sort by length of flaw list
-        sortedResults= sorted(self.mergedResults, key= lambda result: -len( self.mergedResults[result]['flaws'] ))
+        # sort by length of flaw list, flaw list, and page title
+        sortedResults= sorted(self.mergedResults, key= lambda result: \
+            (-len(self.mergedResults[result]['flaws']), sorted(self.mergedResults[result]['flaws']), self.mergedResults[result]['page']['page_title']))
         
         # print results
         for i in sortedResults:

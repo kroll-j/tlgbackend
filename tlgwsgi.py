@@ -2,6 +2,7 @@
 # task list generator - wsgi interface to the backend
 import os
 import sys
+import json
 
 
 # general procedure of things:
@@ -52,9 +53,55 @@ def myapp(environ, start_response):
     
     sys.stdout= oldStdout
     sys.stderr= oldStderr
-    start_response('200 OK', [('Content-Type', 'text/plain')])
     
-    return stdout.values
+    if 'format' in params and params['format']=='html':
+        # output something html-ish
+
+        class htmlfoo(FileLikeList):
+            def __init__(self):
+                FileLikeList.__init__(self)
+                self.currentTableType= None
+            def endTable(self):
+                if self.currentTableType!=None: 
+                    self.write('</table>\n')
+                    self.currentTableType= None
+            def startTable(self, tableType):
+                if tableType!=self.currentTableType:
+                    self.endTable()
+                    self.write('<table cellpadding=8 rules="all" style="border-width:1px; border-style:solid">\n')
+                    if tableType=='flaws':
+                        self.write('<tr>')
+                        self.write('<th align="left">Flaws</th>')
+                        self.write('<th align="left">Page</th>')
+                        self.write('</tr>\n')
+                    self.currentTableType= tableType
+        
+        start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8')])
+        html= htmlfoo()
+        html.write('<html><head><title>Task List</title></head><body>')
+                
+        for line in stdout.values:
+            if len(line.split()):   # don't try to json-decode empty lines
+                data= json.loads(line)
+                if action=='query' and 'flaws' in data:
+                    html.startTable('flaws')
+                    html.write('<tr>')
+                    html.write('<td>')
+                    for flaw in sorted(data['flaws']): html.write(flaw + ' ')
+                    html.write('</td>')
+                    html.write('<td>')
+                    title= data['page']['page_title'].encode('utf-8')
+                    html.write('<a href="https://%s.wikipedia.org/wiki/%s">%s</a>' % (params['lang'], title, title))
+                    html.write('</td>')
+                    html.write('</tr>\n')
+        
+        html.endTable()
+        html.write('</body></html>')
+        return html.values
+    else:
+        # return json data
+        start_response('200 OK', [('Content-Type', 'text/plain')])
+        return stdout.values
 
     #~ except Exception as ex:
         #~ sys.stdout= oldStdout
