@@ -43,7 +43,7 @@ class TlgAction:
     def __init__(self, parent, wiki, pages):
         self.parent= parent
         self.wiki= wiki
-        self.pages= pages
+        self.pageIDs= pages
     
     ## test the pages and put TlgResults describing flawed pages into resultQueue 
     def execute(self, resultQueue):
@@ -93,7 +93,7 @@ class FUnlucky(FlawFilter):
         def execute(self, resultQueue):
             dprint(3, "%s: execute begin" % (self.parent.description))
             
-            for i in self.pages:
+            for i in self.pageIDs:
                 if i % 13 == 0: # unlucky ID!
                     rows= getPageByID(self.wiki, i)
                     if len(rows):
@@ -127,10 +127,11 @@ class FMissingSourcesTemplates(FlawFilter):
             dprint(3, "%s: execute begin" % (self.parent.description))
                         
             cur= getCursors()[self.wiki]
-            format_strings = ','.join(['%s'] * len(self.pages))
-            cur.execute("SELECT tl_title, tl_from FROM templatelinks WHERE tl_from IN (%s)" % format_strings, self.pages)
+            format_strings = ','.join(['%s'] * len(self.pageIDs))
+            cur.execute('SELECT tl_title, tl_from FROM templatelinks WHERE tl_from IN (%s)' % format_strings, self.pageIDs)
             sqlres= cur.fetchall()
 
+            # todo: put this into the sql query.
             for templatelink in sqlres:
                 tl_title= templatelink['tl_title']
                 try:
@@ -162,8 +163,8 @@ class FPageSize(FlawFilter):
     class Action(TlgAction):
         def execute(self, resultQueue):            
             cur= getCursors()[self.wiki]
-            format_strings = ','.join(['%s'] * len(self.pages))
-            cur.execute("SELECT page_id, page_len FROM page WHERE page_id IN (%s) AND page_namespace = 0" % format_strings, self.pages)
+            format_strings = ','.join(['%s'] * len(self.pageIDs))
+            cur.execute('SELECT page_id, page_len FROM page WHERE page_id IN (%s) AND page_namespace=0 AND page_is_redirect=0' % format_strings, self.pageIDs)
             rows= cur.fetchall()
             try:
                 self.parent.pageLengthLock.acquire()
@@ -171,7 +172,7 @@ class FPageSize(FlawFilter):
                     pagelen= row['page_len']
                     self.parent.pageLengths[row['page_id']]= pagelen
                     self.parent.lengthSum+= pagelen
-                self.parent.pagesLeft-= len(self.pages)
+                self.parent.pagesLeft-= len(self.pageIDs)
             finally:
                 self.parent.pageLengthLock.release()
 
@@ -228,13 +229,13 @@ class FNoImages(FlawFilter):
             dprint(3, "%s: execute begin" % (self.parent.description))
                         
             cur= getCursors()[self.wiki]
-            format_strings = ','.join(['%s'] * len(self.pages))
+            format_strings = ','.join(['%s'] * len(self.pageIDs))
             # find all pages in set without any image links
             # the double 'IN' clause seems fishy, maybe i will figure out a better way to do this in sql some time. 
-            sqlstr= 'SELECT * FROM page WHERE page_id IN (%s) AND page_namespace=0 AND page_id NOT IN (SELECT il_from FROM imagelinks WHERE il_from IN (%s))' % \
+            sqlstr= 'SELECT * FROM page WHERE page_id IN (%s) AND page_namespace=0 AND page_is_redirect=0 AND page_id NOT IN (SELECT il_from FROM imagelinks WHERE il_from IN (%s))' % \
                 (format_strings,format_strings)
-            dblpages= copy.copy(self.pages)
-            dblpages.extend(self.pages)
+            dblpages= copy.copy(self.pageIDs)
+            dblpages.extend(self.pageIDs)
             cur.execute(sqlstr, dblpages)
             sqlres= cur.fetchall()
             
@@ -252,6 +253,7 @@ class FNoImages(FlawFilter):
 FlawFilters.register(FNoImages)
 
 
+# todo: filter for invalid redirects?
 
 
 if __name__ == '__main__':

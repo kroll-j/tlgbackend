@@ -98,6 +98,8 @@ class TaskListGenerator:
         # signal worker threads that they can run
         self.runEvent.set()
         
+        # todo: add something like MaxWaitTime
+        
         # process results as they are created
         actionsProcessed= numActions-self.actionQueue.qsize()
         while threading.activeCount()>1:
