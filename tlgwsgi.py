@@ -35,6 +35,7 @@ def myapp(environ, start_response):
     sys.stdout= stdout
     sys.stderr= stderr
     
+    import tlgbackend
     from urllib import unquote
     
     #~ try:
@@ -43,12 +44,9 @@ def myapp(environ, start_response):
         blah= param.split('=')
         params[blah[0]]= unquote(blah[1])
     
-    import tlgbackend
-    
     action= params['action']
     if action=='query':
-        tlgbackend.TaskListGenerator().run(wiki=params['lang']+'wiki', queryString=params['query'], queryDepth=params['querydepth'], flaws=params['flaws'])
-        #~ tlgbackend.TaskListGenerator().run(wiki='dewiki', queryString='Biologie -Meerkatzenverwandte -Astrobiologie', queryDepth=2, flaws='MissingSourcesTemplates Unlucky')
+        tlgbackend.TaskListGenerator().run(lang=params['lang'], queryString=params['query'], queryDepth=params['querydepth'], flaws=params['flaws'])
     elif action=='listflaws':
         tlgbackend.TaskListGenerator().listFlaws()
     
@@ -56,11 +54,7 @@ def myapp(environ, start_response):
     sys.stderr= oldStderr
     start_response('200 OK', [('Content-Type', 'text/plain')])
     
-    #~ for i in params:
-        #~ stdout.values.append("%s = %s\n" % (i, params[i]))
-    
     return stdout.values
-    #~ return params  #sys.stdout.values
 
     #~ except Exception as ex:
         #~ sys.stdout= oldStdout

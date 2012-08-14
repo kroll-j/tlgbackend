@@ -4,6 +4,7 @@ import os
 import sys
 import time
 import math
+import copy
 import json
 import Queue
 import random
@@ -183,7 +184,7 @@ class FTPageSize(FlawTester):
                 delta= pageLengths[i]-avg
                 sum+= delta*delta
             stddev= math.sqrt(sum/len(pageLengths))
-            dprint(0, "FinalAction.execute() lengthSum = %d pages = %d avg length = %f stddev = %f" % (self.parent.lengthSum, len(pageLengths), avg, stddev))
+            dprint(3, "FTPageSize.FinalAction.execute() lengthSum = %d pages = %d avg length = %f stddev = %f" % (self.parent.lengthSum, len(pageLengths), avg, stddev))
 
             for i in pageLengths:
                 delta= pageLengths[i]-avg
@@ -216,10 +217,47 @@ FlawTesters.register(FTPageSize)
 
 
 
+## 
+class FTNoImages(FlawTester):
+    shortname= 'NoImages'
+    description= 'Find articles without images'
+
+    # our action class
+    class Action(TlgAction):
+        def execute(self, resultQueue):
+            dprint(3, "%s: execute begin" % (self.parent.description))
+                        
+            cur= getCursors()[self.wiki]
+            format_strings = ','.join(['%s'] * len(self.pages))
+            # find all pages in set without any image links
+            # the double 'IN' clause seems fishy, maybe i will figure out a better way to do this in sql some time. 
+            sqlstr= 'SELECT * FROM page WHERE page_id IN (%s) AND page_id NOT IN (SELECT il_from FROM imagelinks WHERE il_from IN (%s))' % \
+                (format_strings,format_strings)
+            dblpages= copy.copy(self.pages)
+            dblpages.extend(self.pages)
+            cur.execute(sqlstr, dblpages)
+            sqlres= cur.fetchall()
+            
+            for row in sqlres:
+                resultQueue.put(TlgResult(self.wiki, row, self.parent))
+            
+            dprint(3, "%s: execute end" % (self.parent.description))
+
+    def getPreferredPagesPerAction(self):
+        return 100
+
+    def createActions(self, wiki, pages, actionQueue):
+        actionQueue.put(self.Action(self, wiki, pages))
+
+FlawTesters.register(FTNoImages)
+
+
+
+
 if __name__ == '__main__':
     #~ FTMissingSourcesTemplates().createActions( 'dewiki_p', [2,4,26] ).execute(Queue.LifoQueue())
     #~ pass
     from tlgbackend import TaskListGenerator
-    TaskListGenerator().run('dewiki', 'Biologie +Eukaryoten -Rhizarien', 6, 'PageSize')
+    TaskListGenerator().run('dewiki', 'Biologie +Eukaryoten -Rhizarien', 6, 'NoImages')
     #~ stddevtest()
     

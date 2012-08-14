@@ -14,13 +14,19 @@ from utils import *
 
 ## a worker thread which fetches actions from a queue and executes them
 class WorkerThread(threading.Thread):
-    def __init__(self, actionQueue, resultQueue):
+    def __init__(self, actionQueue, resultQueue, wikiname, runEvent):
         threading.Thread.__init__(self)
         self.actionQueue= actionQueue
         self.resultQueue= resultQueue
+        self.wikiname= wikiname
+        self.daemon= True
+        self.runEvent= runEvent
     
     def run(self):
-        # todo: create connections here
+        # create cursor which will most likely be used by actions later
+        cur= getCursors()[self.wikiname+'_p']
+        # wait until action queue is ready
+        self.runEvent.wait()
         try:
             while True: 
                 # todo: catch exceptions from execute()
@@ -30,7 +36,7 @@ class WorkerThread(threading.Thread):
                 if action.canExecute():
                     action.execute(self.resultQueue)
                 else:
-                    dprint(0, "re-queueing action " + str(action) + " from %s, queue len=%d" % (action.parent.shortname, self.actionQueue.qsize()))
+                    dprint(3, "re-queueing action " + str(action) + " from %s, queue len=%d" % (action.parent.shortname, self.actionQueue.qsize()))
                     self.actionQueue.put(action)
         except Queue.Empty:
             return
@@ -44,9 +50,10 @@ class TaskListGenerator:
         self.workerThreads= []
         self.pagesToTest= []                # page IDs to test for flaws
         # todo: check connection limit when several instances of the script are running
-        self.numWorkerThreads= 1
+        self.numWorkerThreads= 7
         self.wiki= None
         self.cg= None
+        self.runEvent= threading.Event()
     
     def listFlaws(self):
         infos= {}
@@ -56,13 +63,17 @@ class TaskListGenerator:
         print json.dumps(infos)
     
     ## find flaws and print results to output file.
-    # @param wiki The wiki graph name ('dewiki', not 'dewiki_p').
+    # @param lang The wiki language code ('de', 'fr').
     # @param queryString The query string. See CatGraphInterface.executeSearchString documentation.
     # @param queryDepth Search recursion depth.
     # @param flaws String of flaw detector names
-    def run(self, wiki, queryString, queryDepth, flaws):
-        self.wiki= wiki
-        self.cg= CatGraphInterface(graphname=wiki)
+    def run(self, lang, queryString, queryDepth, flaws):
+        self.wiki= lang + 'wiki'
+
+        # spawn the worker threads
+        self.initThreads()
+        
+        self.cg= CatGraphInterface(graphname=self.wiki)
         self.pagesToTest= self.cg.executeSearchString(queryString, queryDepth)
         
         # create the actions for every page x every flaw
@@ -72,18 +83,22 @@ class TaskListGenerator:
             except KeyError:
                 dprint(0, 'Unknown flaw %s' % flawname)
                 return False
-            self.createActions(flaw, wiki, self.pagesToTest)
+            self.createActions(flaw, self.wiki, self.pagesToTest)
             
         numActions= self.actionQueue.qsize()
         dprint(0, "%d pages to test, %d actions to process" % (len(self.pagesToTest), numActions))
         
-        # spawn the worker threads
-        self.initThreads()
+        # signal worker threads that they can run
+        self.runEvent.set()
         
         # process results as they are created
+        actionsProcessed= numActions-self.actionQueue.qsize()
         while threading.activeCount()>1:
             self.drainResultQueue()
-            dprint(0, "%d/%d actions processed" % (numActions-self.actionQueue.qsize(), numActions))
+            n= numActions-self.actionQueue.qsize()
+            if n!=actionsProcessed:
+                actionsProcessed= n
+                dprint(0, "%d/%d actions processed" % (actionsProcessed, numActions))
             time.sleep(0.25)
         for i in self.workerThreads:
             i.join()
@@ -125,7 +140,7 @@ class TaskListGenerator:
     # create and start worker threads
     def initThreads(self):
         for i in range(0, self.numWorkerThreads):
-            self.workerThreads.append(WorkerThread(self.actionQueue, self.resultQueue))
+            self.workerThreads.append(WorkerThread(self.actionQueue, self.resultQueue, self.wiki, self.runEvent))
             self.workerThreads[-1].start()
 
 
@@ -180,6 +195,6 @@ class test:
 
 if __name__ == '__main__':
     #~ TaskListGenerator().listFlaws()
-    TaskListGenerator().run('dewiki', 'Biologie +Eukaryoten -Rhizarien', 5, 'PageSize')
+    TaskListGenerator().run('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'PageSize')
     
 

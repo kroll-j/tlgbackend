@@ -32,6 +32,8 @@ class CatGraphInterface:
     #  @param string The search string.
     #  @param depth The search depth.
     def executeSearchString(self, string, depth):
+        # todo: something like "Category|3" to override search depth
+        # todo: it would be cool to have this command in graphcore, possibly using threads for each category.
         result= set()
         n= 0
         for param in string.split():
