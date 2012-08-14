@@ -11,21 +11,21 @@ import random
 from utils import *
 
 ## flaw tester class information
-class FlawTesters:
+class FlawFilters:
     classInfos= dict()
     lock= threading.Lock()
     
     @staticmethod
     def register(klass):
         try:
-            FlawTesters.lock.acquire()
-            FlawTesters.classInfos[klass.shortname]= klass
+            FlawFilters.lock.acquire()
+            FlawFilters.classInfos[klass.shortname]= klass
         finally:
-            FlawTesters.lock.release()
+            FlawFilters.lock.release()
     
 
 ## base class for flaw testers
-class FlawTester:
+class FlawFilter:
     def __init__(self, tlg):
         self.tlg= tlg
     
@@ -58,16 +58,16 @@ class TlgAction:
 class TlgResult:
     ## constructor
     #  @param page a dict containing the full page result page_title, page_id etc.
-    def __init__(self, wiki, page, flawtester):
+    def __init__(self, wiki, page, FlawFilter):
         self.wiki= wiki
         self.page= page
-        self.flawtester= flawtester
+        self.FlawFilter= FlawFilter
 
 
 ## an example flaw tester which does nothing
-class FTNop(FlawTester):
+class FNop(FlawFilter):
     shortname= 'Nop'
-    description= 'FlawTester Test Class'
+    description= 'FlawFilter Test Class'
     
     # our action class
     class Action(TlgAction):
@@ -80,13 +80,13 @@ class FTNop(FlawTester):
     def createActions(self, wiki, pages, actionQueue):
         actionQueue.put(self.Action(self, wiki, pages))
 
-FlawTesters.register(FTNop)
+#~ FlawFilters.register(FTNop)
 
 
 ## example flaw tester which detects pages whose ID mod 13 == 0
-class FTUnlucky(FlawTester):
+class FUnlucky(FlawFilter):
     shortname= 'Unlucky'
-    description= 'Find pages whose ID mod 13 == 0'
+    description= 'Page ID mod 13 == 0. For testing only.'
     
     # our action class
     class Action(TlgAction):
@@ -104,14 +104,14 @@ class FTUnlucky(FlawTester):
     def createActions(self, wiki, pages, actionQueue):
         actionQueue.put(self.Action(self, wiki, pages))
 
-FlawTesters.register(FTUnlucky)
+FlawFilters.register(FUnlucky)
 
 
 
 ## 
-class FTMissingSourcesTemplates(FlawTester):
+class FMissingSourcesTemplates(FlawFilter):
     shortname= 'MissingSourcesTemplates'
-    description= 'Find pages with \'missing sources\' templates'
+    description= 'Page has \'missing sources\' templates set.'
     
     # store the names of 'missing sources' templates for different language versions.
     # this list is (and probably will always be) incomplete.
@@ -134,7 +134,7 @@ class FTMissingSourcesTemplates(FlawTester):
             for templatelink in sqlres:
                 tl_title= templatelink['tl_title']
                 try:
-                    if tl_title in FTMissingSourcesTemplates.templateNamesForWikis[self.wiki]:
+                    if tl_title in FMissingSourcesTemplates.templateNamesForWikis[self.wiki]:
                         rows= getPageByID(self.wiki, templatelink['tl_from'])
                         if len(rows):
                             resultQueue.put(TlgResult(self.wiki, rows[0], self.parent))
@@ -151,13 +151,13 @@ class FTMissingSourcesTemplates(FlawTester):
     def createActions(self, wiki, pages, actionQueue):
         actionQueue.put(self.Action(self, wiki, pages))
 
-FlawTesters.register(FTMissingSourcesTemplates)
+FlawFilters.register(FMissingSourcesTemplates)
 
 
 ## 
-class FTPageSize(FlawTester):
+class FPageSize(FlawFilter):
     shortname= 'PageSize'
-    description= 'Find very small/very large pages, relative to mean page size in result set'
+    description= 'Page is very small or very large, relative to mean page size in result set.'
     
     class Action(TlgAction):
         def execute(self, resultQueue):            
@@ -197,7 +197,7 @@ class FTPageSize(FlawTester):
             return self.parent.pagesLeft == 0
             
     def __init__(self, tlg):
-        FlawTester.__init__(self, tlg)
+        FlawFilter.__init__(self, tlg)
         self.pagesLeft= len(tlg.getPageIDs())
         self.finalActionCreated= False
         self.pageLengths= {}
@@ -213,14 +213,14 @@ class FTPageSize(FlawTester):
             actionQueue.put(self.FinalAction(self, wiki, self.tlg.getPageIDs))
             self.finalActionCreated= True
 
-FlawTesters.register(FTPageSize)
+FlawFilters.register(FPageSize)
 
 
 
 ## 
-class FTNoImages(FlawTester):
+class FNoImages(FlawFilter):
     shortname= 'NoImages'
-    description= 'Find articles without images'
+    description= 'Article has no image links.'
 
     # our action class
     class Action(TlgAction):
@@ -231,7 +231,7 @@ class FTNoImages(FlawTester):
             format_strings = ','.join(['%s'] * len(self.pages))
             # find all pages in set without any image links
             # the double 'IN' clause seems fishy, maybe i will figure out a better way to do this in sql some time. 
-            sqlstr= 'SELECT * FROM page WHERE page_id IN (%s) AND page_id NOT IN (SELECT il_from FROM imagelinks WHERE il_from IN (%s))' % \
+            sqlstr= 'SELECT * FROM page WHERE page_id IN (%s) AND page_namespace=0 AND page_id NOT IN (SELECT il_from FROM imagelinks WHERE il_from IN (%s))' % \
                 (format_strings,format_strings)
             dblpages= copy.copy(self.pages)
             dblpages.extend(self.pages)
@@ -249,15 +249,15 @@ class FTNoImages(FlawTester):
     def createActions(self, wiki, pages, actionQueue):
         actionQueue.put(self.Action(self, wiki, pages))
 
-FlawTesters.register(FTNoImages)
+FlawFilters.register(FNoImages)
 
 
 
 
 if __name__ == '__main__':
-    #~ FTMissingSourcesTemplates().createActions( 'dewiki_p', [2,4,26] ).execute(Queue.LifoQueue())
+    #~ FMissingSourcesTemplates().createActions( 'dewiki_p', [2,4,26] ).execute(Queue.LifoQueue())
     #~ pass
     from tlgbackend import TaskListGenerator
-    TaskListGenerator().run('dewiki', 'Biologie +Eukaryoten -Rhizarien', 6, 'NoImages')
+    TaskListGenerator().run('de', 'Fahrzeug -Landfahrzeug -Luftfahrzeug', 4, 'PageSize NoImages Unlucky')
     #~ stddevtest()
     

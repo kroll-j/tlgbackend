@@ -68,7 +68,7 @@ def myapp(environ, start_response):
             def startTable(self, tableType):
                 if tableType!=self.currentTableType:
                     self.endTable()
-                    self.write('<table cellpadding=8 rules="all" style="border-width:1px; border-style:solid">\n')
+                    self.write('<table cellpadding=8 rules="all" style="border-width:1px; border-style:solid; ">\n')
                     if tableType=='flaws':
                         self.write('<tr>')
                         self.write('<th align="left">Flaws</th>')
@@ -78,8 +78,15 @@ def myapp(environ, start_response):
         
         start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8')])
         html= htmlfoo()
-        html.write('<html><head><title>Task List</title></head><body>')
-                
+        html.write("""<html><head><title>Task List</title>
+        <style type="text/css">
+        table { font-family: Sans; font-size: 10.5pt; }
+        </style>
+        </head>
+        <body>""")
+        
+        import tlgflaws
+        
         for line in stdout.values:
             if len(line.split()):   # don't try to json-decode empty lines
                 data= json.loads(line)
@@ -87,13 +94,19 @@ def myapp(environ, start_response):
                     html.startTable('flaws')
                     html.write('<tr>')
                     html.write('<td>')
-                    for flaw in sorted(data['flaws']): html.write(flaw + ' ')
+                    for flaw in sorted(data['flaws']): 
+                        html.write('<span title="%s">' % tlgflaws.FlawFilters.classInfos[flaw].description)
+                        html.write(flaw + ' ')
+                        html.write('</span>')
                     html.write('</td>')
                     html.write('<td>')
                     title= data['page']['page_title'].encode('utf-8')
                     html.write('<a href="https://%s.wikipedia.org/wiki/%s">%s</a>' % (params['lang'], title, title))
                     html.write('</td>')
                     html.write('</tr>\n')
+                else:
+                    html.endTable()
+                    html.write(line)
         
         html.endTable()
         html.write('</body></html>')

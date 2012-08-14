@@ -7,7 +7,7 @@ import threading
 import tlgflaws
 
 from tlgcatgraph import CatGraphInterface
-from tlgflaws import FlawTesters
+from tlgflaws import FlawFilters
 from utils import *
 
 # todo: check what happens when uncaught exceptions get thrown (script doesn't exit)
@@ -41,6 +41,9 @@ class WorkerThread(threading.Thread):
         except Queue.Empty:
             return
 
+class ResultSetTooLargeException(Exception):
+    pass
+
 ## main app class
 class TaskListGenerator:
     def __init__(self):
@@ -57,8 +60,8 @@ class TaskListGenerator:
     
     def listFlaws(self):
         infos= {}
-        for i in FlawTesters.classInfos:
-            ci= FlawTesters.classInfos[i]
+        for i in FlawFilters.classInfos:
+            ci= FlawFilters.classInfos[i]
             infos[ci.shortname]= ci.description
         print json.dumps(infos)
     
@@ -76,13 +79,17 @@ class TaskListGenerator:
         self.cg= CatGraphInterface(graphname=self.wiki)
         self.pagesToTest= self.cg.executeSearchString(queryString, queryDepth)
         
+        if len(self.pagesToTest) > 50000:
+            raise RuntimeError('result set of %d pages is too large to process in a reasonable time, please modify your search string.' % len(self.pagesToTest))
+        
         # create the actions for every page x every flaw
         for flawname in flaws.split():
             try:
-                flaw= FlawTesters.classInfos[flawname](self)
+                flaw= FlawFilters.classInfos[flawname](self)
             except KeyError:
-                dprint(0, 'Unknown flaw %s' % flawname)
-                return False
+                #~ dprint(0, 'Unknown flaw %s' % flawname)
+                #~ return False
+                raise RuntimeError('Unknown flaw %s' % flawname)
             self.createActions(flaw, self.wiki, self.pagesToTest)
             
         numActions= self.actionQueue.qsize()
@@ -133,10 +140,10 @@ class TaskListGenerator:
             key= '%s:%d' % (result.wiki, result.page['page_id'])
             try:
                 # append the name of the flaw to the list of flaws for this article 
-                self.mergedResults[key]['flaws'].append(result.flawtester.shortname)
+                self.mergedResults[key]['flaws'].append(result.FlawFilter.shortname)
             except KeyError:
                 # create a new article in the result set
-                self.mergedResults[key]= { 'page': result.page, 'flaws': [result.flawtester.shortname] }
+                self.mergedResults[key]= { 'page': result.page, 'flaws': [result.FlawFilter.shortname] }
 
     # create and start worker threads
     def initThreads(self):
