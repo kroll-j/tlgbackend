@@ -8,7 +8,7 @@ import threading
 from beaker.cache import cache_region, cache_regions
 
 # use a cache dir in user store, with a date appended so changed cache structures of newer commits can't confuse things...
-beakerCacheDir= '/mnt/user-store/jkroll/tlgbackend/20120808/beaker-cache'
+beakerCacheDir= '/mnt/user-store/jkroll/tlgbackend/tip/beaker-cache'
 
 cache_regions.update({
     'mem1h': {          # cache 1 hour in memory, e. g. page ID results

@@ -101,7 +101,7 @@ def myapp(environ, start_response):
                     html.write('</td>')
                     html.write('<td>')
                     title= data['page']['page_title'].encode('utf-8')
-                    html.write('<a href="https://%s.wikipedia.org/wiki/%s">%s</a>' % (params['lang'], title, title))
+                    html.write('<a href="https://%s.wikipedia.org/wiki/%s">%s</a> page_id=%d' % (params['lang'], title, title, data['page']['page_id']))
                     html.write('</td>')
                     html.write('</tr>\n')
                 else:

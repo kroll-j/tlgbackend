@@ -11,6 +11,7 @@ from tlgflaws import FlawFilters
 from utils import *
 
 # todo: check what happens when uncaught exceptions get thrown (script doesn't exit)
+# daemon threads
 
 ## a worker thread which fetches actions from a queue and executes them
 class WorkerThread(threading.Thread):
@@ -78,7 +79,8 @@ class TaskListGenerator:
         
         self.cg= CatGraphInterface(graphname=self.wiki)
         self.pagesToTest= self.cg.executeSearchString(queryString, queryDepth)
-        
+
+        # todo: add something like MaxWaitTime, instead of this
         if len(self.pagesToTest) > 50000:
             raise RuntimeError('result set of %d pages is too large to process in a reasonable time, please modify your search string.' % len(self.pagesToTest))
         
@@ -97,8 +99,6 @@ class TaskListGenerator:
         
         # signal worker threads that they can run
         self.runEvent.set()
-        
-        # todo: add something like MaxWaitTime
         
         # process results as they are created
         actionsProcessed= numActions-self.actionQueue.qsize()
