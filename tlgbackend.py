@@ -58,6 +58,31 @@ class TaskListGenerator:
         self.wiki= None
         self.cg= None
         self.runEvent= threading.Event()
+        self.loadFilterModules()
+    
+    @staticmethod
+    def mkStatus(string):
+        return json.dumps({'status': string})
+        
+    # wip, testing
+    def loadFilterModules(self):
+        import imp
+        for root, dirs, files in os.walk(os.path.join(sys.path[0], 'filtermodules')):
+            for name in files:
+                if name[-3:]=='.py':
+                    #~ self.printStatus('importing ' + os.path.join(root, name))
+                    file= None
+                    module= None
+                    try:
+                        modname= name[:-3]
+                        (file, pathname, description)= imp.find_module(modname, [root])
+                        module= imp.load_module(modname, file, pathname, description)
+                    except Exception as e:
+                        #~ self.printStatus("error occured while loading filter module %s, exception string was '%s'" % (modname, str(e)))
+                        pass
+                    finally:
+                        if file: file.close()
+                        #~ if module: self.printStatus("loaded filter module '%s'" % modname)
     
     def listFlaws(self):
         infos= {}
@@ -89,8 +114,6 @@ class TaskListGenerator:
             try:
                 flaw= FlawFilters.classInfos[flawname](self)
             except KeyError:
-                #~ dprint(0, 'Unknown flaw %s' % flawname)
-                #~ return False
                 raise RuntimeError('Unknown flaw %s' % flawname)
             self.createActions(flaw, self.wiki, self.pagesToTest)
             
@@ -123,6 +146,62 @@ class TaskListGenerator:
             print json.dumps(self.mergedResults[i])
         
         return True
+    
+    # testing generator stuff
+    def generateQuery(self, lang, queryString, queryDepth, flaws):
+        yield self.mkStatus("foo string, bar, etc")
+        
+        self.wiki= lang + 'wiki'
+
+        # spawn the worker threads
+        self.initThreads()
+        
+        self.cg= CatGraphInterface(graphname=self.wiki)
+        self.pagesToTest= self.cg.executeSearchString(queryString, queryDepth)
+        
+        yield self.mkStatus("after executeSearchString")
+
+        # todo: add something like MaxWaitTime, instead of this
+        if len(self.pagesToTest) > 50000:
+            raise RuntimeError('result set of %d pages is too large to process in a reasonable time, please modify your search string.' % len(self.pagesToTest))
+        
+        # create the actions for every page x every flaw
+        for flawname in flaws.split():
+            try:
+                flaw= FlawFilters.classInfos[flawname](self)
+            except KeyError:
+                raise RuntimeError('Unknown flaw %s' % flawname)
+            self.createActions(flaw, self.wiki, self.pagesToTest)
+            
+        numActions= self.actionQueue.qsize()
+        yield self.mkStatus("%d pages to test, %d actions to process" % (len(self.pagesToTest), numActions))
+        
+        # signal worker threads that they can run
+        self.runEvent.set()
+        
+        # process results as they are created
+        actionsProcessed= numActions-self.actionQueue.qsize()
+        while threading.activeCount()>1:
+            self.drainResultQueue()
+            n= numActions-self.actionQueue.qsize()
+            if n!=actionsProcessed:
+                actionsProcessed= n
+                yield self.mkStatus("%d/%d actions processed" % (actionsProcessed, numActions))
+            time.sleep(0.25)
+        for i in self.workerThreads:
+            i.join()
+        # process the last results
+        self.drainResultQueue()
+        
+        # sort by length of flaw list, flaw list, and page title
+        sortedResults= sorted(self.mergedResults, key= lambda result: \
+            (-len(self.mergedResults[result]['flaws']), sorted(self.mergedResults[result]['flaws']), self.mergedResults[result]['page']['page_title']))
+        
+        # print results
+        for i in sortedResults:
+            yield json.dumps(self.mergedResults[i])
+        
+        return
     
     ## get IDs of all the pages to be tested for flaws
     def getPageIDs(self):
@@ -203,8 +282,12 @@ class test:
         sys.stdout.flush()
 
 
+
 if __name__ == '__main__':
     #~ TaskListGenerator().listFlaws()
-    TaskListGenerator().run('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'PageSize')
+    #~ TaskListGenerator().run('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'PageSize')
+    for line in TaskListGenerator().generateQuery('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'PageSize'):
+        print line
+        sys.stdout.flush()
     
 
