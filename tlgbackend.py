@@ -89,7 +89,7 @@ class TaskListGenerator:
         infos= {}
         for i in FlawFilters.classInfos:
             ci= FlawFilters.classInfos[i]
-            infos[ci.shortname]= ci.description
+            infos[ci.shortname]= { 'group': ci.group, 'description': ci.description }   #, 'parameters': None }
         return json.dumps(infos)
     
     def listFlaws(self):
@@ -111,8 +111,8 @@ class TaskListGenerator:
         self.pagesToTest= self.cg.executeSearchString(queryString, queryDepth)
 
         # todo: add something like MaxWaitTime, instead of this
-        if len(self.pagesToTest) > 50000:
-            raise RuntimeError('result set of %d pages is too large to process in a reasonable time, please modify your search string.' % len(self.pagesToTest))
+        #~ if len(self.pagesToTest) > 50000:
+            #~ raise RuntimeError('result set of %d pages is too large to process in a reasonable time, please modify your search string.' % len(self.pagesToTest))
         
         # create the actions for every page x every flaw
         for flawname in flaws.split():
@@ -167,8 +167,8 @@ class TaskListGenerator:
         yield self.mkStatus("after executeSearchString")
 
         # todo: add something like MaxWaitTime, instead of this
-        if len(self.pagesToTest) > 50000:
-            raise RuntimeError('result set of %d pages is too large to process in a reasonable time, please modify your search string.' % len(self.pagesToTest))
+        #~ if len(self.pagesToTest) > 50000:
+            #~ raise RuntimeError('result set of %d pages is too large to process in a reasonable time, please modify your search string.' % len(self.pagesToTest))
         
         # create the actions for every page x every flaw
         for flawname in flaws.split():

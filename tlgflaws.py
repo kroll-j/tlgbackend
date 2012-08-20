@@ -20,6 +20,9 @@ class FlawFilters:
         try:
             FlawFilters.lock.acquire()
             FlawFilters.classInfos[klass.shortname]= klass
+            grp= klass.shortname.split(':')
+            if len(grp)>1: klass.group= grp[0]
+            else: klass.group= None
         finally:
             FlawFilters.lock.release()
     
