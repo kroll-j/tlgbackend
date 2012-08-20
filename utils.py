@@ -47,7 +47,8 @@ NS_CATEGORY_TALK = 15
 def getCursors():
     class Cursors(DictCache):
         def createEntry(self, key):
-            conn= getConnections()[getWikiServerMap()[key]]
+            if key in getWikiServerMap(): conn= getConnections()[getWikiServerMap()[key]]
+            else: conn= getConnections()['sql'] # guess
             cur= conn.cursor()
             cur.execute ("USE %s" % conn.escape_string(key))
             return cur

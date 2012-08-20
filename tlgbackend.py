@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding:utf-8 -*-
 # task list generator - backend
 import time
 import json
@@ -78,11 +79,11 @@ class TaskListGenerator:
                         (file, pathname, description)= imp.find_module(modname, [root])
                         module= imp.load_module(modname, file, pathname, description)
                     except Exception as e:
-                        #~ self.printStatus("error occured while loading filter module %s, exception string was '%s'" % (modname, str(e)))
+                        dprint(0, "error occured while loading filter module %s, exception string was '%s'" % (modname, str(e)))
                         pass
                     finally:
                         if file: file.close()
-                        #~ if module: self.printStatus("loaded filter module '%s'" % modname)
+                        if module: dprint(0, "loaded filter module '%s'" % modname)
     
     def listFlaws(self):
         infos= {}
@@ -97,6 +98,7 @@ class TaskListGenerator:
     # @param queryDepth Search recursion depth.
     # @param flaws String of flaw detector names
     def run(self, lang, queryString, queryDepth, flaws):
+        self.language= lang
         self.wiki= lang + 'wiki'
 
         # spawn the worker threads
@@ -115,7 +117,7 @@ class TaskListGenerator:
                 flaw= FlawFilters.classInfos[flawname](self)
             except KeyError:
                 raise RuntimeError('Unknown flaw %s' % flawname)
-            self.createActions(flaw, self.wiki, self.pagesToTest)
+            self.createActions(flaw, self.language, self.pagesToTest)
             
         numActions= self.actionQueue.qsize()
         dprint(0, "%d pages to test, %d actions to process" % (len(self.pagesToTest), numActions))
@@ -150,7 +152,7 @@ class TaskListGenerator:
     # testing generator stuff
     def generateQuery(self, lang, queryString, queryDepth, flaws):
         yield self.mkStatus("foo string, bar, etc")
-        
+        self.language= lang
         self.wiki= lang + 'wiki'
 
         # spawn the worker threads
@@ -171,7 +173,7 @@ class TaskListGenerator:
                 flaw= FlawFilters.classInfos[flawname](self)
             except KeyError:
                 raise RuntimeError('Unknown flaw %s' % flawname)
-            self.createActions(flaw, self.wiki, self.pagesToTest)
+            self.createActions(flaw, self.language, self.pagesToTest)
             
         numActions= self.actionQueue.qsize()
         yield self.mkStatus("%d pages to test, %d actions to process" % (len(self.pagesToTest), numActions))
@@ -207,12 +209,12 @@ class TaskListGenerator:
     def getPageIDs(self):
         return self.pagesToTest
     
-    def createActions(self, flaw, wiki, pagesToTest):
+    def createActions(self, flaw, language, pagesToTest):
         pagesLeft= len(pagesToTest)
         pagesPerAction= min( flaw.getPreferredPagesPerAction(), pagesLeft/self.numWorkerThreads )
         while pagesLeft:
             start= max(0, pagesLeft-pagesPerAction)
-            flaw.createActions( self.wiki+'_p', pagesToTest[start:pagesLeft], self.actionQueue )
+            flaw.createActions( self.language, pagesToTest[start:pagesLeft], self.actionQueue )
             pagesLeft-= (pagesLeft-start)
             
     def drainResultQueue(self):
@@ -246,7 +248,7 @@ class test:
         flaw= tlgflaws.FFUnlucky()
         for k in range(0, 3):
             for i in pages:
-                action= flaw.createAction( 'dewiki_p', (i,) )
+                action= flaw.createAction( 'de', (i,) )
                 self.tlg.actionQueue.put(action)
     
     def drainResultQueue(self):
@@ -286,7 +288,8 @@ class test:
 if __name__ == '__main__':
     #~ TaskListGenerator().listFlaws()
     #~ TaskListGenerator().run('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'PageSize')
-    for line in TaskListGenerator().generateQuery('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'PageSize'):
+    #~ for line in TaskListGenerator().generateQuery('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'Currentness:ChangeDetector'):
+    for line in TaskListGenerator().generateQuery('de', 'Politik', 3, 'Currentness:ChangeDetector'):
         print line
         sys.stdout.flush()
     

@@ -34,15 +34,16 @@ class FlawFilter:
         return 1
     
     ## this method should return an object of some class derived from TlgAction
-    def createActions(self, wiki, pages, actionQueue):
+    def createActions(self, language, pages, actionQueue):
         raise NotImplementedError("createActions not implemented")
 
 
 ## base class for actions to be executed by task list generator
 class TlgAction:
-    def __init__(self, parent, wiki, pages):
+    def __init__(self, parent, language, pages):
         self.parent= parent
-        self.wiki= wiki
+        self.language= language
+        self.wiki= language+'wiki_p'
         self.pageIDs= pages
     
     ## test the pages and put TlgResults describing flawed pages into resultQueue 
@@ -77,8 +78,8 @@ class FNop(FlawFilter):
             dprint(3, "%s: execute end" % (self.parent.description))
 
     # create a no-op action object
-    def createActions(self, wiki, pages, actionQueue):
-        actionQueue.put(self.Action(self, wiki, pages))
+    def createActions(self, language, pages, actionQueue):
+        actionQueue.put(self.Action(self, language, pages))
 
 #~ FlawFilters.register(FTNop)
 
@@ -101,8 +102,8 @@ class FUnlucky(FlawFilter):
             
             dprint(3, "%s: execute end" % (self.parent.description))
 
-    def createActions(self, wiki, pages, actionQueue):
-        actionQueue.put(self.Action(self, wiki, pages))
+    def createActions(self, language, pages, actionQueue):
+        actionQueue.put(self.Action(self, language, pages))
 
 FlawFilters.register(FUnlucky)
 
@@ -149,8 +150,8 @@ class FMissingSourcesTemplates(FlawFilter):
     def getPreferredPagesPerAction(self):
         return 200
 
-    def createActions(self, wiki, pages, actionQueue):
-        actionQueue.put(self.Action(self, wiki, pages))
+    def createActions(self, language, pages, actionQueue):
+        actionQueue.put(self.Action(self, language, pages))
 
 FlawFilters.register(FMissingSourcesTemplates)
 
@@ -208,10 +209,10 @@ class FPageSize(FlawFilter):
     def getPreferredPagesPerAction(self):
         return 50
     
-    def createActions(self, wiki, pages, actionQueue):
-        actionQueue.put(self.Action(self, wiki, pages))
+    def createActions(self, language, pages, actionQueue):
+        actionQueue.put(self.Action(self, language, pages))
         if not self.finalActionCreated: 
-            actionQueue.put(self.FinalAction(self, wiki, self.tlg.getPageIDs))
+            actionQueue.put(self.FinalAction(self, language, self.tlg.getPageIDs))
             self.finalActionCreated= True
 
 FlawFilters.register(FPageSize)
@@ -247,8 +248,8 @@ class FNoImages(FlawFilter):
     def getPreferredPagesPerAction(self):
         return 100
 
-    def createActions(self, wiki, pages, actionQueue):
-        actionQueue.put(self.Action(self, wiki, pages))
+    def createActions(self, language, pages, actionQueue):
+        actionQueue.put(self.Action(self, language, pages))
 
 FlawFilters.register(FNoImages)
 
@@ -260,6 +261,6 @@ if __name__ == '__main__':
     #~ FMissingSourcesTemplates().createActions( 'dewiki_p', [2,4,26] ).execute(Queue.LifoQueue())
     #~ pass
     from tlgbackend import TaskListGenerator
-    TaskListGenerator().run('de', 'Fahrzeug -Landfahrzeug -Luftfahrzeug', 4, 'PageSize NoImages Unlucky')
+    TaskListGenerator().listFlaws() #run('de', 'Fahrzeug -Landfahrzeug -Luftfahrzeug', 4, 'PageSize NoImages Unlucky')
     #~ stddevtest()
     
