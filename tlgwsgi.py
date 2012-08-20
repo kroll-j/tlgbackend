@@ -11,6 +11,8 @@ import json
 # - if TaskListGenerator.run() throws or returns False, start 5xx error response and return stderr file
 # - else start 200 OK response and return stdout file
 
+# todo: cleanup
+
 class FileLikeList:
     def __init__(self):
         self.values= []
@@ -51,13 +53,9 @@ def generator_test(environ, start_response):
     
     action= params['action']
     if action=='query':
-        #~ tlgbackend.TaskListGenerator().run(lang=params['lang'], queryString=params['query'], queryDepth=params['querydepth'], flaws=params['flaws'])
         tlgResult= tlgbackend.TaskListGenerator().generateQuery(lang=params['lang'], queryString=params['query'], queryDepth=params['querydepth'], flaws=params['flaws'])
     elif action=='listflaws':
-        tlgResult= (tlgbackend.TaskListGenerator().listFlaws(),)   #xxx
-    
-    #~ sys.stdout= oldStdout
-    #~ sys.stderr= oldStderr
+        tlgResult= (tlgbackend.TaskListGenerator().getFlawList(),)
     
     if 'format' in params and params['format']=='html':
         # output something html-ish
@@ -242,4 +240,4 @@ if __name__ == "__main__":
     # enable pretty stack traces
     import cgitb
     cgitb.enable()
-    WSGIServer(myapp).run()
+    WSGIServer(generator_test).run()

@@ -1,19 +1,20 @@
 #!/usr/bin/python
+import time
 from tlgflaws import *
 
-## 
+## this filter finds articles listed in the ChangeDetector database.
 class FChangeDetector(FlawFilter):
     shortname= 'Currentness:ChangeDetector'
-    # todo: insert changedetector link
-    description= 'The article seems to be outdated compared to the same article in other Wikipedia language version (ChangeDetector data).'
-    # our action class
+    # todo: insert changedetector link?
+    description= 'The article seems to be outdated compared to the same article in other Wikipedia language versions (ChangeDetector data).'
+
     class Action(TlgAction):
         def execute(self, resultQueue):
             dprint(3, "%s: execute begin" % (self.parent.description))
                         
             cur= getCursors()['p_render_change_detector_p']
             format_strings = ','.join(['%s'] * len(self.pageIDs))
-            date= '20120819'    # XXXX
+            date= time.strftime( '%Y%m%d', time.localtime(time.time()-60*60*24) )
             params= []
             params.extend(self.pageIDs)
             params.append(date)
@@ -25,18 +26,8 @@ class FChangeDetector(FlawFilter):
                 for row in unchanged:
                     cur.execute('SELECT identifier FROM changed_article WHERE identifier = %s AND day = %s GROUP BY language', (row['identifier'], date))
                     res= cur.fetchall()
-                    if len(res) > 4:
+                    if len(res) > 4:    # xxx this value depends on the setting in change.ini 
                         resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, row['page_id'])[0], self.parent))
-                
-                #~ params= []
-                #~ for line in identifiers: params.append(line['identifier'])
-                #~ format_strings = ','.join(['%s'] * len(params))
-                #~ params.append(date)
-                #~ cur.execute('SELECT identifier FROM changed_article WHERE identifier IN (%s) AND day = %%s GROUP BY language' % format_strings, params)
-                #~ res= cur.fetchall()
-                #~ if len(res) > 3:
-                    #~ resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, line['page_id'])[0], self.parent))
-            
             dprint(3, "%s: execute end" % (self.parent.description))
 
     def getPreferredPagesPerAction(self):

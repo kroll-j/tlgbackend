@@ -85,12 +85,15 @@ class TaskListGenerator:
                         if file: file.close()
                         if module: dprint(0, "loaded filter module '%s'" % modname)
     
-    def listFlaws(self):
+    def getFlawList(self):
         infos= {}
         for i in FlawFilters.classInfos:
             ci= FlawFilters.classInfos[i]
             infos[ci.shortname]= ci.description
-        print json.dumps(infos)
+        return json.dumps(infos)
+    
+    def listFlaws(self):
+        print self.getFlawList()
     
     ## find flaws and print results to output file.
     # @param lang The wiki language code ('de', 'fr').
