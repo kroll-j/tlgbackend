@@ -4,7 +4,7 @@ from tlgflaws import *
 
 ## this filter finds articles listed in the ChangeDetector database.
 class FChangeDetector(FlawFilter):
-    shortname= 'Currentness:ChangeDetector'
+    shortname= 'Currentness:ChangeDetector' # the name indicates that this filter belongs to group Currentness.
     # todo: insert changedetector link?
     description= 'The article seems to be outdated compared to the same article in other Wikipedia language versions (ChangeDetector data).'
 
@@ -28,6 +28,7 @@ class FChangeDetector(FlawFilter):
                     res= cur.fetchall()
                     if len(res) > 4:    # xxx this value depends on the setting in change.ini 
                         resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, row['page_id'])[0], self.parent))
+            
             dprint(3, "%s: execute end" % (self.parent.description))
 
     def getPreferredPagesPerAction(self):

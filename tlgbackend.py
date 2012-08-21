@@ -154,17 +154,20 @@ class TaskListGenerator:
     
     # testing generator stuff
     def generateQuery(self, lang, queryString, queryDepth, flaws):
-        yield self.mkStatus("foo string, bar, etc")
+        begin= time.time()
+        
         self.language= lang
         self.wiki= lang + 'wiki'
 
         # spawn the worker threads
         self.initThreads()
         
+        yield self.mkStatus('querying CatGraph for \'%s\' with depth %d' % (queryString, int(queryDepth)))
+
         self.cg= CatGraphInterface(graphname=self.wiki)
         self.pagesToTest= self.cg.executeSearchString(queryString, queryDepth)
         
-        yield self.mkStatus("after executeSearchString")
+        yield self.mkStatus('CatGraph returned %d results.' % len(self.pagesToTest))
 
         # todo: add something like MaxWaitTime, instead of this
         #~ if len(self.pagesToTest) > 50000:
@@ -191,7 +194,8 @@ class TaskListGenerator:
             n= numActions-self.actionQueue.qsize()
             if n!=actionsProcessed:
                 actionsProcessed= n
-                yield self.mkStatus("%d/%d actions processed" % (actionsProcessed, numActions))
+                eta= (time.time()-begin) / actionsProcessed * (numActions-actionsProcessed)
+                yield self.mkStatus('%d of %d actions processed (eta: %02d:%02d)' % (actionsProcessed, numActions, int(eta)/60, int(eta)%60))
             time.sleep(0.25)
         for i in self.workerThreads:
             i.join()
@@ -201,6 +205,9 @@ class TaskListGenerator:
         # sort by length of flaw list, flaw list, and page title
         sortedResults= sorted(self.mergedResults, key= lambda result: \
             (-len(self.mergedResults[result]['flaws']), sorted(self.mergedResults[result]['flaws']), self.mergedResults[result]['page']['page_title']))
+        
+        yield self.mkStatus('%d pages tested in %d actions. %d pages in result set. processing took %f seconds.' % \
+            (len(self.pagesToTest), numActions, len(self.mergedResults), time.time()-begin))
         
         # print results
         for i in sortedResults:
