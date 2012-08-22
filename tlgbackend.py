@@ -23,6 +23,13 @@ class WorkerThread(threading.Thread):
         self.wikiname= wikiname
         self.daemon= True
         self.runEvent= runEvent
+        self.currentAction= ''
+    
+    def setCurrentAction(self, infoString):
+        if infoString.split(':'): self.currentAction= infoString.split(':')[-1]
+        else: self.currentAction= infoString
+    def getCurrentAction(self):
+        return self.currentAction
     
     def run(self):
         # create cursor which will most likely be used by actions later
@@ -36,11 +43,13 @@ class WorkerThread(threading.Thread):
                 action= self.actionQueue.get(True, 0)
                 # 
                 if action.canExecute():
+                    self.setCurrentAction(action.parent.shortname)
                     action.execute(self.resultQueue)
                 else:
                     dprint(3, "re-queueing action " + str(action) + " from %s, queue len=%d" % (action.parent.shortname, self.actionQueue.qsize()))
                     self.actionQueue.put(action)
         except Queue.Empty:
+            self.setCurrentAction('')
             return
 
 class ResultSetTooLargeException(Exception):
@@ -191,7 +200,7 @@ class TaskListGenerator:
         actionsProcessed= numActions-self.actionQueue.qsize()
         while threading.activeCount()>1:
             self.drainResultQueue()
-            n= numActions-self.actionQueue.qsize()
+            n= max(numActions-self.actionQueue.qsize()-(threading.activeCount()-1), 1)
             if n!=actionsProcessed:
                 actionsProcessed= n
                 eta= (time.time()-begin) / actionsProcessed * (numActions-actionsProcessed)

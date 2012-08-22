@@ -5,6 +5,8 @@ import re
 import sys
 import time
 import json
+import textwrap
+import threading
 
 
 # general procedure of things:
@@ -34,36 +36,43 @@ def addLinebreaks(iterable):
     for stuff in iterable:
         yield stuff + '\n'
 
+def getParam(params, name, default= None):
+    if name in params: return params[name]
+    else: return default
+
+def getBoolParam(params, name, default= None):
+    p= getParam(params, name, default)
+    if str(p).lower() in ['true', 'on']: return True
+    return default
+    
+
 def generator_test(environ, start_response):
-    #~ start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8')])
-    #~ return htmlgen()
-    
-    #~ oldStdout= sys.stdout
-    #~ oldStderr= sys.stderr
-    #~ stdout= FileLikeList()
-    #~ stderr= FileLikeList()
-    #~ sys.stdout= stdout
-    #~ sys.stderr= stderr
-    
     import tlgbackend
     from urllib import unquote
     
-    #~ try:
     params= {}
     for param in environ['QUERY_STRING'].split('&'):
         blah= param.split('=')
         params[blah[0]]= unquote(blah[1])
     
-    chunked= False
-    if 'chunked' in params and params['chunked'].lower() in ['true', 'on']: chunked= True
+    mailto= getParam(params, 'mailto', None)
+    chunked= getBoolParam(params, 'chunked', False) and not bool(mailto)
+    showThreads= getBoolParam(params, 'showthreads', False) and not bool(mailto)
+    action= getParam(params, 'action', 'listflaws')
+    format= getParam(params, 'format', 'json')
+    if mailto: format= 'html'   # todo: no json via email yet
     
-    action= params['action']
+    tlg= tlgbackend.TaskListGenerator()
     if action=='query':
-        tlgResult= tlgbackend.TaskListGenerator().generateQuery(lang=params['lang'], queryString=params['query'], queryDepth=params['querydepth'], flaws=params['flaws'])
+        lang= getParam(params, 'lang')
+        queryString= getParam(params, 'query')
+        queryDepth= getParam(params, 'querydepth', 1)
+        flaws= getParam(params, 'flaws')
+        tlgResult= tlg.generateQuery(lang=lang, queryString=queryString, queryDepth=queryDepth, flaws=flaws)
     elif action=='listflaws':
-        tlgResult= (tlgbackend.TaskListGenerator().getFlawList(),)
+        tlgResult= (tlg.getFlawList(),)
     
-    if 'format' in params and params['format']=='html':
+    if format=='html':
         # output something html-ish
 
         class htmlfoo(FileLikeList):
@@ -107,6 +116,7 @@ table { font-family: Sans; font-size: 10.5pt; width: 100%; margin-top: 8px; }
     padding-top: 5px;
     padding-bottom: 5px;
     width: 100%;
+    font-size: 11px;
 }
 </style>
 </head>
@@ -127,7 +137,18 @@ function setStatus(text, percentage) { document.getElementById("thestatus").inne
         
         import tlgflaws
         
+        lastStatus= ''
+        
         def resGen():
+            def getCurrentActions():
+                if threading.activeCount()<2: return ''
+                r= '<div style=\\"text-align: left; position: absolute; top: 34px; left: 0px; white-space: pre; font-size: 9.5px;\\">Threads:<br>'
+                i= 0
+                for t in tlg.workerThreads:
+                    r+= "%2d: %s<br>" % (i, t.getCurrentAction())
+                    i+= 1
+                return r + '</div>'
+            
             results= 0
             for line in tlgResult:
                 if len(line.split()):   # don't try to json-decode empty lines
@@ -150,12 +171,15 @@ function setStatus(text, percentage) { document.getElementById("thestatus").inne
                         html.write('</td>')
                         html.write('</tr>\n')
                     elif 'status' in data:
+                        lastStatus= str(data['status'])
                         if chunked:
                             match= re.match('[^0-9]*([0-9]+) of ([0-9]+).*', str(data['status']))
                             percentage= -1
-                            if match:
+                            if match and int(match.group(2))!=0:
                                 percentage= int(match.group(1))*100/int(match.group(2))
-                            html.write('<script>setStatus("%s", %d)</script>' % (str(data['status']), percentage))
+                            if showThreads: statusText= str(data['status']) + getCurrentActions()
+                            else: statusText= str(data['status'])
+                            html.write('<script>setStatus("%s", %d)</script>' % (statusText, percentage))
                     else:
                         html.endTable()
                         html.write(line)
@@ -175,25 +199,65 @@ function setStatus(text, percentage) { document.getElementById("thestatus").inne
             while len(html.values)>0:
                 yield html.values.pop(0) + '\n'
         
-        if chunked: 
-            start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8'), ('Transfer-Encoding', 'chunked')])
-        else:
-            start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8')])
-        return resGen()
-        
+        outputIterable= resGen()
+        mimeSubtype= 'html'
+    
     else:
-        # return json data
+        outputIterable= addLinebreaks(tlgResult)
+        mimeSubtype= 'plain'
+    
+    if not mailto:
         if chunked: 
-            start_response('200 OK', [('Content-Type', 'text/plain; charset=utf-8'), ('Transfer-Encoding', 'chunked')])
+            start_response('200 OK', [('Content-Type', 'text/%s; charset=utf-8' % mimeSubtype), ('Transfer-Encoding', 'chunked')])
         else:
-            start_response('200 OK', [('Content-Type', 'text/plain')])
-        return addLinebreaks(tlgResult)
+            start_response('200 OK', [('Content-Type', 'text/%s; charset=utf-8' % mimeSubtype)])
+        return outputIterable
+    else:
+        start_response('200 OK', [('Content-Type', 'text/plain; charset=utf-8')])
+        import mail
+        attachmentText= ''
+        for i in outputIterable:
+            attachmentText+= i.decode('utf-8')
+        actionText= '\taction: %s\n' % action
+        if action=='query':
+            actionText+= "\tLanguage: '%s'\n" % lang + \
+                "\tCatGraph query string: '%s', with recursion depth %s\n" % (queryString, queryDepth) + \
+                "\tSearch filters: '%s'\n" % flaws
+        elif action=='listflaws':
+            action+= '\n'
+        msgText= ("""Hi!
+    
+This is the Wikimedia task list generator background process running on willow.toolserver.org. 
+You (or someone else) requested a task list to be generated and sent to this email address. 
+If you think this mail was generated in error, something went wrong, or you have suggestions 
+for the TLG, send email to jkroll@toolserver.org.
 
-    #~ except Exception as ex:
-        #~ sys.stdout= oldStdout
-        #~ sys.stderr= oldStderr
-        #~ start_response('504 Foobar', [('Content-Type', 'text/plain')])
-        #~ return [str(ex), stderr.values]
+The task list was successfully generated. Input was:
+
+""" + actionText + """
+
+Attached is the result of the command in %s format.
+
+Sincerely, 
+The friendly task list generator bot. 
+""" % format)
+        mail.sendFriendlyBotMessage(mailto, msgText, attachmentText, mimeSubtype)
+        return ('{ "status": "foobar" }', )
+
+        
+        #~ if chunked: 
+            #~ start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8'), ('Transfer-Encoding', 'chunked')])
+        #~ else:
+            #~ start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8')])
+        #~ return resGen()
+        
+    #~ else:
+        #~ # return json data
+        #~ if chunked: 
+            #~ start_response('200 OK', [('Content-Type', 'text/plain; charset=utf-8'), ('Transfer-Encoding', 'chunked')])
+        #~ else:
+            #~ start_response('200 OK', [('Content-Type', 'text/plain')])
+        #~ return addLinebreaks(tlgResult)
 
 
 def myapp(environ, start_response):

@@ -160,9 +160,8 @@ FlawFilters.register(FMissingSourcesTemplates)
 
 
 ## 
-class FPageSize(FlawFilter):
-    shortname= 'PageSize'
-    description= 'Page is very small or very large, relative to mean page size in result set.'
+# todo: make results usable by both small + large filter
+class FPageSizeBase(FlawFilter):
     
     class Action(TlgAction):
         def execute(self, resultQueue):            
@@ -181,23 +180,17 @@ class FPageSize(FlawFilter):
                 self.parent.pageLengthLock.release()
 
     class FinalAction(TlgAction):
+        # todo: the final action stuff takes a while, maybe this can be optimized.
         def execute(self, resultQueue):
             pageLengths= self.parent.pageLengths
-            avg= self.parent.lengthSum / float(len(pageLengths))
+            self.avg= self.parent.lengthSum / float(len(pageLengths))
             sum= 0
             for i in pageLengths:
-                delta= pageLengths[i]-avg
+                delta= pageLengths[i]-self.avg
                 sum+= delta*delta
-            stddev= math.sqrt(sum/len(pageLengths))
-            dprint(3, "FTPageSize.FinalAction.execute() lengthSum = %d pages = %d avg length = %f stddev = %f" % (self.parent.lengthSum, len(pageLengths), avg, stddev))
+            self.stddev= math.sqrt(sum/len(pageLengths))
+            dprint(3, "FTPageSize.FinalAction.execute() lengthSum = %d pages = %d avg length = %f stddev = %f" % (self.parent.lengthSum, len(pageLengths), self.avg, self.stddev))
 
-            for i in pageLengths:
-                delta= pageLengths[i]-avg
-                if delta > stddev*8:
-                    resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, i)[0], self.parent))
-                if pageLengths[i] < avg / 4:
-                    resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, i)[0], self.parent))
-            
         def canExecute(self):
             return self.parent.pagesLeft == 0
             
@@ -218,7 +211,57 @@ class FPageSize(FlawFilter):
             actionQueue.put(self.FinalAction(self, language, self.tlg.getPageIDs))
             self.finalActionCreated= True
 
-FlawFilters.register(FPageSize)
+class FSmall(FPageSizeBase):
+    shortname= 'Small'
+    description= 'Page is very small, relative to mean page size in result set.'
+    
+    class FinalAction(FPageSizeBase.FinalAction):
+        # todo: the final action stuff takes a while, maybe this can be optimized.
+        def execute(self, resultQueue):
+            #~ FPageSizeBase.FinalAction.execute(self, resultQueue)
+            pageLengths= self.parent.pageLengths
+            self.avg= self.parent.lengthSum / float(len(pageLengths))
+            threshold= self.avg/4
+            for i in pageLengths:
+                #~ delta= pageLengths[i]-self.avg
+                #~ if delta > self.stddev*8:
+                    #~ resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, i)[0], self.parent))
+                if pageLengths[i] < threshold:
+                    resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, i)[0], self.parent))
+
+    def createActions(self, language, pages, actionQueue):
+        actionQueue.put(FPageSizeBase.Action(self, language, pages))
+        if not self.finalActionCreated: 
+            actionQueue.put(self.FinalAction(self, language, self.tlg.getPageIDs))
+            self.finalActionCreated= True
+
+FlawFilters.register(FSmall)
+
+
+class FLarge(FPageSizeBase):
+    shortname= 'Large'
+    description= 'Page is very large, relative to mean page size in result set.'
+    
+    class FinalAction(FPageSizeBase.FinalAction):
+        # todo: the final action stuff takes a while, maybe this can be optimized.
+        def execute(self, resultQueue):
+            FPageSizeBase.FinalAction.execute(self, resultQueue)
+            pageLengths= self.parent.pageLengths
+            for i in pageLengths:
+                delta= pageLengths[i]-self.avg
+                if delta > self.stddev*8:
+                    resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, i)[0], self.parent))
+                #~ if pageLengths[i] < self.avg / 4:
+                    #~ resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, i)[0], self.parent))
+
+    def createActions(self, language, pages, actionQueue):
+        actionQueue.put(FPageSizeBase.Action(self, language, pages))
+        if not self.finalActionCreated: 
+            actionQueue.put(self.FinalAction(self, language, self.tlg.getPageIDs))
+            self.finalActionCreated= True
+
+FlawFilters.register(FLarge)
+
 
 
 
@@ -264,6 +307,6 @@ if __name__ == '__main__':
     #~ FMissingSourcesTemplates().createActions( 'dewiki_p', [2,4,26] ).execute(Queue.LifoQueue())
     #~ pass
     from tlgbackend import TaskListGenerator
-    TaskListGenerator().listFlaws() #run('de', 'Fahrzeug -Landfahrzeug -Luftfahrzeug', 4, 'PageSize NoImages Unlucky')
+    TaskListGenerator().run('de', 'Fahrzeug -Landfahrzeug -Luftfahrzeug', 4, 'Small')
     #~ stddevtest()
     
