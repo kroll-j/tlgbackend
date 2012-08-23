@@ -4,7 +4,7 @@ from tlgflaws import *
 
 ## this filter finds articles listed in the ChangeDetector database.
 class FChangeDetector(FlawFilter):
-    shortname= 'Currentness:ChangeDetector' # the name indicates that this filter belongs to group Currentness.
+    shortname= 'Timeliness:ChangeDetector' # the name indicates that this filter belongs to group Currentness.
     # todo: insert changedetector link?
     description= 'The article seems to be outdated compared to the same article in other Wikipedia language versions (ChangeDetector data).'
 

@@ -1,0 +1,16 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$classutils_1_1_dict_cache.html#a8199cf29552974a1e58a00e9d4c0c36e" title="utils.DictCache.createEntry" alt="" coords="287,5,468,35"/>
+<area shape="rect" id="node5" href="$classcaching_1_1_dict_cache.html#a296707dc4d53ec6aac55014d9cd605af" title="caching.DictCache.__setitem__" alt="" coords="273,59,481,88"/>
+<area shape="rect" id="node7" href="$classcaching_1_1_page_title_mem_cache.html#a13869695bf83e5f609d9249e16546751" title="caching.PageTitleMemCache.__setitem__" alt="" coords="244,112,511,141"/>
+<area shape="rect" id="node9" href="$classcaching_1_1_page_i_d_mem_cache.html#a45f4d387dcbd3e6dc88e8081d14cd47f" title="caching.PageIDMemCache.__setitem__" alt="" coords="249,165,505,195"/>
+<area shape="rect" id="node11" href="$classcaching_1_1_page_i_d_fake_cache.html#a46686c21b24c9326ee57ea31e775f1ac" title="caching.PageIDFakeCache.__setitem__" alt="" coords="249,219,505,248"/>
+<area shape="rect" id="node13" href="$namespaceutils.html#a28c9676c2514a1a2929591cf5497ab1f" title="utils.getCategoryID" alt="" coords="577,192,711,221"/>
+<area shape="rect" id="node33" href="$namespacecaching.html#a8ca0730ada6ba47c0d40e94f6aa670c4" title="caching.MakeTimestamp" alt="" coords="560,245,728,275"/>
+<area shape="rect" id="node15" href="$namespaceutils.html#ac02bfbab8109c2ed1c187b2bfde920fe" title="utils.getPageByTitle" alt="" coords="776,192,915,221"/>
+<area shape="rect" id="node17" href="$namespaceutils.html#ae3076c8315af058e4421e0e307bfd66a" title="utils.getCursors" alt="" coords="963,192,1077,221"/>
+<area shape="rect" id="node19" href="$namespaceutils.html#a6de1d163d3293c0f3971c6005b5ad9c5" title="utils.getWikiServerMap" alt="" coords="1320,147,1477,176"/>
+<area shape="rect" id="node23" href="$namespaceutils.html#ab03626e4895bed297f086d664c2acff2" title="utils.getConnections" alt="" coords="1125,192,1267,221"/>
+<area shape="rect" id="node25" href="$namespaceutils.html#ae103923aef29769e4b5f04a7513d41d1" title="utils.CachedThreadValue" alt="" coords="1315,205,1483,235"/>
+<area shape="rect" id="node21" href="$namespaceutils.html#a41c9a645fe092315401b5bf8570edd6e" title="utils.dprint" alt="" coords="1531,147,1613,176"/>
+<area shape="rect" id="node29" href="$namespaceutils.html#a1379e46bec093b8195d4d59b0197a0f6" title="utils.getPageByID" alt="" coords="1335,271,1463,300"/>
+</map>

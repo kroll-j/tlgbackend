@@ -1,0 +1,6 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$classtlgbackend_1_1_task_list_generator.html#a89b17e8a632d40484629d43c63fb469c" title="find flaws and print results to output file." alt="" coords="391,5,609,35"/>
+<area shape="rect" id="node5" href="$classtlgbackend_1_1_task_list_generator.html#a3c382b6cef5c2acca88e3f3525020722" title="tlgbackend.TaskListGenerator.generateQuery" alt="" coords="357,59,643,88"/>
+<area shape="rect" id="node7" href="$classtlgbackend_1_1test.html#aaeaea747c2b7306756ee9de7e5e46d07" title="tlgbackend.test.testSingleThread" alt="" coords="393,112,607,141"/>
+<area shape="rect" id="node9" href="$classtlgbackend_1_1test.html#aa0a3cd96f69cd860cb2667736c197054" title="tlgbackend.test.testMultiThread" alt="" coords="397,165,603,195"/>
+</map>

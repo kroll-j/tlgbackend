@@ -1,0 +1,7 @@
+<map id="G" name="G">
+<area shape="rect" id="node1" href="$classcaching_1_1_file_based_cache.html" title="caching.FileBasedCache" alt="" coords="7,32,172,61"/>
+<area shape="rect" id="node3" href="$classcaching_1_1_dict_cache.html" title="caching.DictCache" alt="" coords="221,5,355,35"/>
+<area shape="rect" id="node7" href="$classcaching_1_1_list_cache.html" title="caching.ListCache" alt="" coords="223,59,353,88"/>
+<area shape="rect" id="node5" href="$classcaching_1_1_page_i_d_mem_disk_cache.html" title="caching.PageIDMemDiskCache" alt="" coords="404,5,612,35"/>
+<area shape="rect" id="node9" href="$classcaching_1_1_page_title_disk_cache.html" title="caching.PageTitleDiskCache" alt="" coords="413,59,603,88"/>
+</map>
