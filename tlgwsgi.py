@@ -141,7 +141,7 @@ function setStatus(text, percentage) { document.getElementById("thestatus").inne
         
         def resGen():
             def getCurrentActions():
-                if threading.activeCount()<2: return ''
+                if tlg.getActiveWorkerCount()<1: return ''
                 r= '<div style=\\"text-align: left; position: absolute; top: 34px; left: 0px; white-space: pre; font-size: 9.5px;\\">Threads:<br>'
                 i= 0
                 for t in tlg.workerThreads:

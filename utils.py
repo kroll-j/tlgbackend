@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import os
 import sys
+import time
 import MySQLdb
 import MySQLdb.cursors 
 import threading
@@ -40,15 +41,68 @@ NS_CATEGORY = 14
 NS_CATEGORY_TALK = 15
 
 
-# get cursor mapping
-# servername => sqlcursor
-# cursors are created on demand and local for each thread
+def GetTempCursors():
+    t= threading.currentThread()
+    try:
+        t.cache
+    except AttributeError:
+        t.cache= dict()
+    try:
+        return t.cache['tempcursors']
+    except KeyError:
+        t.cache['tempcursors']= dict()
+        return t.cache['tempcursors']
+    
+class TempCursor:
+    def __init__(self, host, dbname):
+        self.host= host
+        self.dbname= dbname
+        self.key= '%s.%s' % (host,dbname)
+    
+    def __enter__(self):
+        if self.key in GetTempCursors(): 
+            return GetTempCursors()[self.key].cursor
+        
+        self.conn= None
+        while self.conn==None:
+            try:
+                self.conn= MySQLdb.connect( read_default_file=os.path.expanduser('~')+"/.my.cnf", host=self.host, \
+                    use_unicode=False, cursorclass=MySQLdb.cursors.DictCursor )
+            except MySQLdb.OperationalError as e:
+                if 'max_user_connections' in str(e):
+                    dprint(0, 'exceeded max connections, retrying...')
+                    time.sleep(0.5)
+                else:
+                    raise
+        
+        self.cursor= self.conn.cursor()
+        self.cursor.execute ("USE %s" % self.conn.escape_string(self.dbname))
+        GetTempCursors()[self.key]= self
+        return self.cursor
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        GetTempCursors()[self.key].lastuse= time.time()
+
+
+# get cursor for a wikipedia database ('enwiki_p' etc)
+# cursors are created on demand and stored locally for each thread
 # the DictCursor class is used, i. e. you get dicts with the column names as keys in query results
 def getCursors():
     class Cursors(DictCache):
         def createEntry(self, key):
-            if key in getWikiServerMap(): conn= getConnections()[getWikiServerMap()[key]]
-            else: conn= getConnections()['sql'] # guess
+            if key in getWikiServerMap(): ckey= getWikiServerMap()[key]
+            else: ckey= 'sql' # guess
+            #~ ckey= getWikiServerMap()[key]
+            conn= None
+            while conn==None:
+                try:
+                    conn= getConnections()[ckey]
+                except MySQLdb.OperationalError as e:
+                    if 'max_user_connections' in str(e):
+                        dprint(0, 'exceeded max connections, retrying...')
+                        time.sleep(0.5)
+                    else:
+                        raise
             cur= conn.cursor()
             cur.execute ("USE %s" % conn.escape_string(key))
             return cur
@@ -132,10 +186,14 @@ def getWikiServerMap():
 def CachedThreadValue(name, getValue):
     t= threading.currentThread()
     try:
-        return t.__dict__[name]
+        t.cache
+    except AttributeError:
+        t.cache= dict()
+    try:
+        return t.cache[name]
     except KeyError:
-        t.__dict__[name]= getValue()
-    return t.__dict__[name]
+        t.cache[name]= getValue()
+    return t.cache[name]
 
 class DictCache(dict):
     def __init__(self):

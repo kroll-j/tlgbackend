@@ -41,19 +41,35 @@ class WorkerThread(threading.Thread):
                 # todo: catch exceptions from execute()
                 # todo: if there are only actions left which cannot be run, exit the thread
                 action= self.actionQueue.get(True, 0)
-                # 
                 if action.canExecute():
                     self.setCurrentAction(action.parent.shortname)
                     action.execute(self.resultQueue)
                 else:
                     dprint(3, "re-queueing action " + str(action) + " from %s, queue len=%d" % (action.parent.shortname, self.actionQueue.qsize()))
                     self.actionQueue.put(action)
+                
+                tempCursors= GetTempCursors()
+                rmkeys= []
+                for key in tempCursors:
+                    tc= tempCursors[key]
+                    if time.time() - tc.lastuse > 3:
+                        dprint(0, 'closing temp cursor %s' % tc.key)
+                        tc.cursor.close()
+                        tc.conn.close()
+                        rmkeys.append(key)
+                for k in rmkeys:
+                    del tempCursors[k]
+                        
         except Queue.Empty:
             self.setCurrentAction('')
+            for key in tempCursors:
+                tc= tempCursors[key]
+                tc.cursor.close()
+                tc.conn.close()
+            tempCursors.clear()
+            # todo: close other open connections
             return
 
-class ResultSetTooLargeException(Exception):
-    pass
 
 ## main app class
 class TaskListGenerator:
@@ -64,11 +80,17 @@ class TaskListGenerator:
         self.workerThreads= []
         self.pagesToTest= []                # page IDs to test for flaws
         # todo: check connection limit when several instances of the script are running
-        self.numWorkerThreads= 7
+        self.numWorkerThreads= 5
         self.wiki= None
         self.cg= None
         self.runEvent= threading.Event()
         self.loadFilterModules()
+    
+    def getActiveWorkerCount(self):
+        count= 0
+        for t in self.workerThreads:
+            if t.isAlive(): count+= 1
+        return count
     
     @staticmethod
     def mkStatus(string):
@@ -139,7 +161,7 @@ class TaskListGenerator:
         
         # process results as they are created
         actionsProcessed= numActions-self.actionQueue.qsize()
-        while threading.activeCount()>1:
+        while self.getActiveWorkerCount()>0:
             self.drainResultQueue()
             n= numActions-self.actionQueue.qsize()
             if n!=actionsProcessed:
@@ -198,9 +220,9 @@ class TaskListGenerator:
         
         # process results as they are created
         actionsProcessed= numActions-self.actionQueue.qsize()
-        while threading.activeCount()>1:
+        while self.getActiveWorkerCount()>0:
             self.drainResultQueue()
-            n= max(numActions-self.actionQueue.qsize()-(threading.activeCount()-1), 1)
+            n= max(numActions-self.actionQueue.qsize()-(self.getActiveWorkerCount()), 1)
             if n!=actionsProcessed:
                 actionsProcessed= n
                 eta= (time.time()-begin) / actionsProcessed * (numActions-actionsProcessed)
@@ -307,8 +329,8 @@ class test:
 if __name__ == '__main__':
     #~ TaskListGenerator().listFlaws()
     #~ TaskListGenerator().run('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'PageSize')
-    #~ for line in TaskListGenerator().generateQuery('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'Currentness:ChangeDetector'):
-    for line in TaskListGenerator().generateQuery('de', 'Politik', 3, 'Currentness:ChangeDetector'):
+    #~ for line in TaskListGenerator().generateQuery('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'Timeliness:ChangeDetector'):
+    for line in TaskListGenerator().generateQuery('de', 'Sport Politik', 4, 'Timeliness:ChangeDetector NoImages'):
         print line
         sys.stdout.flush()
     
