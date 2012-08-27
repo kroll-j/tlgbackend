@@ -29,7 +29,7 @@ class FlawFilters:
     
 
 ## base class for flaw testers
-class FlawFilter:
+class FlawFilter(object):
     def __init__(self, tlg):
         self.tlg= tlg
     
@@ -149,47 +149,29 @@ class FTemplatesBase(FlawFilter):
         actionQueue.put(self.Action(self, language, pages))
 
 
+## create a class that filters for templates
+#  @param templateNames dict of iterables containing lists of templates to search for. dict key is wiki db name.
+def makeTemplateFilter(shortname, description, templateNames):
+    def init(self, tlg):
+        FTemplatesBase.__init__(self, tlg, templateNames)
+    return type('F'+shortname, (FTemplatesBase,), {'__init__': init, 'shortname': shortname, 'description': description})
 
-## 
-class FMissingSourcesTemplates(FTemplatesBase):
-    shortname= 'MissingSourcesTemplates'
-    description= 'Page has \'missing sources\' templates set.'
-    
-    def __init__(self, tlg):
-        FTemplatesBase.__init__(self, tlg, {
-                'dewiki_p': [ 'Belege_fehlen' ],
-                'enwiki_p': [ 'Refimprove' ]
-        })
+def registerTemplateFilter(*args):
+    FlawFilters.register(makeTemplateFilter(*args))
 
-FlawFilters.register(FMissingSourcesTemplates)
+registerTemplateFilter('NeutralityTemplate', 'Page has \'neutrality\' template set.', {
+    'dewiki_p': [ 'Neutralität' ],
+})
 
+registerTemplateFilter('MissingSourcesTemplates', 'Page has \'missing sources\' template set.', {
+    'dewiki_p': [ 'Belege_fehlen' ],
+    'enwiki_p': [ 'Refimprove' ]
+})
 
+registerTemplateFilter('Timeliness:ObsoleteTemplate', 'Page has \'obsolete\' template set.', {
+    'dewiki_p': [ 'Veraltet' ],
+})
 
-## 
-class FNeutralityTemplate(FTemplatesBase):
-    shortname= 'NeutralityTemplate'
-    description= 'Page has \'neutrality\' template set.'
-    
-    def __init__(self, tlg):
-        FTemplatesBase.__init__(self, tlg, {
-                'dewiki_p': [ 'Neutralität' ],
-        })
-
-FlawFilters.register(FNeutralityTemplate)
-
-
-
-## 
-class FObsoleteTemplate(FTemplatesBase):
-    shortname= 'Timeliness:ObsoleteTemplate'
-    description= 'Page has \'obsolete\' template set.'
-    
-    def __init__(self, tlg):
-        FTemplatesBase.__init__(self, tlg, {
-                'dewiki_p': [ 'Veraltet' ],
-        })
-
-FlawFilters.register(FObsoleteTemplate)
 
 # todo: gibt es für jedes wartungs-template eine kategorie analog zu http://de.wikipedia.org/wiki/Kategorie:Wikipedia:Neutralit%C3%A4t ? 
 # wenn ja, dann könnte man den ganzen kram durch catgraph-anfragen ersetzen.
@@ -310,7 +292,7 @@ class FNoImages(FlawFilter):
     class Action(TlgAction):
         def execute(self, resultQueue):
             dprint(3, "%s: execute begin" % (self.parent.description))
-                        
+            
             cur= getCursors()[self.wiki]
             format_strings = ','.join(['%s'] * len(self.pageIDs))
             # find all pages in set without any image links
@@ -335,8 +317,6 @@ class FNoImages(FlawFilter):
 
 FlawFilters.register(FNoImages)
 
-
-# todo: filter for invalid redirects?
 
 
 if __name__ == '__main__':

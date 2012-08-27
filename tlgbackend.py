@@ -350,7 +350,7 @@ if __name__ == '__main__':
     #~ TaskListGenerator().listFlaws()
     #~ TaskListGenerator().run('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'PageSize')
     #~ for line in TaskListGenerator().generateQuery('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'Timeliness:ChangeDetector'):
-    for line in TaskListGenerator().generateQuery('de', 'Sport Politik', 4, 'Timeliness:ChangeDetector Small'):
+    for line in TaskListGenerator().generateQuery('de', 'Sport Politik', 2, 'MissingSourcesTemplates'):
         print line
         sys.stdout.flush()
     
