@@ -70,16 +70,36 @@ class WorkerThread(threading.Thread):
             # todo: close other open connections
             return
 
+# replacing Queue with this lock-free container might be faster
+import collections
+class QueueWrapper(collections.deque):
+    def init(self):
+        collections.deque.__init__(self)
 
+    def get(self, block=True, timeout=None):    # block and timeout are ignored
+        try:
+            return self.popleft()
+        except IndexError:
+            raise Queue.Empty()
+    
+    def put(self, item):
+        self.append(item)
+        
+    def qsize(self):
+        return len(self)
+    
+    def empty(self):
+        return len(self)==0
+
+        
 ## main app class
 class TaskListGenerator:
     def __init__(self):
-        self.actionQueue= Queue.Queue()     # actions to process
-        self.resultQueue= Queue.Queue()     # results of actions 
+        self.actionQueue= QueueWrapper()    #Queue.Queue()     # actions to process
+        self.resultQueue= QueueWrapper()    #Queue.Queue()     # results of actions 
         self.mergedResults= {}              # final merged results, one entry per article
         self.workerThreads= []
         self.pagesToTest= []                # page IDs to test for flaws
-        # todo: check connection limit when several instances of the script are running
         self.numWorkerThreads= 5
         self.wiki= None
         self.cg= None
@@ -330,7 +350,7 @@ if __name__ == '__main__':
     #~ TaskListGenerator().listFlaws()
     #~ TaskListGenerator().run('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'PageSize')
     #~ for line in TaskListGenerator().generateQuery('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'Timeliness:ChangeDetector'):
-    for line in TaskListGenerator().generateQuery('de', 'Sport Politik', 4, 'Timeliness:ChangeDetector NoImages'):
+    for line in TaskListGenerator().generateQuery('de', 'Sport Politik', 4, 'Timeliness:ChangeDetector Small'):
         print line
         sys.stdout.flush()
     

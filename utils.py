@@ -8,8 +8,9 @@ import threading
 
 from beaker.cache import cache_region, cache_regions
 
-# use a cache dir in user store, with a date appended so changed cache structures of newer commits can't confuse things...
-beakerCacheDir= '/mnt/user-store/jkroll/tlgbackend/tip/beaker-cache'
+DATADIR= '/mnt/user-store/jkroll/tlgbackend/tip'
+
+beakerCacheDir= os.path.join(DATADIR, 'beaker-cache')
 
 cache_regions.update({
     'mem1h': {          # cache 1 hour in memory, e. g. page ID results
@@ -72,6 +73,7 @@ class TempCursor:
                 if 'max_user_connections' in str(e):
                     dprint(0, 'exceeded max connections, retrying...')
                     time.sleep(0.5)
+                    raise   #xxxxx
                 else:
                     raise
         
@@ -101,6 +103,7 @@ def getCursors():
                     if 'max_user_connections' in str(e):
                         dprint(0, 'exceeded max connections, retrying...')
                         time.sleep(0.5)
+                        raise   #xxxxx
                     else:
                         raise
             cur= conn.cursor()
@@ -153,9 +156,13 @@ def getTemplatelinksForID(wiki, pageID):
     cur.execute("SELECT * FROM templatelinks WHERE tl_from = %s", (pageID,))
     return cur.fetchall()
 
+def MakeTimestamp(unixtime= time.time()):
+    return time.strftime("[%Y%m%d %H:%M.%S] ", time.gmtime(unixtime))
+
 debuglevel= 1
 def dprint(level, *args):
     if(debuglevel>=level):
+        sys.stderr.write(MakeTimestamp())
         sys.stderr.write(*args)
         sys.stderr.write("\n")
 
