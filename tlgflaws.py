@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding:utf-8 -*-
 # task list generator - flaws
 import os
 import sys
@@ -89,7 +90,7 @@ class FNop(FlawFilter):
 
 ## example flaw tester which detects pages whose ID mod 13 == 0
 class FUnlucky(FlawFilter):
-    shortname= 'Unlucky'
+    shortname= 'Test:Unlucky'
     description= 'Page ID mod 13 == 0. For testing only.'
     
     # our action class
@@ -111,21 +112,13 @@ class FUnlucky(FlawFilter):
 FlawFilters.register(FUnlucky)
 
 
-
-## 
-class FMissingSourcesTemplates(FlawFilter):
-    shortname= 'MissingSourcesTemplates'
-    description= 'Page has \'missing sources\' templates set.'
+##  base class for filters which check for lists of templates.
+# todo: add entries for more languages (?)
+class FTemplatesBase(FlawFilter):
+    def __init__(self, tlg, templateNames):
+        FlawFilter.__init__(self, tlg)
+        self.templateNamesForWikis= templateNames
     
-    # store the names of 'missing sources' templates for different language versions.
-    # this list is (and probably will always be) incomplete.
-    # i know of no centralized list of such template names.
-    templateNamesForWikis= {
-        'dewiki_p': [ 'Belege_fehlen' ],
-        'enwiki_p': [ 'Refimprove' ]
-    }
-        
-    # our action class
     class Action(TlgAction):
         def execute(self, resultQueue):
             dprint(3, "%s: execute begin" % (self.parent.description))
@@ -139,7 +132,7 @@ class FMissingSourcesTemplates(FlawFilter):
             for templatelink in sqlres:
                 tl_title= templatelink['tl_title']
                 try:
-                    if tl_title in FMissingSourcesTemplates.templateNamesForWikis[self.wiki]:
+                    if tl_title in self.parent.templateNamesForWikis[self.wiki]:
                         rows= getPageByID(self.wiki, templatelink['tl_from'])
                         if len(rows):
                             resultQueue.put(TlgResult(self.wiki, rows[0], self.parent))
@@ -147,7 +140,6 @@ class FMissingSourcesTemplates(FlawFilter):
                     # we have no template names for this language version.
                     pass
 
-            
             dprint(3, "%s: execute end" % (self.parent.description))
 
     def getPreferredPagesPerAction(self):
@@ -156,7 +148,51 @@ class FMissingSourcesTemplates(FlawFilter):
     def createActions(self, language, pages, actionQueue):
         actionQueue.put(self.Action(self, language, pages))
 
+
+
+## 
+class FMissingSourcesTemplates(FTemplatesBase):
+    shortname= 'MissingSourcesTemplates'
+    description= 'Page has \'missing sources\' templates set.'
+    
+    def __init__(self, tlg):
+        FTemplatesBase.__init__(self, tlg, {
+                'dewiki_p': [ 'Belege_fehlen' ],
+                'enwiki_p': [ 'Refimprove' ]
+        })
+
 FlawFilters.register(FMissingSourcesTemplates)
+
+
+
+## 
+class FNeutralityTemplate(FTemplatesBase):
+    shortname= 'NeutralityTemplate'
+    description= 'Page has \'neutrality\' template set.'
+    
+    def __init__(self, tlg):
+        FTemplatesBase.__init__(self, tlg, {
+                'dewiki_p': [ 'Neutralität' ],
+        })
+
+FlawFilters.register(FNeutralityTemplate)
+
+
+
+## 
+class FObsoleteTemplate(FTemplatesBase):
+    shortname= 'Timeliness:ObsoleteTemplate'
+    description= 'Page has \'obsolete\' template set.'
+    
+    def __init__(self, tlg):
+        FTemplatesBase.__init__(self, tlg, {
+                'dewiki_p': [ 'Veraltet' ],
+        })
+
+FlawFilters.register(FObsoleteTemplate)
+
+# todo: gibt es für jedes wartungs-template eine kategorie analog zu http://de.wikipedia.org/wiki/Kategorie:Wikipedia:Neutralit%C3%A4t ? 
+# wenn ja, dann könnte man den ganzen kram durch catgraph-anfragen ersetzen.
 
 
 ## 
@@ -307,6 +343,6 @@ if __name__ == '__main__':
     #~ FMissingSourcesTemplates().createActions( 'dewiki_p', [2,4,26] ).execute(Queue.LifoQueue())
     #~ pass
     from tlgbackend import TaskListGenerator
-    TaskListGenerator().run('de', 'Fahrzeug -Landfahrzeug -Luftfahrzeug', 4, 'Small')
+    TaskListGenerator().run('de', 'Fahrzeug -Landfahrzeug -Luftfahrzeug', 4, 'MissingSourcesTemplates')
     #~ stddevtest()
     
