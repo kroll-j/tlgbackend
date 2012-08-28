@@ -137,11 +137,15 @@ class TaskListGenerator:
                         if module: dprint(0, "loaded filter module '%s'" % modname)
     
     def getFlawList(self):
-        infos= {}
-        for i in FlawFilters.classInfos:
+        infoString= '{\n'
+        for i in sorted(FlawFilters.classInfos):
             ci= FlawFilters.classInfos[i]
-            infos[ci.shortname]= { 'group': ci.group, 'description': ci.description }   #, 'parameters': None }
-        return json.dumps(infos)
+            #~ infoString+= '\t%s\n' % json.dumps({ 'group': ci.group, 'label': ci.label, 'description': ci.description })
+            infoString+= '\t"%s": %s\n' % (ci.shortname, json.dumps({ 'group': ci.group, 'label': ci.label, 'description': ci.description }))
+            #~ infos[ci.shortname]= { 'group': ci.group, 'description': ci.description }   #, 'parameters': None }
+        #~ return json.dumps(infos)
+        infoString+= '}\n'
+        return infoString
     
     def listFlaws(self):
         print self.getFlawList()
@@ -350,7 +354,7 @@ if __name__ == '__main__':
     #~ TaskListGenerator().listFlaws()
     #~ TaskListGenerator().run('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'PageSize')
     #~ for line in TaskListGenerator().generateQuery('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'Timeliness:ChangeDetector'):
-    for line in TaskListGenerator().generateQuery('de', 'Sport Politik', 2, 'MissingSourcesTemplates'):
+    for line in TaskListGenerator().generateQuery('de', 'Sport Politik', 2, 'TemplateMissingSources'):
         print line
         sys.stdout.flush()
     

@@ -91,6 +91,7 @@ class FNop(FlawFilter):
 ## example flaw tester which detects pages whose ID mod 13 == 0
 class FUnlucky(FlawFilter):
     shortname= 'Test:Unlucky'
+    label= 'Unlucky'
     description= 'Page ID mod 13 == 0. For testing only.'
     
     # our action class
@@ -111,6 +112,29 @@ class FUnlucky(FlawFilter):
 
 FlawFilters.register(FUnlucky)
 
+## 
+class FAll(FlawFilter):
+    shortname= 'ALL'
+    label= 'All Pages'
+    description= 'Returns every page.'
+    
+    # our action class
+    class Action(TlgAction):
+        def execute(self, resultQueue):
+            cur= getCursors()[self.wiki]
+            format_strings = ','.join(['%s'] * len(self.pageIDs))
+            cur.execute('SELECT * FROM page WHERE page_id IN (%s)' % format_strings, self.pageIDs)
+            result= cur.fetchall()
+            for row in result:
+                resultQueue.put(TlgResult(self.wiki, row, self.parent))
+    
+    def getPreferredPagesPerAction(self):
+        return 100
+
+    def createActions(self, language, pages, actionQueue):
+        actionQueue.put(self.Action(self, language, pages))
+
+FlawFilters.register(FAll)
 
 ##  base class for filters which check for lists of templates.
 # todo: add entries for more languages (?)
@@ -118,6 +142,9 @@ class FTemplatesBase(FlawFilter):
     def __init__(self, tlg, templateNames):
         FlawFilter.__init__(self, tlg)
         self.templateNamesForWikis= templateNames
+        #~ for wikidb in templateNames:
+            #~ for template in templateNames[wikidb]:
+                #~ dprint(0, "%s %s: %s" % (wikidb, template, getCategoryID(wikidb, 'Wikipedia:'+template)))
     
     class Action(TlgAction):
         def execute(self, resultQueue):
@@ -151,30 +178,51 @@ class FTemplatesBase(FlawFilter):
 
 ## create a class that filters for templates
 #  @param templateNames dict of iterables containing lists of templates to search for. dict key is wiki db name.
-def makeTemplateFilter(shortname, description, templateNames):
+def makeTemplateFilter(shortname, label, description, templateNames):
     def init(self, tlg):
         FTemplatesBase.__init__(self, tlg, templateNames)
-    return type('F'+shortname, (FTemplatesBase,), {'__init__': init, 'shortname': shortname, 'description': description})
+    return type('F'+shortname, (FTemplatesBase,), {'__init__': init, 'shortname': shortname, 'label': label, 'description': description})
 
 def registerTemplateFilter(*args):
     FlawFilters.register(makeTemplateFilter(*args))
 
-registerTemplateFilter('NeutralityTemplate', 'Page has \'neutrality\' template set.', {
-    'dewiki_p': [ 'Neutralit�t' ],
+registerTemplateFilter('TemplateNeutrality', 'Neutrality Template', 'Page has \'neutrality\' template set.', {
+    'dewiki_p': [ 'Neutralität' ],
+    'enwiki_p': [ 'Neutrality' ],
 })
 
-registerTemplateFilter('MissingSourcesTemplates', 'Page has \'missing sources\' template set.', {
+registerTemplateFilter('TemplateMissingSources', 'Missing Sources/References Template', 'Page has \'missing sources\' template set.', {
     'dewiki_p': [ 'Belege_fehlen' ],
     'enwiki_p': [ 'Refimprove' ]
 })
 
-registerTemplateFilter('Timeliness:ObsoleteTemplate', 'Page has \'obsolete\' template set.', {
+registerTemplateFilter('Timeliness:TemplateObsolete', 'Obsolete Template', 'Page has \'obsolete\' template set.', {
     'dewiki_p': [ 'Veraltet' ],
 })
 
+registerTemplateFilter('TemplateCleanup', 'Cleanup Template', 'Page has \'cleanup\' template set.', {
+    'dewiki_p': [ 'Überarbeiten' ],
+    'enwiki_p': [ 'Cleanup' ],
+})
 
-# todo: gibt es f�r jedes wartungs-template eine kategorie analog zu http://de.wikipedia.org/wiki/Kategorie:Wikipedia:Neutralit%C3%A4t ? 
-# wenn ja, dann k�nnte man den ganzen kram durch catgraph-anfragen ersetzen.
+registerTemplateFilter('TemplateTechnical', '\'Too Technical\' Template', 'Page has \'too technical\' template set.', {
+    'dewiki_p': [ 'Allgemeinverständlichkeit' ],
+    'enwiki_p': [ 'Technical' ],
+})
+
+registerTemplateFilter('TemplateGlobalize', 'Globalize Template', 'Page has \'globalize\' template set.', {
+    'dewiki_p': [ 'Staatslastig' ],
+    'enwiki_p': [ 'Globalize' ],
+})
+
+# todo: extract template names of other languages from langlinks
+
+# todo: gibt es für jedes wartungs-template eine kategorie analog zu http://de.wikipedia.org/wiki/Kategorie:Wikipedia:Neutralit%C3%A4t ? 
+# wenn ja, dann könnte man den ganzen kram durch catgraph-anfragen ersetzen.
+# in der deutschen wikipedia scheint jedem wartungstemplate eine Kategorie:Wikipedia:Wartungstemplate zu entsprechen.
+# in der englischen scheint es was ähnliches zu geben, z. b. gibt es da http://en.wikipedia.org/wiki/Category:Articles_to_be_split .
+# mir ist nicht klar, ob die kategorien automatisch hinzugefügt werden, sobald jemand das entsprechende template setzt.
+# es gibt auch die möglichkeit, nach '+Wikipedia:Wartungskategorie' mit filter 'All' zu suchen.
 
 
 ## 
@@ -231,6 +279,7 @@ class FPageSizeBase(FlawFilter):
 
 class FSmall(FPageSizeBase):
     shortname= 'Small'
+    label= 'Small Pages'
     description= 'Page is very small, relative to mean page size in result set.'
     
     class FinalAction(FPageSizeBase.FinalAction):
@@ -258,6 +307,7 @@ FlawFilters.register(FSmall)
 
 class FLarge(FPageSizeBase):
     shortname= 'Large'
+    label= 'Large Pages'
     description= 'Page is very large, relative to mean page size in result set.'
     
     class FinalAction(FPageSizeBase.FinalAction):
@@ -286,6 +336,7 @@ FlawFilters.register(FLarge)
 ## 
 class FNoImages(FlawFilter):
     shortname= 'NoImages'
+    label= 'No Images'
     description= 'Article has no image links.'
 
     # our action class

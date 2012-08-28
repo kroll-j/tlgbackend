@@ -260,7 +260,7 @@ function setStatus(text, percentage) { document.getElementById("thestatus").inne
         outputIterable= addLinebreaks(tlgResult)
         mimeSubtype= 'plain'
     
-    if mailto:
+    if mailto:  # we are in the daemon if we get here
         dprint(0, 'starting email stuff')
         send_mail(queryString, queryDepth, flaws, lang, format, outputIterable, action, mailto, mimeSubtype)
         dprint(0, 'mail stuff finished, exiting.')
@@ -272,21 +272,6 @@ function setStatus(text, percentage) { document.getElementById("thestatus").inne
         else:
             start_response('200 OK', [('Content-Type', 'text/%s; charset=utf-8' % mimeSubtype)])
         return outputIterable
-        
-        #~ if chunked: 
-            #~ start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8'), ('Transfer-Encoding', 'chunked')])
-        #~ else:
-            #~ start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8')])
-        #~ return resGen()
-        
-    #~ else:
-        #~ # return json data
-        #~ if chunked: 
-            #~ start_response('200 OK', [('Content-Type', 'text/plain; charset=utf-8'), ('Transfer-Encoding', 'chunked')])
-        #~ else:
-            #~ start_response('200 OK', [('Content-Type', 'text/plain')])
-        #~ return addLinebreaks(tlgResult)
-
 
 
 if __name__ == "__main__":
