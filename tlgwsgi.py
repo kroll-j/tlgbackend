@@ -90,6 +90,174 @@ def parseCGIargs(environ):
             params[blah[0]]= unquote(blah[1])
     return params
 
+def HTMLify(tlgResult, action, chunked, params, showThreads, tlg):
+    class htmlfoo(FileLikeList):
+        def __init__(self):
+            FileLikeList.__init__(self)
+            self.currentTableType= None
+        def endTable(self):
+            if self.currentTableType!=None: 
+                self.write('</table>\n')
+                self.currentTableType= None
+        def startTable(self, tableType):
+            if tableType!=self.currentTableType:
+                self.endTable()
+                self.write('<table cellpadding=8 rules="all" style="border-width:1px; border-style:solid; ">\n')
+                if tableType=='flaws':
+                    self.write('<tr>')
+                    self.write('<th align="left">' + _('Filters') + '</th>')
+                    self.write('<th align="left">' + _('Page') + '</th>')
+                    self.write('</tr>\n')
+                self.currentTableType= tableType
+    
+    html= htmlfoo()
+    html.write("""<html><head><title>Task List</title>
+<style type="text/css">
+table { font-family: Sans; font-size: 10.5pt; width: 100%; margin-top: 8px; }
+.nobr { white-space: nowrap; width: 150px; }
+.meter-wrap { position: relative; }
+.meter-wrap, .meter-value, .meter-text {
+width: 100%; 
+height: 25px;
+}
+
+.meter-wrap, .meter-value {
+/* background: #bdbdbd url(/path/to/your-image.png) top left no-repeat; */
+}
+
+.meter-text {
+position: absolute;
+top:0; left:0;
+text-align: center;
+padding-top: 5px;
+padding-bottom: 5px;
+width: 100%;
+font-size: 11px;
+}
+</style>
+</head>
+<body>
+""")
+    if chunked:
+        html.write("""
+<div class="meter-wrap" style="background-color: #F0E0E0;">
+<div class="meter-value" id="status-meter-value" style="background-color: #60FF80; width: 0%;">
+    <div class="meter-text" id="thestatus" style="font-family: Monospace;">Status</div>
+</div>
+</div>
+<script type="text/javascript">
+function setMeter(percent) { document.getElementById("status-meter-value").style.width=percent; }
+function setStatus(text, percentage) { document.getElementById("thestatus").innerHTML=text; if(percentage>=0) setMeter(percentage + '%'); }
+</script>
+""")
+    
+
+    def getCurrentActions():
+        if tlg.getActiveWorkerCount()<1: return ''
+        r= '<div style=\\"text-align: left; position: absolute; top: 34px; left: 0px; white-space: pre; font-size: 9.5px;\\">Threads:<br>'
+        i= 0
+        for t in tlg.workerThreads:
+            r+= "%2d: %s<br>" % (i, t.getCurrentAction())
+            i+= 1
+        return r + '</div>'
+    
+    results= 0
+    for line in tlgResult:
+        if len(line.split()):   # don't try to json-decode empty lines
+            data= json.loads(line)
+                                
+            if action=='query' and 'flaws' in data:
+                results+= 1
+                html.startTable('flaws')
+                html.write('<tr>')
+                html.write('<td class="nobr">')
+                for flaw in sorted(data['flaws']): 
+                    html.write('<span title="%s">' % tlgflaws.FlawFilters.classInfos[flaw].description)
+                    html.write(flaw + ' ')
+                    html.write('</span>')
+                html.write('</td>')
+                html.write('<td>')
+                title= data['page']['page_title'].encode('utf-8')
+                #~ html.write('<a href="https://%s.wikipedia.org/wiki/%s">%s</a> page_id=%d' % (params['lang'], title, title, data['page']['page_id']))
+                html.write('<a href="https://%s.wikipedia.org/wiki/%s">%s</a>' % (params['lang'], title, title))
+                html.write('</td>')
+                html.write('</tr>\n')
+            elif 'status' in data:
+                lastStatus= data['status'].encode('utf-8')
+                if chunked:
+                    if showThreads: statusText= lastStatus + getCurrentActions()
+                    else: statusText= lastStatus
+                    html.write('<script>setStatus("%s", %d)</script>' % (statusText, -1))
+            elif 'progress' in data:
+                if chunked:
+                    match= re.match('[^0-9]*([0-9]+)/([0-9]+).*', data['progress'])
+                    percentage= -1
+                    if match and int(match.group(2))!=0:
+                        percentage= int(match.group(1))*100/int(match.group(2))
+                        html.write('<script>setMeter(%d)</script>' % (percentage))
+            else:
+                html.endTable()
+                html.write(line)
+        while len(html.values)>0:
+            yield html.values.pop(0) + '\n'
+    
+    yield '<script>setMeter("100%");</script>'
+    
+    if results==0:
+        html.startTable('flaws')
+        html.write('<tr>')
+        html.write('<td class="nobr">No results.</td>')
+        html.write('<td></td>')
+    
+    html.endTable()
+    html.write('</body></html>')
+    while len(html.values)>0:
+        yield html.values.pop(0) + '\n'
+
+def Wikify(tlgResult, action, chunked, params, showThreads, tlg):
+    class wikifoo(FileLikeList):
+        def __init__(self):
+            FileLikeList.__init__(self)
+            self.currentTitle= None
+        def endHeading(self):
+            if self.currentTitle!=None: 
+                self.write('')
+                self.currentTitle= None
+        def startHeading(self, title):
+            if title!=self.currentTitle:
+                self.endHeading()
+                self.write('%s' % title)
+                self.currentTitle= title
+    
+    wikitext= wikifoo()
+    
+    results= 0
+    for line in tlgResult:
+        if len(line.split()):   # don't try to json-decode empty lines
+            data= json.loads(line)
+            
+            if action=='query' and 'flaws' in data:
+                results+= 1
+                flaws= ''
+                for filter in data['flaws']: 
+                    if flaws!='': flaws+= ', '
+                    flaws+= filter
+                title= data['page']['page_title'].encode('utf-8')
+                wikitext.startHeading('== %s ==' % flaws)
+                wikitext.write('* [[%s]]' % title)
+            elif 'status' in data or 'progress' in data:
+                pass
+            else:
+                # output unknown stuff too?
+                pass
+            
+        while len(wikitext.values)>0:
+            yield wikitext.values.pop(0) + '\n'
+        
+    if results==0:
+        pass
+    
+
 def generator_test(environ, start_response):
     params= parseCGIargs(environ)
     
@@ -98,9 +266,9 @@ def generator_test(environ, start_response):
     showThreads= getBoolParam(params, 'showthreads', False) and not bool(mailto)
     action= getParam(params, 'action', 'listflaws')
     format= getParam(params, 'format', 'json')
-    if mailto: format= 'html'   # todo: no json via email yet
+    if mailto and format=='json': format= 'html'    # no json via email (probably not useful anyway)
     i18n= getParam(params, 'i18n', 'de')
-    
+        
     try:
         gettext.translation('tlgbackend', localedir= os.path.join(sys.path[0], 'messages'), languages=[i18n]).install()
     except:
@@ -117,7 +285,7 @@ def generator_test(environ, start_response):
             context.stdout= open(os.path.join(DATADIR, 'mailer-stdout'), 'a')
             context.stderr= open(os.path.join(DATADIR, 'mailer-stderr'), 'a')
             context.open()
-            dprint(0, 'hello from daemon, pid=%d' % os.getpid())
+            dprint(0, 'hello from daemon, pid=%d, format=%s' % (os.getpid(), format))
 
         else:
             # cgi context, create daemon
@@ -128,6 +296,7 @@ def generator_test(environ, start_response):
             return ( '{ "status": "background process started" }', )
     
     tlg= tlgbackend.TaskListGenerator()
+    
     if action=='query':
         lang= getParam(params, 'lang')
         queryString= getParam(params, 'query')
@@ -139,136 +308,16 @@ def generator_test(environ, start_response):
     
     if format=='html':
         # output something html-ish
-
-        class htmlfoo(FileLikeList):
-            def __init__(self):
-                FileLikeList.__init__(self)
-                self.currentTableType= None
-            def endTable(self):
-                if self.currentTableType!=None: 
-                    self.write('</table>\n')
-                    self.currentTableType= None
-            def startTable(self, tableType):
-                if tableType!=self.currentTableType:
-                    self.endTable()
-                    self.write('<table cellpadding=8 rules="all" style="border-width:1px; border-style:solid; ">\n')
-                    if tableType=='flaws':
-                        self.write('<tr>')
-                        self.write('<th align="left">' + _('Filters') + '</th>')
-                        self.write('<th align="left">' + _('Page') + '</th>')
-                        self.write('</tr>\n')
-                    self.currentTableType= tableType
-        
-        html= htmlfoo()
-        html.write("""<html><head><title>Task List</title>
-<style type="text/css">
-table { font-family: Sans; font-size: 10.5pt; width: 100%; margin-top: 8px; }
-.nobr { white-space: nowrap; width: 150px; }
-.meter-wrap { position: relative; }
-.meter-wrap, .meter-value, .meter-text {
-    width: 100%; 
-    height: 25px;
-}
-
-.meter-wrap, .meter-value {
-    /* background: #bdbdbd url(/path/to/your-image.png) top left no-repeat; */
-}
-
-.meter-text {
-    position: absolute;
-    top:0; left:0;
-    text-align: center;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    width: 100%;
-    font-size: 11px;
-}
-</style>
-</head>
-<body>
-""")
-        if chunked:
-            html.write("""
-<div class="meter-wrap" style="background-color: #F0E0E0;">
-    <div class="meter-value" id="status-meter-value" style="background-color: #60FF80; width: 0%;">
-        <div class="meter-text" id="thestatus" style="font-family: Monospace;">Status</div>
-    </div>
-</div>
-<script type="text/javascript">
-function setMeter(percent) { document.getElementById("status-meter-value").style.width=percent; }
-function setStatus(text, percentage) { document.getElementById("thestatus").innerHTML=text; if(percentage>=0) setMeter(percentage + '%'); }
-</script>
-""")
-        
-        lastStatus= ''
-        
-        def resGen():
-            def getCurrentActions():
-                if tlg.getActiveWorkerCount()<1: return ''
-                r= '<div style=\\"text-align: left; position: absolute; top: 34px; left: 0px; white-space: pre; font-size: 9.5px;\\">Threads:<br>'
-                i= 0
-                for t in tlg.workerThreads:
-                    r+= "%2d: %s<br>" % (i, t.getCurrentAction())
-                    i+= 1
-                return r + '</div>'
-            
-            results= 0
-            for line in tlgResult:
-                if len(line.split()):   # don't try to json-decode empty lines
-                    data= json.loads(line)
-                                        
-                    if action=='query' and 'flaws' in data:
-                        results+= 1
-                        html.startTable('flaws')
-                        html.write('<tr>')
-                        html.write('<td class="nobr">')
-                        for flaw in sorted(data['flaws']): 
-                            html.write('<span title="%s">' % tlgflaws.FlawFilters.classInfos[flaw].description)
-                            html.write(flaw + ' ')
-                            html.write('</span>')
-                        html.write('</td>')
-                        html.write('<td>')
-                        title= data['page']['page_title'].encode('utf-8')
-                        #~ html.write('<a href="https://%s.wikipedia.org/wiki/%s">%s</a> page_id=%d' % (params['lang'], title, title, data['page']['page_id']))
-                        html.write('<a href="https://%s.wikipedia.org/wiki/%s">%s</a>' % (params['lang'], title, title))
-                        html.write('</td>')
-                        html.write('</tr>\n')
-                    elif 'status' in data:
-                        lastStatus= data['status'].encode('utf-8')
-                        if chunked:
-                            if showThreads: statusText= lastStatus + getCurrentActions()
-                            else: statusText= lastStatus
-                            html.write('<script>setStatus("%s", %d)</script>' % (statusText, -1))
-                    elif 'progress' in data:
-                        if chunked:
-                            match= re.match('[^0-9]*([0-9]+)/([0-9]+).*', data['progress'])
-                            percentage= -1
-                            if match and int(match.group(2))!=0:
-                                percentage= int(match.group(1))*100/int(match.group(2))
-                                html.write('<script>setMeter(%d)</script>' % (percentage))
-                    else:
-                        html.endTable()
-                        html.write(line)
-                while len(html.values)>0:
-                    yield html.values.pop(0) + '\n'
-            
-            yield '<script>setMeter("100%");</script>'
-            
-            if results==0:
-                html.startTable('flaws')
-                html.write('<tr>')
-                html.write('<td class="nobr">No results.</td>')
-                html.write('<td></td>')
-            
-            html.endTable()
-            html.write('</body></html>')
-            while len(html.values)>0:
-                yield html.values.pop(0) + '\n'
-        
-        outputIterable= resGen()
+        outputIterable= HTMLify(tlgResult, action, chunked, params, showThreads, tlg)
         mimeSubtype= 'html'
     
+    elif format=='wikitext':
+        # format to wikitext
+        outputIterable= Wikify(tlgResult, action, chunked, params, showThreads, tlg)
+        mimeSubtype= 'plain'
+    
     else:
+        # plain json
         outputIterable= addLinebreaks(tlgResult)
         mimeSubtype= 'plain'
     
@@ -301,7 +350,7 @@ if __name__ == "__main__":
         os.environ['QUERY_STRING']
     except KeyError:
         # started from non-cgi context, create request string for testing.
-        os.environ['QUERY_STRING']= 'action=query&format=html&lang=de&query=Sport&querydepth=2&flaws=NoImages%20Small&mailto=jkroll@lavabit.com'
+        os.environ['QUERY_STRING']= 'action=query&format=wikitext&lang=de&query=Sport&querydepth=2&flaws=NoImages%20Small'
     WSGIServer(generator_test).run()
 
 

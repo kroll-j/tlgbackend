@@ -94,7 +94,7 @@ msgstr "Seite hat 'Überarbeiten'-Vorlage gesetzt."
 
 #: tlgflaws.py:211
 msgid "'Too Technical' Template"
-msgstr "Allgemeinverständlichkeit"
+msgstr "Allgemeinverständlichkeit-Vorlage"
 
 #: tlgflaws.py:211
 msgid "Page has 'too technical' template set."

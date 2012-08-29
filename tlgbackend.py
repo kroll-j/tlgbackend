@@ -138,13 +138,6 @@ class TaskListGenerator:
                     finally:
                         if file: file.close()
                         if module: dprint(0, "loaded filter module '%s'" % modname)
-    
-    def getFlawListOld(self):
-        infos= {}
-        for i in FlawFilters.classInfos:
-            ci= FlawFilters.classInfos[i]
-            infos[ci.shortname]= { 'group': ci.group, 'description': ci.description } #, 'parameters': None }
-        return json.dumps(infos)
 
     def getFlawList(self):
         infoString= '{\n'
@@ -301,6 +294,7 @@ class TaskListGenerator:
             try:
                 # append the name of the flaw to the list of flaws for this article 
                 self.mergedResults[key]['flaws'].append(result.FlawFilter.shortname)
+                self.mergedResults[key]['flaws'].sort()
             except KeyError:
                 # create a new article in the result set
                 self.mergedResults[key]= { 'page': result.page, 'flaws': [result.FlawFilter.shortname] }
