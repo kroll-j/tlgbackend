@@ -1,6 +1,10 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
 # task list generator - backend
+import os
+import sys
+import gettext
+gettext.translation('tlgbackend', localedir= os.path.join(sys.path[0], 'messages'), languages=['de']).install()
 import time
 import json
 import Queue
@@ -136,15 +140,23 @@ class TaskListGenerator:
                         if file: file.close()
                         if module: dprint(0, "loaded filter module '%s'" % modname)
     
+    def getFlawListOld(self):
+        infos= {}
+        for i in FlawFilters.classInfos:
+            ci= FlawFilters.classInfos[i]
+            infos[ci.shortname]= { 'group': ci.group, 'description': ci.description } #, 'parameters': None }
+        return json.dumps(infos)
+
     def getFlawList(self):
         infoString= '{\n'
+        firstLine= True
         for i in sorted(FlawFilters.classInfos):
             ci= FlawFilters.classInfos[i]
-            #~ infoString+= '\t%s\n' % json.dumps({ 'group': ci.group, 'label': ci.label, 'description': ci.description })
-            infoString+= '\t"%s": %s\n' % (ci.shortname, json.dumps({ 'group': ci.group, 'label': ci.label, 'description': ci.description }))
-            #~ infos[ci.shortname]= { 'group': ci.group, 'description': ci.description }   #, 'parameters': None }
-        #~ return json.dumps(infos)
-        infoString+= '}\n'
+            if not firstLine:
+                infoString+= ',\n'
+            firstLine= False
+            infoString+= '\t"%s": %s' % (ci.shortname, json.dumps({ 'group': ci.group, 'label': ci.label, 'description': ci.description }))
+        infoString+= '\n}\n'
         return infoString
     
     def listFlaws(self):
@@ -217,12 +229,12 @@ class TaskListGenerator:
         # spawn the worker threads
         self.initThreads()
         
-        yield self.mkStatus('querying CatGraph for \'%s\' with depth %d' % (queryString, int(queryDepth)))
+        yield self.mkStatus(_('querying CatGraph for \'%s\' with depth %d') % (queryString, int(queryDepth)))
 
         self.cg= CatGraphInterface(graphname=self.wiki)
         self.pagesToTest= self.cg.executeSearchString(queryString, queryDepth)
         
-        yield self.mkStatus('CatGraph returned %d results.' % len(self.pagesToTest))
+        yield self.mkStatus(_('CatGraph returned %d results.') % len(self.pagesToTest))
 
         # todo: add something like MaxWaitTime, instead of this
         #~ if len(self.pagesToTest) > 50000:
@@ -237,7 +249,7 @@ class TaskListGenerator:
             self.createActions(flaw, self.language, self.pagesToTest)
             
         numActions= self.actionQueue.qsize()
-        yield self.mkStatus("%d pages to test, %d actions to process" % (len(self.pagesToTest), numActions))
+        yield self.mkStatus(_('%d pages to test, %d actions to process') % (len(self.pagesToTest), numActions))
         
         # signal worker threads that they can run
         self.runEvent.set()
@@ -250,7 +262,8 @@ class TaskListGenerator:
             if n!=actionsProcessed:
                 actionsProcessed= n
                 eta= (time.time()-begin) / actionsProcessed * (numActions-actionsProcessed)
-                yield self.mkStatus('%d of %d actions processed (eta: %02d:%02d)' % (actionsProcessed, numActions, int(eta)/60, int(eta)%60))
+                yield json.dumps( { 'progress': '%d/%d' % (actionsProcessed, numActions) } )
+                yield self.mkStatus(_('%d of %d actions processed (eta: %02d:%02d)') % (actionsProcessed, numActions, int(eta)/60, int(eta)%60))
             time.sleep(0.25)
         for i in self.workerThreads:
             i.join()
@@ -261,7 +274,7 @@ class TaskListGenerator:
         sortedResults= sorted(self.mergedResults, key= lambda result: \
             (-len(self.mergedResults[result]['flaws']), sorted(self.mergedResults[result]['flaws']), self.mergedResults[result]['page']['page_title']))
         
-        yield self.mkStatus('%d pages tested in %d actions. %d pages in result set. processing took %f seconds.' % \
+        yield self.mkStatus(_('%d pages tested in %d actions. %d pages in result set. processing took %f seconds.') % \
             (len(self.pagesToTest), numActions, len(self.mergedResults), time.time()-begin))
         
         # print results

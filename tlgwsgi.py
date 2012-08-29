@@ -5,7 +5,9 @@ import re
 import sys
 import time
 import json
+import gettext
 import threading
+import tlgbackend
 import tlgflaws
 from utils import *
 
@@ -89,8 +91,6 @@ def parseCGIargs(environ):
     return params
 
 def generator_test(environ, start_response):
-    import tlgbackend
-
     params= parseCGIargs(environ)
     
     mailto= getParam(params, 'mailto', None)
@@ -99,6 +99,15 @@ def generator_test(environ, start_response):
     action= getParam(params, 'action', 'listflaws')
     format= getParam(params, 'format', 'json')
     if mailto: format= 'html'   # todo: no json via email yet
+    i18n= getParam(params, 'i18n', 'en')
+    
+    try:
+        gettext.translation('tlgbackend', localedir= os.path.join(sys.path[0], 'messages'), languages=[i18n]).install()
+    except:
+        # fall back to untranslated strings
+        def ident(msg): return msg
+        global _
+        _= ident
     
     if mailto:
         if 'daemon' in environ and environ['daemon']=='True':
@@ -145,8 +154,8 @@ def generator_test(environ, start_response):
                     self.write('<table cellpadding=8 rules="all" style="border-width:1px; border-style:solid; ">\n')
                     if tableType=='flaws':
                         self.write('<tr>')
-                        self.write('<th align="left">Filters</th>')
-                        self.write('<th align="left">Page</th>')
+                        self.write('<th align="left">' + _('Filters') + '</th>')
+                        self.write('<th align="left">' + _('Page') + '</th>')
                         self.write('</tr>\n')
                     self.currentTableType= tableType
         
@@ -225,15 +234,18 @@ function setStatus(text, percentage) { document.getElementById("thestatus").inne
                         html.write('</td>')
                         html.write('</tr>\n')
                     elif 'status' in data:
-                        lastStatus= str(data['status'])
+                        lastStatus= data['status'].encode('utf-8')
                         if chunked:
-                            match= re.match('[^0-9]*([0-9]+) of ([0-9]+).*', str(data['status']))
+                            if showThreads: statusText= lastStatus + getCurrentActions()
+                            else: statusText= lastStatus
+                            html.write('<script>setStatus("%s", %d)</script>' % (statusText, -1))
+                    elif 'progress' in data:
+                        if chunked:
+                            match= re.match('[^0-9]*([0-9]+)/([0-9]+).*', data['progress'])
                             percentage= -1
                             if match and int(match.group(2))!=0:
                                 percentage= int(match.group(1))*100/int(match.group(2))
-                            if showThreads: statusText= str(data['status']) + getCurrentActions()
-                            else: statusText= str(data['status'])
-                            html.write('<script>setStatus("%s", %d)</script>' % (statusText, percentage))
+                                html.write('<script>setMeter(%d)</script>' % (percentage))
                     else:
                         html.endTable()
                         html.write(line)

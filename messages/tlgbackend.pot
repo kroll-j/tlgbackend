@@ -1,0 +1,136 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: tlgbackend 0.1\n"
+"POT-Creation-Date: 2012-08-29 13:29+CEST\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+
+#: filtermodules/changedetector.py:10
+msgid ""
+"Page seems to be outdated compared to the same article in other Wikipedia "
+"language versions (ChangeDetector data)."
+msgstr ""
+
+#: filtermodules/changedetector.py:11 tlgflaws.py:202
+msgid "Timeliness"
+msgstr ""
+
+#: tlgbackend.py:232
+msgid "querying CatGraph for '%s' with depth %d"
+msgstr ""
+
+#: tlgbackend.py:237
+msgid "CatGraph returned %d results."
+msgstr ""
+
+#: tlgbackend.py:252
+msgid "%d pages to test, %d actions to process"
+msgstr ""
+
+#: tlgbackend.py:266
+msgid "%d of %d actions processed (eta: %02d:%02d)"
+msgstr ""
+
+#: tlgbackend.py:277
+msgid ""
+"%d pages tested in %d actions. %d pages in result set. processing took %f "
+"seconds."
+msgstr ""
+
+#: tlgflaws.py:121
+msgid "All Pages"
+msgstr ""
+
+#: tlgflaws.py:122
+msgid "Every page from CatGraph result."
+msgstr ""
+
+#: tlgflaws.py:192
+msgid "Neutrality Template"
+msgstr ""
+
+#: tlgflaws.py:192
+msgid "Page has 'neutrality' template set."
+msgstr ""
+
+#: tlgflaws.py:197
+msgid "Missing Sources/References Template"
+msgstr ""
+
+#: tlgflaws.py:197
+msgid "Page has 'missing sources' template set."
+msgstr ""
+
+#: tlgflaws.py:202
+msgid "Obsolete Template"
+msgstr ""
+
+#: tlgflaws.py:202
+msgid "Page has 'obsolete' template set."
+msgstr ""
+
+#: tlgflaws.py:206
+msgid "Cleanup Template"
+msgstr ""
+
+#: tlgflaws.py:206
+msgid "Page has 'cleanup' template set."
+msgstr ""
+
+#: tlgflaws.py:211
+msgid "'Too Technical' Template"
+msgstr ""
+
+#: tlgflaws.py:211
+msgid "Page has 'too technical' template set."
+msgstr ""
+
+#: tlgflaws.py:216
+msgid "Globalize Template"
+msgstr ""
+
+#: tlgflaws.py:216
+msgid "Page has 'globalize' template set."
+msgstr ""
+
+#: tlgflaws.py:285
+msgid "Small Pages"
+msgstr ""
+
+#: tlgflaws.py:286
+msgid "Page is very small, relative to mean page size in result set."
+msgstr ""
+
+#: tlgflaws.py:313
+msgid "Large Pages"
+msgstr ""
+
+#: tlgflaws.py:314
+msgid "Page is very large, relative to mean page size in result set."
+msgstr ""
+
+#: tlgflaws.py:342
+msgid "No Images"
+msgstr ""
+
+#: tlgflaws.py:343
+msgid "Article has no image links."
+msgstr ""
+
+#: tlgwsgi.py:157
+msgid "Filters"
+msgstr ""
+
+#: tlgwsgi.py:158
+msgid "Page"
+msgstr ""

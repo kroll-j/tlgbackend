@@ -7,7 +7,8 @@ class FChangeDetector(FlawFilter):
     shortname= 'Timeliness:ChangeDetector' # the name indicates that this filter belongs to group Timeliness.
     label= 'ChangeDetector'
     # todo: insert changedetector link?
-    description= 'Page seems to be outdated compared to the same article in other Wikipedia language versions (ChangeDetector data).'
+    description= _('Page seems to be outdated compared to the same article in other Wikipedia language versions (ChangeDetector data).')
+    group= _('Timeliness')
 
     class Action(TlgAction):
         def execute(self, resultQueue):

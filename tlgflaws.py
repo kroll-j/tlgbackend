@@ -21,9 +21,11 @@ class FlawFilters:
         try:
             FlawFilters.lock.acquire()
             FlawFilters.classInfos[klass.shortname]= klass
-            grp= klass.shortname.split(':')
-            if len(grp)>1: klass.group= grp[0]
-            else: klass.group= None
+            if not 'group' in klass.__dict__:
+                klass.group= None
+            #~ grp= klass.shortname.split(':')
+            #~ if len(grp)>1: klass.group= grp[0]
+            #~ else: klass.group= None
         finally:
             FlawFilters.lock.release()
     
@@ -93,6 +95,7 @@ class FUnlucky(FlawFilter):
     shortname= 'Test:Unlucky'
     label= 'Unlucky'
     description= 'Page ID mod 13 == 0. For testing only.'
+    group= 'Test'
     
     # our action class
     class Action(TlgAction):
@@ -115,8 +118,8 @@ FlawFilters.register(FUnlucky)
 ## 
 class FAll(FlawFilter):
     shortname= 'ALL'
-    label= 'All Pages'
-    description= 'Returns every page.'
+    label= _('All Pages')
+    description= _('Every page from CatGraph result.')
     
     # our action class
     class Action(TlgAction):
@@ -178,39 +181,39 @@ class FTemplatesBase(FlawFilter):
 
 ## create a class that filters for templates
 #  @param templateNames dict of iterables containing lists of templates to search for. dict key is wiki db name.
-def makeTemplateFilter(shortname, label, description, templateNames):
+def makeTemplateFilter(shortname, label, description, group, templateNames):
     def init(self, tlg):
         FTemplatesBase.__init__(self, tlg, templateNames)
-    return type('F'+shortname, (FTemplatesBase,), {'__init__': init, 'shortname': shortname, 'label': label, 'description': description})
+    return type('F'+shortname, (FTemplatesBase,), {'__init__': init, 'shortname': shortname, 'label': label, 'description': description, 'group': group})
 
 def registerTemplateFilter(*args):
     FlawFilters.register(makeTemplateFilter(*args))
 
-registerTemplateFilter('TemplateNeutrality', 'Neutrality Template', 'Page has \'neutrality\' template set.', {
+registerTemplateFilter('TemplateNeutrality', _('Neutrality Template'), _('Page has \'neutrality\' template set.'), None, {
     'dewiki_p': [ 'Neutralität' ],
     'enwiki_p': [ 'Neutrality' ],
 })
 
-registerTemplateFilter('TemplateMissingSources', 'Missing Sources/References Template', 'Page has \'missing sources\' template set.', {
+registerTemplateFilter('TemplateMissingSources', _('Missing Sources/References Template'), _('Page has \'missing sources\' template set.'), None, {
     'dewiki_p': [ 'Belege_fehlen' ],
     'enwiki_p': [ 'Refimprove' ]
 })
 
-registerTemplateFilter('Timeliness:TemplateObsolete', 'Obsolete Template', 'Page has \'obsolete\' template set.', {
+registerTemplateFilter('Timeliness:TemplateObsolete', _('Obsolete Template'), _('Page has \'obsolete\' template set.'), _('Timeliness'), {
     'dewiki_p': [ 'Veraltet' ],
 })
 
-registerTemplateFilter('TemplateCleanup', 'Cleanup Template', 'Page has \'cleanup\' template set.', {
+registerTemplateFilter('TemplateCleanup', _('Cleanup Template'), _('Page has \'cleanup\' template set.'), None, {
     'dewiki_p': [ 'Überarbeiten' ],
     'enwiki_p': [ 'Cleanup' ],
 })
 
-registerTemplateFilter('TemplateTechnical', '\'Too Technical\' Template', 'Page has \'too technical\' template set.', {
+registerTemplateFilter('TemplateTechnical', _('\'Too Technical\' Template'), _('Page has \'too technical\' template set.'), None, {
     'dewiki_p': [ 'Allgemeinverständlichkeit' ],
     'enwiki_p': [ 'Technical' ],
 })
 
-registerTemplateFilter('TemplateGlobalize', 'Globalize Template', 'Page has \'globalize\' template set.', {
+registerTemplateFilter('TemplateGlobalize', _('Globalize Template'), _('Page has \'globalize\' template set.'), None, {
     'dewiki_p': [ 'Staatslastig' ],
     'enwiki_p': [ 'Globalize' ],
 })
@@ -279,8 +282,8 @@ class FPageSizeBase(FlawFilter):
 
 class FSmall(FPageSizeBase):
     shortname= 'Small'
-    label= 'Small Pages'
-    description= 'Page is very small, relative to mean page size in result set.'
+    label= _('Small Pages')
+    description= _('Page is very small, relative to mean page size in result set.')
     
     class FinalAction(FPageSizeBase.FinalAction):
         # todo: the final action stuff takes a while, maybe this can be optimized.
@@ -307,8 +310,8 @@ FlawFilters.register(FSmall)
 
 class FLarge(FPageSizeBase):
     shortname= 'Large'
-    label= 'Large Pages'
-    description= 'Page is very large, relative to mean page size in result set.'
+    label= _('Large Pages')
+    description= _('Page is very large, relative to mean page size in result set.')
     
     class FinalAction(FPageSizeBase.FinalAction):
         # todo: the final action stuff takes a while, maybe this can be optimized.
@@ -336,8 +339,8 @@ FlawFilters.register(FLarge)
 ## 
 class FNoImages(FlawFilter):
     shortname= 'NoImages'
-    label= 'No Images'
-    description= 'Article has no image links.'
+    label= _('No Images')
+    description= _('Article has no image links.')
 
     # our action class
     class Action(TlgAction):
