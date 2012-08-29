@@ -66,6 +66,7 @@ class WorkerThread(threading.Thread):
                         
         except Queue.Empty:
             self.setCurrentAction('')
+            tempCursors= GetTempCursors()
             for key in tempCursors:
                 tc= tempCursors[key]
                 tc.cursor.close()
@@ -120,13 +121,11 @@ class TaskListGenerator:
     def mkStatus(string):
         return json.dumps({'status': string})
         
-    # wip, testing
     def loadFilterModules(self):
         import imp
         for root, dirs, files in os.walk(os.path.join(sys.path[0], 'filtermodules')):
             for name in files:
                 if name[-3:]=='.py':
-                    #~ self.printStatus('importing ' + os.path.join(root, name))
                     file= None
                     module= None
                     try:
@@ -247,7 +246,7 @@ class TaskListGenerator:
             except KeyError:
                 raise RuntimeError('Unknown flaw %s' % flawname)
             self.createActions(flaw, self.language, self.pagesToTest)
-            
+        
         numActions= self.actionQueue.qsize()
         yield self.mkStatus(_('%d pages to test, %d actions to process') % (len(self.pagesToTest), numActions))
         
@@ -289,7 +288,7 @@ class TaskListGenerator:
     
     def createActions(self, flaw, language, pagesToTest):
         pagesLeft= len(pagesToTest)
-        pagesPerAction= min( flaw.getPreferredPagesPerAction(), pagesLeft/self.numWorkerThreads )
+        pagesPerAction= max(1, min( flaw.getPreferredPagesPerAction(), pagesLeft/self.numWorkerThreads ))
         while pagesLeft:
             start= max(0, pagesLeft-pagesPerAction)
             flaw.createActions( self.language, pagesToTest[start:pagesLeft], self.actionQueue )
@@ -367,7 +366,7 @@ if __name__ == '__main__':
     #~ TaskListGenerator().listFlaws()
     #~ TaskListGenerator().run('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'PageSize')
     #~ for line in TaskListGenerator().generateQuery('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'Timeliness:ChangeDetector'):
-    for line in TaskListGenerator().generateQuery('de', 'Sport Politik', 2, 'TemplateMissingSources'):
+    for line in TaskListGenerator().generateQuery('de', 'Medizin +Sport', 2, 'ALL'):
         print line
         sys.stdout.flush()
     

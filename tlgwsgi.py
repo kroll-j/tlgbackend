@@ -99,7 +99,7 @@ def generator_test(environ, start_response):
     action= getParam(params, 'action', 'listflaws')
     format= getParam(params, 'format', 'json')
     if mailto: format= 'html'   # todo: no json via email yet
-    i18n= getParam(params, 'i18n', 'en')
+    i18n= getParam(params, 'i18n', 'de')
     
     try:
         gettext.translation('tlgbackend', localedir= os.path.join(sys.path[0], 'messages'), languages=[i18n]).install()
