@@ -39,6 +39,15 @@ def addLinebreaks(iterable):
     for stuff in iterable:
         yield stuff + '\n'
 
+def parseCGIargs(environ):
+    from urllib import unquote
+    params= {}
+    if 'QUERY_STRING' in environ:
+        for param in environ['QUERY_STRING'].split('&'):
+            blah= param.split('=')
+            params[blah[0]]= unquote(blah[1])
+    return params
+
 def getParam(params, name, default= None):
     if name in params: return params[name]
     else: return default
@@ -81,15 +90,6 @@ The friendly task list generator robot.
 """ % format)
     mail.sendFriendlyBotMessage(mailto, msgText, attachmentText, mimeSubtype)
     
-def parseCGIargs(environ):
-    from urllib import unquote
-    params= {}
-    if 'QUERY_STRING' in environ:
-        for param in environ['QUERY_STRING'].split('&'):
-            blah= param.split('=')
-            params[blah[0]]= unquote(blah[1])
-    return params
-
 def HTMLify(tlgResult, action, chunked, params, showThreads, tlg):
     class htmlfoo(FileLikeList):
         def __init__(self):
@@ -178,7 +178,6 @@ function setStatus(text, percentage) { document.getElementById("thestatus").inne
                 html.write('</td>')
                 html.write('<td>')
                 title= data['page']['page_title'].encode('utf-8')
-                #~ html.write('<a href="https://%s.wikipedia.org/wiki/%s">%s</a> page_id=%d' % (params['lang'], title, title, data['page']['page_id']))
                 html.write('<a href="https://%s.wikipedia.org/wiki/%s">%s</a>' % (params['lang'], title, title))
                 html.write('</td>')
                 html.write('</tr>\n')
@@ -255,7 +254,7 @@ def Wikify(tlgResult, action, chunked, params, showThreads, tlg):
             yield wikitext.values.pop(0) + '\n'
         
     if results==0:
-        pass
+        yield 'No Results.\n'
     
 
 def generator_test(environ, start_response):
@@ -268,7 +267,7 @@ def generator_test(environ, start_response):
     format= getParam(params, 'format', 'json')
     if mailto and format=='json': format= 'html'    # no json via email (probably not useful anyway)
     i18n= getParam(params, 'i18n', 'de')
-        
+    
     try:
         gettext.translation('tlgbackend', localedir= os.path.join(sys.path[0], 'messages'), languages=[i18n]).install()
     except:
@@ -327,7 +326,7 @@ def generator_test(environ, start_response):
         dprint(0, 'mail stuff finished, exiting.')
         sys.exit(0)
 
-    else:
+    else:   # no email address given. cgi context.
         if chunked: 
             start_response('200 OK', [('Content-Type', 'text/%s; charset=utf-8' % mimeSubtype), ('Transfer-Encoding', 'chunked')])
         else:
@@ -350,7 +349,7 @@ if __name__ == "__main__":
         os.environ['QUERY_STRING']
     except KeyError:
         # started from non-cgi context, create request string for testing.
-        os.environ['QUERY_STRING']= 'action=query&format=wikitext&lang=de&query=Sport&querydepth=2&flaws=NoImages%20Small'
+        os.environ['QUERY_STRING']= 'action=query&format=wikitext&lang=de&query=Sport&querydepth=2&flaws=NoImages%20Small&mailto=foobar'
     WSGIServer(generator_test).run()
 
 

@@ -61,6 +61,9 @@ class CatGraphInterface:
 
 if __name__ == '__main__':
     cg= CatGraphInterface(graphname='dewiki')
+    #~ catID= getCategoryID(cg.wikiname, '!Hauptkategorie')
+    #~ print cg.gp.capture_traverse_successors(catID, 1)
+    
     depth= 5
     
     t= time.time()
