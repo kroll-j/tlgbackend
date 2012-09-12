@@ -1,8 +1,4 @@
 var searchData=
 [
-  ['wiki',['wiki',['../classcaching_1_1_page_title_disk_cache.html#a315867c80456524ea10134f3b4984103',1,'caching::PageTitleDiskCache.wiki()'],['../classcaching_1_1_page_title_mem_cache.html#a1726cf3e3c9e9c9fbc12031cdfc9af19',1,'caching::PageTitleMemCache.wiki()'],['../classcaching_1_1_page_i_d_mem_disk_cache.html#af5d47d614ad4afde5457b9d24b0d89f4',1,'caching::PageIDMemDiskCache.wiki()'],['../classcaching_1_1_page_i_d_mem_cache.html#a9831a88108019ddbec7d5f5458ac049b',1,'caching::PageIDMemCache.wiki()'],['../classcaching_1_1_page_i_d_fake_cache.html#a73a8f334eb9313399f2abe3c49f73972',1,'caching::PageIDFakeCache.wiki()'],['../classtlgbackend_1_1_task_list_generator.html#ad34177e61b565d74a21b58bb48ce604c',1,'tlgbackend::TaskListGenerator.wiki()'],['../classtlgflaws_1_1_tlg_action.html#aa34c35432fdede21bbb1aed9dffe3854',1,'tlgflaws::TlgAction.wiki()'],['../classtlgflaws_1_1_tlg_result.html#ae62d805facaae020d5f02393d5ab8b66',1,'tlgflaws::TlgResult::wiki()']]],
-  ['wikiname',['wikiname',['../classtlgbackend_1_1_worker_thread.html#a917d0df676d4a9445b5f1e9cdc7c5aa9',1,'tlgbackend::WorkerThread.wikiname()'],['../classtlgcatgraph_1_1_cat_graph_interface.html#adfa8a1071b18daf60bff9a2749590b0a',1,'tlgcatgraph::CatGraphInterface.wikiname()']]],
-  ['workerthread',['WorkerThread',['../classtlgbackend_1_1_worker_thread.html',1,'tlgbackend']]],
-  ['workerthreads',['workerThreads',['../classtlgbackend_1_1_task_list_generator.html#a09c0089666f375ed27c846ab3ac3675f',1,'tlgbackend::TaskListGenerator']]],
-  ['write',['write',['../classcaching_1_1_file_based_cache.html#ab67ea7cd330dc121b03627e2260b29d9',1,'caching::FileBasedCache.write()'],['../classtlgwsgi_1_1_file_like_list.html#ad9e2d34fe99d7433118489271df3ac32',1,'tlgwsgi::FileLikeList.write()']]]
+  ['workerthread',['WorkerThread',['../classtlgbackend_1_1_worker_thread.html',1,'tlgbackend']]]
 ];

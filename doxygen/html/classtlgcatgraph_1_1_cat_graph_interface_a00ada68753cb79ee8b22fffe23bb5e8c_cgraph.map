@@ -1,11 +1,3 @@
 <map id="G" name="G">
-<area shape="rect" id="node3" href="$classtlgcatgraph_1_1_cat_graph_interface.html#a5594abc2a8fabbb91afa770840cbac32" title="tlgcatgraph.CatGraphInterface.getPagesInCategory" alt="" coords="376,51,696,80"/>
-<area shape="rect" id="node5" href="$namespaceutils.html#a28c9676c2514a1a2929591cf5497ab1f" title="utils.getCategoryID" alt="" coords="745,51,879,80"/>
-<area shape="rect" id="node7" href="$namespaceutils.html#ac02bfbab8109c2ed1c187b2bfde920fe" title="utils.getPageByTitle" alt="" coords="928,51,1067,80"/>
-<area shape="rect" id="node9" href="$namespaceutils.html#ae3076c8315af058e4421e0e307bfd66a" title="utils.getCursors" alt="" coords="1115,51,1229,80"/>
-<area shape="rect" id="node11" href="$namespaceutils.html#a6de1d163d3293c0f3971c6005b5ad9c5" title="utils.getWikiServerMap" alt="" coords="1472,5,1629,35"/>
-<area shape="rect" id="node15" href="$namespaceutils.html#ab03626e4895bed297f086d664c2acff2" title="utils.getConnections" alt="" coords="1277,51,1419,80"/>
-<area shape="rect" id="node17" href="$namespaceutils.html#ae103923aef29769e4b5f04a7513d41d1" title="utils.CachedThreadValue" alt="" coords="1467,64,1635,93"/>
-<area shape="rect" id="node13" href="$namespaceutils.html#a41c9a645fe092315401b5bf8570edd6e" title="utils.dprint" alt="" coords="1683,5,1765,35"/>
-<area shape="rect" id="node21" href="$namespaceutils.html#a1379e46bec093b8195d4d59b0197a0f6" title="utils.getPageByID" alt="" coords="1487,129,1615,159"/>
+<area shape="rect" id="node3" href="$classtlgcatgraph_1_1_cat_graph_interface.html#a5594abc2a8fabbb91afa770840cbac32" title="tlgcatgraph.CatGraphInterface.getPagesInCategory" alt="" coords="376,5,696,35"/>
 </map>

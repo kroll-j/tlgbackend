@@ -1,11 +1,14 @@
 <map id="G" name="G">
-<area shape="rect" id="node1" href="$classtlgflaws_1_1_tlg_action.html" title="base class for actions to be executed by task list generator" alt="" coords="7,139,132,168"/>
-<area shape="rect" id="node3" href="$classtlgflaws_1_1_f_missing_sources_templates_1_1_action.html" title="tlgflaws.FMissingSourcesTemplates.Action" alt="" coords="181,5,456,35"/>
-<area shape="rect" id="node5" href="$classtlgflaws_1_1_f_no_images_1_1_action.html" title="tlgflaws.FNoImages.Action" alt="" coords="229,59,408,88"/>
-<area shape="rect" id="node7" href="$classtlgflaws_1_1_f_nop_1_1_action.html" title="tlgflaws.FNop.Action" alt="" coords="247,112,391,141"/>
-<area shape="rect" id="node9" href="$classtlgflaws_1_1_f_page_size_base_1_1_action.html" title="tlgflaws.FPageSizeBase::Action" alt="" coords="213,165,424,195"/>
-<area shape="rect" id="node11" href="$classtlgflaws_1_1_f_page_size_base_1_1_final_action.html" title="tlgflaws.FPageSizeBase.FinalAction" alt="" coords="201,219,436,248"/>
-<area shape="rect" id="node17" href="$classtlgflaws_1_1_f_unlucky_1_1_action.html" title="tlgflaws.FUnlucky.Action" alt="" coords="235,272,403,301"/>
-<area shape="rect" id="node13" href="$classtlgflaws_1_1_f_large_1_1_final_action.html" title="tlgflaws.FLarge.FinalAction" alt="" coords="505,192,684,221"/>
-<area shape="rect" id="node15" href="$classtlgflaws_1_1_f_small_1_1_final_action.html" title="tlgflaws.FSmall.FinalAction" alt="" coords="504,245,685,275"/>
+<area shape="rect" id="node1" href="$classtlgflaws_1_1_tlg_action.html" title="base class for actions to be executed by task list generator" alt="" coords="7,219,132,248"/>
+<area shape="rect" id="node3" href="$classchangedetector_1_1_f_change_detector_1_1_action.html" title="changedetector.FChangeDetector.Action" alt="" coords="181,5,440,35"/>
+<area shape="rect" id="node5" href="$classmiscfilters_1_1_f_all_1_1_action.html" title="miscfilters.FAll.Action" alt="" coords="236,59,385,88"/>
+<area shape="rect" id="node7" href="$classmiscfilters_1_1_f_no_images_1_1_action.html" title="miscfilters.FNoImages.Action" alt="" coords="213,112,408,141"/>
+<area shape="rect" id="node9" href="$classmiscfilters_1_1_f_page_size_base_1_1_action.html" title="miscfilters.FPageSizeBase::Action" alt="" coords="199,165,423,195"/>
+<area shape="rect" id="node11" href="$classmiscfilters_1_1_f_page_size_base_1_1_final_action.html" title="miscfilters.FPageSizeBase.FinalAction" alt="" coords="187,219,435,248"/>
+<area shape="rect" id="node17" href="$classmiscfilters_1_1_f_templates_base_1_1_action.html" title="miscfilters.FTemplatesBase.Action" alt="" coords="197,272,424,301"/>
+<area shape="rect" id="node19" href="$classrecent_1_1_f_recently_changed_1_1_action.html" title="recent.FRecentlyChanged.Action" alt="" coords="204,325,417,355"/>
+<area shape="rect" id="node21" href="$classtlgflaws_1_1_f_nop_1_1_action.html" title="tlgflaws.FNop.Action" alt="" coords="239,379,383,408"/>
+<area shape="rect" id="node23" href="$classtlgflaws_1_1_f_unlucky_1_1_action.html" title="tlgflaws.FUnlucky.Action" alt="" coords="227,432,395,461"/>
+<area shape="rect" id="node13" href="$classmiscfilters_1_1_f_large_1_1_final_action.html" title="miscfilters.FLarge.FinalAction" alt="" coords="489,192,684,221"/>
+<area shape="rect" id="node15" href="$classmiscfilters_1_1_f_small_1_1_final_action.html" title="miscfilters.FSmall.FinalAction" alt="" coords="489,245,684,275"/>
 </map>

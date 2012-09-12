@@ -52,7 +52,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -115,14 +114,15 @@ Public Member Functions</h2></td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">constructor  <a href="#a10ebc694d13ad4b170bf2c7ad7a87ca1"></a><br/></td></tr>
 <tr><td colspan="2"><h2><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlgflaws_1_1_tlg_result.html#ae62d805facaae020d5f02393d5ab8b66">wiki</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlgflaws_1_1_tlg_result.html#aa9a5526bd71b2e6d965f7e290866c163">page</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlgflaws_1_1_tlg_result.html#a3c08b3af85ba5101ae4577038dbe2d60">FlawFilter</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae62d805facaae020d5f02393d5ab8b66"></a><!-- doxytag: member="tlgflaws::TlgResult::wiki" ref="ae62d805facaae020d5f02393d5ab8b66" args="" -->
+&#160;</td><td class="memItemRight" valign="bottom"><b>wiki</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa9a5526bd71b2e6d965f7e290866c163"></a><!-- doxytag: member="tlgflaws::TlgResult::page" ref="aa9a5526bd71b2e6d965f7e290866c163" args="" -->
+&#160;</td><td class="memItemRight" valign="bottom"><b>page</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3c08b3af85ba5101ae4577038dbe2d60"></a><!-- doxytag: member="tlgflaws::TlgResult::FlawFilter" ref="a3c08b3af85ba5101ae4577038dbe2d60" args="" -->
+&#160;</td><td class="memItemRight" valign="bottom"><b>FlawFilter</b></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>the result of a <a class="el" href="classtlgflaws_1_1_tlg_action.html" title="base class for actions to be executed by task list generator">TlgAction</a>, describing a flawed page </p>
-
-<p>Definition at line <a class="el" href="tlgflaws_8py_source.html#l00062">62</a> of file <a class="el" href="tlgflaws_8py_source.html">tlgflaws.py</a>.</p>
 </div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a10ebc694d13ad4b170bf2c7ad7a87ca1"></a><!-- doxytag: member="tlgflaws::TlgResult::__init__" ref="a10ebc694d13ad4b170bf2c7ad7a87ca1" args="" -->
 <div class="memitem">
@@ -164,63 +164,17 @@ Public Attributes</h2></td></tr>
 <p>constructor </p>
 <dl class="params"><dt><b>Parameters:</b></dt><dd>
   <table class="params">
+    <tr><td class="paramname">wiki</td><td>the name of the wiki this page was found in </td></tr>
     <tr><td class="paramname">page</td><td>a dict containing the full page result page_title, page_id etc. </td></tr>
+    <tr><td class="paramname"><a class="el" href="classtlgflaws_1_1_flaw_filter.html" title="base class for flaw filters">FlawFilter</a></td><td>filter class which found this page </td></tr>
   </table>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="tlgflaws_8py_source.html#l00065">65</a> of file <a class="el" href="tlgflaws_8py_source.html">tlgflaws.py</a>.</p>
-
-</div>
-</div>
-<hr/><h2>Member Data Documentation</h2>
-<a class="anchor" id="a3c08b3af85ba5101ae4577038dbe2d60"></a><!-- doxytag: member="tlgflaws::TlgResult::FlawFilter" ref="a3c08b3af85ba5101ae4577038dbe2d60" args="" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classtlgflaws_1_1_tlg_result.html#a3c08b3af85ba5101ae4577038dbe2d60">tlgflaws.TlgResult::FlawFilter</a></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>Definition at line <a class="el" href="tlgflaws_8py_source.html#l00065">65</a> of file <a class="el" href="tlgflaws_8py_source.html">tlgflaws.py</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="aa9a5526bd71b2e6d965f7e290866c163"></a><!-- doxytag: member="tlgflaws::TlgResult::page" ref="aa9a5526bd71b2e6d965f7e290866c163" args="" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classtlgflaws_1_1_tlg_result.html#aa9a5526bd71b2e6d965f7e290866c163">tlgflaws.TlgResult::page</a></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>Definition at line <a class="el" href="tlgflaws_8py_source.html#l00065">65</a> of file <a class="el" href="tlgflaws_8py_source.html">tlgflaws.py</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="ae62d805facaae020d5f02393d5ab8b66"></a><!-- doxytag: member="tlgflaws::TlgResult::wiki" ref="ae62d805facaae020d5f02393d5ab8b66" args="" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classtlgflaws_1_1_tlg_result.html#ae62d805facaae020d5f02393d5ab8b66">tlgflaws.TlgResult::wiki</a></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>Definition at line <a class="el" href="tlgflaws_8py_source.html#l00065">65</a> of file <a class="el" href="tlgflaws_8py_source.html">tlgflaws.py</a>.</p>
-
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>/home/johannesk/code/tests/tlgbe/<a class="el" href="tlgflaws_8py_source.html">tlgflaws.py</a></li>
+<li>/home/johannesk/code/tests/tlgbe/tlgflaws.py</li>
 </ul>
 </div><!-- contents -->
 </div>
@@ -229,7 +183,7 @@ Public Attributes</h2></td></tr>
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -240,10 +194,10 @@ Public Attributes</h2></td></tr>
 
   <div id="nav-path" class="navpath">
     <ul>
-      <li class="navelem"><a class="el" href="namespacetlgflaws.html">tlgflaws</a>      </li>
+      <li class="navelem"><b>tlgflaws</b>      </li>
       <li class="navelem"><a class="el" href="classtlgflaws_1_1_tlg_result.html">TlgResult</a>      </li>
 
-    <li class="footer">Generated on Thu Aug 23 2012 17:24:08 for Task List Generator Backend by
+    <li class="footer">Generated on Wed Sep 12 2012 13:19:31 for Task List Generator Backend by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.6.1 </li>
    </ul>

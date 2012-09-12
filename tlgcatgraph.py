@@ -36,7 +36,8 @@ class CatGraphInterface:
         # todo: it would be cool to have this command in graphcore, possibly using threads for each category.
         result= set()
         n= 0
-        for param in string.split():
+        for param in string.split(';'):
+            param= param.strip()
             if param[0] in '+-':
                 category= param[1:]
                 op= param[0]
@@ -73,7 +74,7 @@ if __name__ == '__main__':
             cg.gp.capture_traverse_successors(catID, depth)
     traw= time.time()-t
     
-    search= '+Biologie -Katzen -Astrobiologie Foo'
+    search= '+Biologie, -Katzen, -Astrobiologie, Foo'
     print "searching for '%s'..." % search
     sys.stdout.flush()
     t= time.time()

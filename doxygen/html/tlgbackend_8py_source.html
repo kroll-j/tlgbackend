@@ -52,7 +52,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -97,321 +96,376 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">/home/johannesk/code/tests/tlgbe/tlgbackend.py</div>  </div>
 </div><!--header-->
 <div class="contents">
-<a href="tlgbackend_8py.html">Go to the documentation of this file.</a><div class="fragment"><pre class="fragment"><a name="l00001"></a><a class="code" href="namespacetlgbackend.html">00001</a> <span class="comment">#!/usr/bin/python</span>
+<div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 <span class="comment">#!/usr/bin/python</span>
 <a name="l00002"></a>00002 <span class="comment"># -*- coding:utf-8 -*-</span>
 <a name="l00003"></a>00003 <span class="comment"># task list generator - backend</span>
-<a name="l00004"></a>00004 <span class="keyword">import</span> time
-<a name="l00005"></a>00005 <span class="keyword">import</span> json
-<a name="l00006"></a>00006 <span class="keyword">import</span> Queue
-<a name="l00007"></a>00007 <span class="keyword">import</span> threading
-<a name="l00008"></a>00008 <span class="keyword">import</span> tlgflaws
-<a name="l00009"></a>00009 
-<a name="l00010"></a>00010 <span class="keyword">from</span> tlgcatgraph <span class="keyword">import</span> CatGraphInterface
-<a name="l00011"></a>00011 <span class="keyword">from</span> tlgflaws <span class="keyword">import</span> FlawFilters
-<a name="l00012"></a>00012 <span class="keyword">from</span> utils <span class="keyword">import</span> *
-<a name="l00013"></a>00013 
-<a name="l00014"></a>00014 <span class="comment"># todo: check what happens when uncaught exceptions get thrown (script doesn&#39;t exit)</span>
-<a name="l00015"></a>00015 <span class="comment"># daemon threads</span>
+<a name="l00004"></a>00004 <span class="keyword">import</span> os
+<a name="l00005"></a>00005 <span class="keyword">import</span> sys
+<a name="l00006"></a>00006 <span class="keyword">import</span> gettext
+<a name="l00007"></a>00007 <span class="keyword">import</span> time
+<a name="l00008"></a>00008 <span class="keyword">import</span> json
+<a name="l00009"></a>00009 <span class="keyword">import</span> Queue
+<a name="l00010"></a>00010 <span class="keyword">import</span> threading
+<a name="l00011"></a>00011 <span class="keyword">import</span> tlgflaws
+<a name="l00012"></a>00012 
+<a name="l00013"></a>00013 <span class="keyword">from</span> tlgcatgraph <span class="keyword">import</span> CatGraphInterface
+<a name="l00014"></a>00014 <span class="keyword">from</span> tlgflaws <span class="keyword">import</span> FlawFilters
+<a name="l00015"></a>00015 <span class="keyword">from</span> utils <span class="keyword">import</span> *
 <a name="l00016"></a>00016 
-<a name="l00017"></a>00017 <span class="comment">## a worker thread which fetches actions from a queue and executes them</span>
-<a name="l00018"></a><a class="code" href="classtlgbackend_1_1_worker_thread.html">00018</a> <span class="keyword">class </span><a class="code" href="classtlgbackend_1_1_worker_thread.html" title="a worker thread which fetches actions from a queue and executes them">WorkerThread</a>(threading.Thread):
-<a name="l00019"></a><a class="code" href="classtlgbackend_1_1_worker_thread.html#a917d0df676d4a9445b5f1e9cdc7c5aa9">00019</a>     <span class="keyword">def </span><a class="code" href="classtlgbackend_1_1_worker_thread.html#a26447a41271dc34a268d354041c26661">__init__</a>(self, actionQueue, resultQueue, wikiname, runEvent):
-<a name="l00020"></a>00020         threading.Thread.__init__(self)
-<a name="l00021"></a>00021         self.<a class="code" href="classtlgbackend_1_1_worker_thread.html#af82b352688ee5d4e4d33004ed9ce5eca">actionQueue</a>= actionQueue
-<a name="l00022"></a>00022         self.<a class="code" href="classtlgbackend_1_1_worker_thread.html#a49d212e9609da3d49f04d1d19fc7bd73">resultQueue</a>= resultQueue
-<a name="l00023"></a>00023         self.<a class="code" href="classtlgbackend_1_1_worker_thread.html#a917d0df676d4a9445b5f1e9cdc7c5aa9">wikiname</a>= wikiname
-<a name="l00024"></a>00024         self.<a class="code" href="classtlgbackend_1_1_worker_thread.html#a1068effac9bd7c8cbc85a4c0df1190d0">daemon</a>= <span class="keyword">True</span>
-<a name="l00025"></a>00025         self.<a class="code" href="classtlgbackend_1_1_worker_thread.html#ade938a4e7108835d79f8f22d8836a976">runEvent</a>= runEvent
-<a name="l00026"></a>00026         self.<a class="code" href="classtlgbackend_1_1_worker_thread.html#a7a82e7cff50a8086561fb765eb39be43">currentAction</a>= <span class="stringliteral">&#39;&#39;</span>
-<a name="l00027"></a>00027     
-<a name="l00028"></a><a class="code" href="classtlgbackend_1_1_worker_thread.html#a1f3f376608c903369dd7729f07a3eeeb">00028</a>     <span class="keyword">def </span><a class="code" href="classtlgbackend_1_1_worker_thread.html#a1f3f376608c903369dd7729f07a3eeeb">setCurrentAction</a>(self, infoString):
-<a name="l00029"></a>00029         <span class="keywordflow">if</span> infoString.split(<span class="stringliteral">&#39;:&#39;</span>): self.<a class="code" href="classtlgbackend_1_1_worker_thread.html#a7a82e7cff50a8086561fb765eb39be43">currentAction</a>= infoString.split(<span class="stringliteral">&#39;:&#39;</span>)[-1]
-<a name="l00030"></a>00030         <span class="keywordflow">else</span>: self.<a class="code" href="classtlgbackend_1_1_worker_thread.html#a7a82e7cff50a8086561fb765eb39be43">currentAction</a>= infoString
-<a name="l00031"></a><a class="code" href="classtlgbackend_1_1_worker_thread.html#af7897b94697cd3948a8609a43c58ccb1">00031</a>     <span class="keyword">def </span><a class="code" href="classtlgbackend_1_1_worker_thread.html#af7897b94697cd3948a8609a43c58ccb1">getCurrentAction</a>(self):
-<a name="l00032"></a>00032         <span class="keywordflow">return</span> self.<a class="code" href="classtlgbackend_1_1_worker_thread.html#a7a82e7cff50a8086561fb765eb39be43">currentAction</a>
-<a name="l00033"></a>00033     
-<a name="l00034"></a><a class="code" href="classtlgbackend_1_1_worker_thread.html#ac3c21cbc3cb7d0ec0242b979b97751c0">00034</a>     <span class="keyword">def </span><a class="code" href="classtlgbackend_1_1_worker_thread.html#ac3c21cbc3cb7d0ec0242b979b97751c0">run</a>(self):
-<a name="l00035"></a>00035         <span class="comment"># create cursor which will most likely be used by actions later</span>
-<a name="l00036"></a>00036         cur= <a class="code" href="namespaceutils.html#ae3076c8315af058e4421e0e307bfd66a">getCursors</a>()[self.<a class="code" href="classtlgbackend_1_1_worker_thread.html#a917d0df676d4a9445b5f1e9cdc7c5aa9">wikiname</a>+<span class="stringliteral">&#39;_p&#39;</span>]
-<a name="l00037"></a>00037         <span class="comment"># wait until action queue is ready</span>
-<a name="l00038"></a>00038         self.runEvent.wait()
-<a name="l00039"></a>00039         <span class="keywordflow">try</span>:
-<a name="l00040"></a>00040             <span class="keywordflow">while</span> <span class="keyword">True</span>: 
-<a name="l00041"></a>00041                 <span class="comment"># todo: catch exceptions from execute()</span>
-<a name="l00042"></a>00042                 <span class="comment"># todo: if there are only actions left which cannot be run, exit the thread</span>
-<a name="l00043"></a>00043                 action= self.actionQueue.get(<span class="keyword">True</span>, 0)
-<a name="l00044"></a>00044                 <span class="comment"># </span>
-<a name="l00045"></a>00045                 <span class="keywordflow">if</span> action.canExecute():
-<a name="l00046"></a>00046                     self.<a class="code" href="classtlgbackend_1_1_worker_thread.html#a1f3f376608c903369dd7729f07a3eeeb">setCurrentAction</a>(action.parent.shortname)
-<a name="l00047"></a>00047                     action.execute(self.<a class="code" href="classtlgbackend_1_1_worker_thread.html#a49d212e9609da3d49f04d1d19fc7bd73">resultQueue</a>)
-<a name="l00048"></a>00048                 <span class="keywordflow">else</span>:
-<a name="l00049"></a>00049                     <a class="code" href="namespaceutils.html#a41c9a645fe092315401b5bf8570edd6e">dprint</a>(3, <span class="stringliteral">&quot;re-queueing action &quot;</span> + str(action) + <span class="stringliteral">&quot; from %s, queue len=%d&quot;</span> % (action.parent.shortname, self.actionQueue.qsize()))
-<a name="l00050"></a>00050                     self.actionQueue.put(action)
-<a name="l00051"></a>00051         <span class="keywordflow">except</span> Queue.Empty:
-<a name="l00052"></a>00052             self.<a class="code" href="classtlgbackend_1_1_worker_thread.html#a1f3f376608c903369dd7729f07a3eeeb">setCurrentAction</a>(<span class="stringliteral">&#39;&#39;</span>)
-<a name="l00053"></a>00053             <span class="keywordflow">return</span>
-<a name="l00054"></a>00054 
-<a name="l00055"></a><a class="code" href="classtlgbackend_1_1_result_set_too_large_exception.html">00055</a> <span class="keyword">class </span><a class="code" href="classtlgbackend_1_1_result_set_too_large_exception.html">ResultSetTooLargeException</a>(Exception):
-<a name="l00056"></a>00056     <span class="keywordflow">pass</span>
-<a name="l00057"></a>00057 
-<a name="l00058"></a>00058 <span class="comment">## main app class</span>
-<a name="l00059"></a><a class="code" href="classtlgbackend_1_1_task_list_generator.html">00059</a> <span class="keyword">class </span>TaskListGenerator:
-<a name="l00060"></a><a class="code" href="classtlgbackend_1_1_task_list_generator.html#a09c0089666f375ed27c846ab3ac3675f">00060</a>     <span class="keyword">def </span><a class="code" href="classtlgbackend_1_1_task_list_generator.html#ad6360b301e19da6f975c61fbaf811693">__init__</a>(self):
-<a name="l00061"></a>00061         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aec4fb134b1cbb2e9293c17f38311933a">actionQueue</a>= Queue.Queue()     <span class="comment"># actions to process</span>
-<a name="l00062"></a>00062         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a308b8dcce3ec06c2272daab7e33c18c1">resultQueue</a>= Queue.Queue()     <span class="comment"># results of actions </span>
-<a name="l00063"></a>00063         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>= {}              <span class="comment"># final merged results, one entry per article</span>
-<a name="l00064"></a>00064         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a09c0089666f375ed27c846ab3ac3675f">workerThreads</a>= []
-<a name="l00065"></a>00065         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aab28a85700811b339e6e49decf912713">pagesToTest</a>= []                <span class="comment"># page IDs to test for flaws</span>
-<a name="l00066"></a>00066         <span class="comment"># todo: check connection limit when several instances of the script are running</span>
-<a name="l00067"></a>00067         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a4abecb5439455fded26b4f5f67e72d66">numWorkerThreads</a>= 7
-<a name="l00068"></a>00068         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#ad34177e61b565d74a21b58bb48ce604c">wiki</a>= <span class="keywordtype">None</span>
-<a name="l00069"></a>00069         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a5c3e1b9b69e5eb20e2e921882caa3a92">cg</a>= <span class="keywordtype">None</span>
-<a name="l00070"></a>00070         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a2f85ca36230a924a2c1d7074b3fc7f5f">runEvent</a>= threading.Event()
-<a name="l00071"></a>00071         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a3bf0f5a569db3d91ebf71a0341ff4d52">loadFilterModules</a>()
-<a name="l00072"></a>00072     
-<a name="l00073"></a>00073     @staticmethod
-<a name="l00074"></a><a class="code" href="classtlgbackend_1_1_task_list_generator.html#a7becd0c2b71fda1036f362ae6d661d32">00074</a>     <span class="keyword">def </span><a class="code" href="classtlgbackend_1_1_task_list_generator.html#a7becd0c2b71fda1036f362ae6d661d32">mkStatus</a>(string):
-<a name="l00075"></a>00075         <span class="keywordflow">return</span> json.dumps({<span class="stringliteral">&#39;status&#39;</span>: string})
-<a name="l00076"></a>00076         
-<a name="l00077"></a>00077     <span class="comment"># wip, testing</span>
-<a name="l00078"></a><a class="code" href="classtlgbackend_1_1_task_list_generator.html#a3bf0f5a569db3d91ebf71a0341ff4d52">00078</a>     <span class="keyword">def </span><a class="code" href="classtlgbackend_1_1_task_list_generator.html#a3bf0f5a569db3d91ebf71a0341ff4d52">loadFilterModules</a>(self):
-<a name="l00079"></a>00079         <span class="keyword">import</span> imp
-<a name="l00080"></a>00080         <span class="keywordflow">for</span> root, dirs, files <span class="keywordflow">in</span> os.walk(os.path.join(sys.path[0], <span class="stringliteral">&#39;filtermodules&#39;</span>)):
-<a name="l00081"></a>00081             <span class="keywordflow">for</span> name <span class="keywordflow">in</span> files:
-<a name="l00082"></a>00082                 <span class="keywordflow">if</span> name[-3:]==<span class="stringliteral">&#39;.py&#39;</span>:
-<a name="l00083"></a>00083                     <span class="comment">#~ self.printStatus(&#39;importing &#39; + os.path.join(root, name))</span>
-<a name="l00084"></a>00084                     file= <span class="keywordtype">None</span>
-<a name="l00085"></a>00085                     module= <span class="keywordtype">None</span>
-<a name="l00086"></a>00086                     <span class="keywordflow">try</span>:
-<a name="l00087"></a>00087                         modname= name[:-3]
-<a name="l00088"></a>00088                         (file, pathname, description)= imp.find_module(modname, [root])
-<a name="l00089"></a>00089                         module= imp.load_module(modname, file, pathname, description)
-<a name="l00090"></a>00090                     <span class="keywordflow">except</span> Exception <span class="keyword">as</span> e:
-<a name="l00091"></a>00091                         <a class="code" href="namespaceutils.html#a41c9a645fe092315401b5bf8570edd6e">dprint</a>(0, <span class="stringliteral">&quot;error occured while loading filter module %s, exception string was &#39;%s&#39;&quot;</span> % (modname, str(e)))
-<a name="l00092"></a>00092                         <span class="keywordflow">pass</span>
-<a name="l00093"></a>00093                     <span class="keywordflow">finally</span>:
-<a name="l00094"></a>00094                         <span class="keywordflow">if</span> file: file.close()
-<a name="l00095"></a>00095                         <span class="keywordflow">if</span> module: <a class="code" href="namespaceutils.html#a41c9a645fe092315401b5bf8570edd6e">dprint</a>(0, <span class="stringliteral">&quot;loaded filter module &#39;%s&#39;&quot;</span> % modname)
-<a name="l00096"></a>00096     
-<a name="l00097"></a><a class="code" href="classtlgbackend_1_1_task_list_generator.html#a67b1848a47a0f4206921731df0fe5f31">00097</a>     <span class="keyword">def </span><a class="code" href="classtlgbackend_1_1_task_list_generator.html#a67b1848a47a0f4206921731df0fe5f31">getFlawList</a>(self):
-<a name="l00098"></a>00098         infos= {}
-<a name="l00099"></a>00099         <span class="keywordflow">for</span> i <span class="keywordflow">in</span> FlawFilters.classInfos:
-<a name="l00100"></a>00100             ci= FlawFilters.classInfos[i]
-<a name="l00101"></a>00101             infos[ci.shortname]= { <span class="stringliteral">&#39;group&#39;</span>: ci.group, <span class="stringliteral">&#39;description&#39;</span>: ci.description }   <span class="comment">#, &#39;parameters&#39;: None }</span>
-<a name="l00102"></a>00102         <span class="keywordflow">return</span> json.dumps(infos)
-<a name="l00103"></a>00103     
-<a name="l00104"></a><a class="code" href="classtlgbackend_1_1_task_list_generator.html#a03e82a48252bd8f71587253416bc12c4">00104</a>     <span class="keyword">def </span><a class="code" href="classtlgbackend_1_1_task_list_generator.html#a03e82a48252bd8f71587253416bc12c4">listFlaws</a>(self):
-<a name="l00105"></a>00105         <span class="keywordflow">print</span> self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a67b1848a47a0f4206921731df0fe5f31">getFlawList</a>()
-<a name="l00106"></a>00106     
-<a name="l00107"></a>00107     <span class="comment">## find flaws and print results to output file.</span>
-<a name="l00108"></a>00108     <span class="comment"># @param lang The wiki language code (&#39;de&#39;, &#39;fr&#39;).</span>
-<a name="l00109"></a>00109     <span class="comment"># @param queryString The query string. See CatGraphInterface.executeSearchString documentation.</span>
-<a name="l00110"></a>00110     <span class="comment"># @param queryDepth Search recursion depth.</span>
-<a name="l00111"></a>00111     <span class="comment"># @param flaws String of flaw detector names</span>
-<a name="l00112"></a><a class="code" href="classtlgbackend_1_1_task_list_generator.html#a89b17e8a632d40484629d43c63fb469c">00112</a>     <span class="keyword">def </span><a class="code" href="classtlgbackend_1_1_task_list_generator.html#a89b17e8a632d40484629d43c63fb469c" title="find flaws and print results to output file.">run</a>(self, lang, queryString, queryDepth, flaws):
-<a name="l00113"></a>00113         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a0865b71b78bd00cf58358c899baa3745">language</a>= lang
-<a name="l00114"></a>00114         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#ad34177e61b565d74a21b58bb48ce604c">wiki</a>= lang + <span class="stringliteral">&#39;wiki&#39;</span>
-<a name="l00115"></a>00115 
-<a name="l00116"></a>00116         <span class="comment"># spawn the worker threads</span>
-<a name="l00117"></a>00117         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a92da0373cd2ebdaad31123e0be78be71">initThreads</a>()
-<a name="l00118"></a>00118         
-<a name="l00119"></a>00119         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a5c3e1b9b69e5eb20e2e921882caa3a92">cg</a>= <a class="code" href="classtlgcatgraph_1_1_cat_graph_interface.html">CatGraphInterface</a>(graphname=self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#ad34177e61b565d74a21b58bb48ce604c">wiki</a>)
-<a name="l00120"></a>00120         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aab28a85700811b339e6e49decf912713">pagesToTest</a>= self.cg.executeSearchString(queryString, queryDepth)
-<a name="l00121"></a>00121 
-<a name="l00122"></a>00122         <span class="comment"># todo: add something like MaxWaitTime, instead of this</span>
-<a name="l00123"></a>00123         <span class="comment">#~ if len(self.pagesToTest) &gt; 50000:</span>
-<a name="l00124"></a>00124             <span class="comment">#~ raise RuntimeError(&#39;result set of %d pages is too large to process in a reasonable time, please modify your search string.&#39; % len(self.pagesToTest))</span>
-<a name="l00125"></a>00125         
-<a name="l00126"></a>00126         <span class="comment"># create the actions for every page x every flaw</span>
-<a name="l00127"></a>00127         <span class="keywordflow">for</span> flawname <span class="keywordflow">in</span> flaws.split():
-<a name="l00128"></a>00128             <span class="keywordflow">try</span>:
-<a name="l00129"></a>00129                 flaw= FlawFilters.classInfos[flawname](self)
-<a name="l00130"></a>00130             <span class="keywordflow">except</span> KeyError:
-<a name="l00131"></a>00131                 <span class="keywordflow">raise</span> RuntimeError(<span class="stringliteral">&#39;Unknown flaw %s&#39;</span> % flawname)
-<a name="l00132"></a>00132             self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#af1a7ac8f4d6b628bb686de8ec6385bfd">createActions</a>(flaw, self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a0865b71b78bd00cf58358c899baa3745">language</a>, self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aab28a85700811b339e6e49decf912713">pagesToTest</a>)
-<a name="l00133"></a>00133             
-<a name="l00134"></a>00134         numActions= self.actionQueue.qsize()
-<a name="l00135"></a>00135         <a class="code" href="namespaceutils.html#a41c9a645fe092315401b5bf8570edd6e">dprint</a>(0, <span class="stringliteral">&quot;%d pages to test, %d actions to process&quot;</span> % (len(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aab28a85700811b339e6e49decf912713">pagesToTest</a>), numActions))
-<a name="l00136"></a>00136         
-<a name="l00137"></a>00137         <span class="comment"># signal worker threads that they can run</span>
-<a name="l00138"></a>00138         self.runEvent.set()
-<a name="l00139"></a>00139         
-<a name="l00140"></a>00140         <span class="comment"># process results as they are created</span>
-<a name="l00141"></a>00141         actionsProcessed= numActions-self.actionQueue.qsize()
-<a name="l00142"></a>00142         <span class="keywordflow">while</span> threading.activeCount()&gt;1:
-<a name="l00143"></a>00143             self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a80268275f16bf4ad49c795938b619fef">drainResultQueue</a>()
-<a name="l00144"></a>00144             n= numActions-self.actionQueue.qsize()
-<a name="l00145"></a>00145             <span class="keywordflow">if</span> n!=actionsProcessed:
-<a name="l00146"></a>00146                 actionsProcessed= n
-<a name="l00147"></a>00147                 <a class="code" href="namespaceutils.html#a41c9a645fe092315401b5bf8570edd6e">dprint</a>(0, <span class="stringliteral">&quot;%d/%d actions processed&quot;</span> % (actionsProcessed, numActions))
-<a name="l00148"></a>00148             time.sleep(0.25)
-<a name="l00149"></a>00149         <span class="keywordflow">for</span> i <span class="keywordflow">in</span> self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a09c0089666f375ed27c846ab3ac3675f">workerThreads</a>:
-<a name="l00150"></a>00150             i.join()
-<a name="l00151"></a>00151         <span class="comment"># process the last results</span>
-<a name="l00152"></a>00152         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a80268275f16bf4ad49c795938b619fef">drainResultQueue</a>()
-<a name="l00153"></a>00153         
-<a name="l00154"></a>00154         <span class="comment"># sort by length of flaw list, flaw list, and page title</span>
-<a name="l00155"></a>00155         sortedResults= sorted(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>, key= <span class="keyword">lambda</span> result: \
-<a name="l00156"></a>00156             (-len(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>[result][<span class="stringliteral">&#39;flaws&#39;</span>]), sorted(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>[result][<span class="stringliteral">&#39;flaws&#39;</span>]), self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>[result][<span class="stringliteral">&#39;page&#39;</span>][<span class="stringliteral">&#39;page_title&#39;</span>]))
-<a name="l00157"></a>00157         
-<a name="l00158"></a>00158         <span class="comment"># print results</span>
-<a name="l00159"></a>00159         <span class="keywordflow">for</span> i <span class="keywordflow">in</span> sortedResults:
-<a name="l00160"></a>00160             <span class="keywordflow">print</span> json.dumps(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>[i])
-<a name="l00161"></a>00161         
-<a name="l00162"></a>00162         <span class="keywordflow">return</span> <span class="keyword">True</span>
-<a name="l00163"></a>00163     
-<a name="l00164"></a>00164     <span class="comment"># testing generator stuff</span>
-<a name="l00165"></a><a class="code" href="classtlgbackend_1_1_task_list_generator.html#a3c382b6cef5c2acca88e3f3525020722">00165</a>     <span class="keyword">def </span><a class="code" href="classtlgbackend_1_1_task_list_generator.html#a3c382b6cef5c2acca88e3f3525020722">generateQuery</a>(self, lang, queryString, queryDepth, flaws):
-<a name="l00166"></a>00166         begin= time.time()
+<a name="l00017"></a>00017 <span class="comment"># todo: check what happens when uncaught exceptions get thrown (script doesn&#39;t exit)</span>
+<a name="l00018"></a>00018 <span class="comment"># daemon threads</span>
+<a name="l00019"></a>00019 
+<a name="l00020"></a>00020 <span class="comment">## a worker thread which fetches actions from a queue and executes them</span>
+<a name="l00021"></a><a class="code" href="classtlgbackend_1_1_worker_thread.html">00021</a> <span class="keyword">class </span><a class="code" href="classtlgbackend_1_1_worker_thread.html" title="a worker thread which fetches actions from a queue and executes them">WorkerThread</a>(threading.Thread):
+<a name="l00022"></a>00022     <span class="keyword">def </span>__init__(self, actionQueue, resultQueue, wikiname, runEvent):
+<a name="l00023"></a>00023         threading.Thread.__init__(self)
+<a name="l00024"></a>00024         self.<a class="code" href="classtlgbackend_1_1_worker_thread.html#af82b352688ee5d4e4d33004ed9ce5eca">actionQueue</a>= actionQueue
+<a name="l00025"></a>00025         self.<a class="code" href="classtlgbackend_1_1_worker_thread.html#a49d212e9609da3d49f04d1d19fc7bd73">resultQueue</a>= resultQueue
+<a name="l00026"></a>00026         self.<a class="code" href="classtlgbackend_1_1_worker_thread.html#a917d0df676d4a9445b5f1e9cdc7c5aa9">wikiname</a>= wikiname
+<a name="l00027"></a>00027         self.<a class="code" href="classtlgbackend_1_1_worker_thread.html#a1068effac9bd7c8cbc85a4c0df1190d0">daemon</a>= <span class="keyword">True</span>
+<a name="l00028"></a>00028         self.<a class="code" href="classtlgbackend_1_1_worker_thread.html#ade938a4e7108835d79f8f22d8836a976">runEvent</a>= runEvent
+<a name="l00029"></a>00029         self.<a class="code" href="classtlgbackend_1_1_worker_thread.html#a7a82e7cff50a8086561fb765eb39be43">currentAction</a>= <span class="stringliteral">&#39;&#39;</span>
+<a name="l00030"></a>00030     
+<a name="l00031"></a>00031     <span class="keyword">def </span>setCurrentAction(self, infoString):
+<a name="l00032"></a>00032         <span class="keywordflow">if</span> infoString.split(<span class="stringliteral">&#39;:&#39;</span>): self.<a class="code" href="classtlgbackend_1_1_worker_thread.html#a7a82e7cff50a8086561fb765eb39be43">currentAction</a>= infoString.split(<span class="stringliteral">&#39;:&#39;</span>)[-1]
+<a name="l00033"></a>00033         <span class="keywordflow">else</span>: self.<a class="code" href="classtlgbackend_1_1_worker_thread.html#a7a82e7cff50a8086561fb765eb39be43">currentAction</a>= infoString
+<a name="l00034"></a>00034     <span class="keyword">def </span>getCurrentAction(self):
+<a name="l00035"></a>00035         <span class="keywordflow">return</span> self.<a class="code" href="classtlgbackend_1_1_worker_thread.html#a7a82e7cff50a8086561fb765eb39be43">currentAction</a>
+<a name="l00036"></a>00036     
+<a name="l00037"></a>00037     <span class="keyword">def </span>run(self):
+<a name="l00038"></a>00038         <span class="comment"># create cursor which will most likely be used by actions later</span>
+<a name="l00039"></a>00039         cur= getCursors()[self.<a class="code" href="classtlgbackend_1_1_worker_thread.html#a917d0df676d4a9445b5f1e9cdc7c5aa9">wikiname</a>+<span class="stringliteral">&#39;_p&#39;</span>]
+<a name="l00040"></a>00040         <span class="comment"># wait until action queue is ready</span>
+<a name="l00041"></a>00041         self.runEvent.wait()
+<a name="l00042"></a>00042         <span class="keywordflow">try</span>:
+<a name="l00043"></a>00043             <span class="keywordflow">while</span> <span class="keyword">True</span>: 
+<a name="l00044"></a>00044                 <span class="comment"># todo: catch exceptions from execute()</span>
+<a name="l00045"></a>00045                 <span class="comment"># todo: if there are only actions left which cannot be run, exit the thread</span>
+<a name="l00046"></a>00046                 action= self.actionQueue.get(<span class="keyword">True</span>, 0)
+<a name="l00047"></a>00047                 <span class="keywordflow">if</span> action.canExecute():
+<a name="l00048"></a>00048                     self.<a class="code" href="classtlgbackend_1_1_worker_thread.html#a1f3f376608c903369dd7729f07a3eeeb">setCurrentAction</a>(action.parent.shortname)
+<a name="l00049"></a>00049                     action.execute(self.<a class="code" href="classtlgbackend_1_1_worker_thread.html#a49d212e9609da3d49f04d1d19fc7bd73">resultQueue</a>)
+<a name="l00050"></a>00050                 <span class="keywordflow">else</span>:
+<a name="l00051"></a>00051                     dprint(3, <span class="stringliteral">&quot;re-queueing action &quot;</span> + str(action) + <span class="stringliteral">&quot; from %s, queue len=%d&quot;</span> % (action.parent.shortname, self.actionQueue.qsize()))
+<a name="l00052"></a>00052                     self.actionQueue.put(action)
+<a name="l00053"></a>00053                 
+<a name="l00054"></a>00054                 tempCursors= GetTempCursors()
+<a name="l00055"></a>00055                 rmkeys= []
+<a name="l00056"></a>00056                 <span class="keywordflow">for</span> key <span class="keywordflow">in</span> tempCursors:
+<a name="l00057"></a>00057                     tc= tempCursors[key]
+<a name="l00058"></a>00058                     <span class="keywordflow">if</span> time.time() - tc.lastuse &gt; 3:
+<a name="l00059"></a>00059                         dprint(0, <span class="stringliteral">&#39;closing temp cursor %s&#39;</span> % tc.key)
+<a name="l00060"></a>00060                         tc.cursor.close()
+<a name="l00061"></a>00061                         tc.conn.close()
+<a name="l00062"></a>00062                         rmkeys.append(key)
+<a name="l00063"></a>00063                 <span class="keywordflow">for</span> k <span class="keywordflow">in</span> rmkeys:
+<a name="l00064"></a>00064                     del tempCursors[k]
+<a name="l00065"></a>00065                         
+<a name="l00066"></a>00066         <span class="keywordflow">except</span> Queue.Empty:
+<a name="l00067"></a>00067             self.<a class="code" href="classtlgbackend_1_1_worker_thread.html#a1f3f376608c903369dd7729f07a3eeeb">setCurrentAction</a>(<span class="stringliteral">&#39;&#39;</span>)
+<a name="l00068"></a>00068             tempCursors= GetTempCursors()
+<a name="l00069"></a>00069             <span class="keywordflow">for</span> key <span class="keywordflow">in</span> tempCursors:
+<a name="l00070"></a>00070                 tc= tempCursors[key]
+<a name="l00071"></a>00071                 tc.cursor.close()
+<a name="l00072"></a>00072                 tc.conn.close()
+<a name="l00073"></a>00073             tempCursors.clear()
+<a name="l00074"></a>00074             <span class="comment"># todo: close other open connections</span>
+<a name="l00075"></a>00075             <span class="keywordflow">return</span>
+<a name="l00076"></a>00076 
+<a name="l00077"></a>00077 <span class="comment"># replacing Queue with this lock-free container might be faster</span>
+<a name="l00078"></a>00078 <span class="keyword">import</span> collections
+<a name="l00079"></a><a class="code" href="classtlgbackend_1_1_queue_wrapper.html">00079</a> <span class="keyword">class </span><a class="code" href="classtlgbackend_1_1_queue_wrapper.html">QueueWrapper</a>(collections.deque):
+<a name="l00080"></a>00080     <span class="keyword">def </span>init(self):
+<a name="l00081"></a>00081         collections.deque.__init__(self)
+<a name="l00082"></a>00082 
+<a name="l00083"></a>00083     <span class="keyword">def </span>get(self, block=True, timeout=None):    <span class="comment"># block and timeout are ignored</span>
+<a name="l00084"></a>00084         <span class="keywordflow">try</span>:
+<a name="l00085"></a>00085             <span class="keywordflow">return</span> self.popleft()
+<a name="l00086"></a>00086         <span class="keywordflow">except</span> IndexError:
+<a name="l00087"></a>00087             <span class="keywordflow">raise</span> Queue.Empty()
+<a name="l00088"></a>00088     
+<a name="l00089"></a>00089     <span class="keyword">def </span>put(self, item):
+<a name="l00090"></a>00090         self.append(item)
+<a name="l00091"></a>00091         
+<a name="l00092"></a>00092     <span class="keyword">def </span>qsize(self):
+<a name="l00093"></a>00093         <span class="keywordflow">return</span> len(self)
+<a name="l00094"></a>00094     
+<a name="l00095"></a>00095     <span class="keyword">def </span>empty(self):
+<a name="l00096"></a>00096         <span class="keywordflow">return</span> len(self)==0
+<a name="l00097"></a>00097 
+<a name="l00098"></a>00098         
+<a name="l00099"></a>00099 <span class="comment">## main app class</span>
+<a name="l00100"></a><a class="code" href="classtlgbackend_1_1_task_list_generator.html">00100</a> <span class="keyword">class </span><a class="code" href="classtlgbackend_1_1_task_list_generator.html" title="main app class">TaskListGenerator</a>:
+<a name="l00101"></a>00101     <span class="keyword">def </span>__init__(self):
+<a name="l00102"></a>00102         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aec4fb134b1cbb2e9293c17f38311933a">actionQueue</a>= <a class="code" href="classtlgbackend_1_1_queue_wrapper.html">QueueWrapper</a>()    <span class="comment">#Queue.Queue()     # actions to process</span>
+<a name="l00103"></a>00103         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a308b8dcce3ec06c2272daab7e33c18c1">resultQueue</a>= <a class="code" href="classtlgbackend_1_1_queue_wrapper.html">QueueWrapper</a>()    <span class="comment">#Queue.Queue()     # results of actions </span>
+<a name="l00104"></a>00104         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>= {}              <span class="comment"># final merged results, one entry per article</span>
+<a name="l00105"></a>00105         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a09c0089666f375ed27c846ab3ac3675f">workerThreads</a>= []
+<a name="l00106"></a>00106         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aab28a85700811b339e6e49decf912713">pagesToTest</a>= []                <span class="comment"># page IDs to test for flaws</span>
+<a name="l00107"></a>00107         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a4abecb5439455fded26b4f5f67e72d66">numWorkerThreads</a>= 5
+<a name="l00108"></a>00108         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#ad34177e61b565d74a21b58bb48ce604c">wiki</a>= <span class="keywordtype">None</span>
+<a name="l00109"></a>00109         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a5c3e1b9b69e5eb20e2e921882caa3a92">cg</a>= <span class="keywordtype">None</span>
+<a name="l00110"></a>00110         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a2f85ca36230a924a2c1d7074b3fc7f5f">runEvent</a>= threading.Event()
+<a name="l00111"></a>00111         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a3bf0f5a569db3d91ebf71a0341ff4d52">loadFilterModules</a>()
+<a name="l00112"></a>00112     
+<a name="l00113"></a>00113     <span class="keyword">def </span>getActiveWorkerCount(self):
+<a name="l00114"></a>00114         count= 0
+<a name="l00115"></a>00115         <span class="keywordflow">for</span> t <span class="keywordflow">in</span> self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a09c0089666f375ed27c846ab3ac3675f">workerThreads</a>:
+<a name="l00116"></a>00116             <span class="keywordflow">if</span> t.isAlive(): count+= 1
+<a name="l00117"></a>00117         <span class="keywordflow">return</span> count
+<a name="l00118"></a>00118     
+<a name="l00119"></a>00119     @staticmethod
+<a name="l00120"></a>00120     <span class="keyword">def </span>mkStatus(string):
+<a name="l00121"></a>00121         <span class="keywordflow">return</span> json.dumps({<span class="stringliteral">&#39;status&#39;</span>: string})
+<a name="l00122"></a>00122         
+<a name="l00123"></a>00123     <span class="keyword">def </span>loadFilterModules(self):
+<a name="l00124"></a>00124         <span class="keyword">import</span> imp
+<a name="l00125"></a>00125         <span class="keywordflow">for</span> root, dirs, files <span class="keywordflow">in</span> os.walk(os.path.join(sys.path[0], <span class="stringliteral">&#39;filtermodules&#39;</span>)):
+<a name="l00126"></a>00126             <span class="keywordflow">for</span> name <span class="keywordflow">in</span> files:
+<a name="l00127"></a>00127                 <span class="keywordflow">if</span> name[-3:]==<span class="stringliteral">&#39;.py&#39;</span>:
+<a name="l00128"></a>00128                     file= <span class="keywordtype">None</span>
+<a name="l00129"></a>00129                     module= <span class="keywordtype">None</span>
+<a name="l00130"></a>00130                     <span class="keywordflow">try</span>:
+<a name="l00131"></a>00131                         modname= name[:-3]
+<a name="l00132"></a>00132                         (file, pathname, description)= imp.find_module(modname, [root])
+<a name="l00133"></a>00133                         module= imp.load_module(modname, file, pathname, description)
+<a name="l00134"></a>00134                     <span class="keywordflow">except</span> Exception <span class="keyword">as</span> e:
+<a name="l00135"></a>00135                         dprint(0, <span class="stringliteral">&quot;error occured while loading filter module %s, exception string was &#39;%s&#39;&quot;</span> % (modname, str(e)))
+<a name="l00136"></a>00136                         <span class="keywordflow">pass</span>
+<a name="l00137"></a>00137                     <span class="keywordflow">finally</span>:
+<a name="l00138"></a>00138                         <span class="keywordflow">if</span> file: file.close()
+<a name="l00139"></a>00139                         <span class="keywordflow">if</span> module: dprint(0, <span class="stringliteral">&quot;loaded filter module &#39;%s&#39;&quot;</span> % modname)
+<a name="l00140"></a>00140 
+<a name="l00141"></a>00141     <span class="keyword">def </span>getFlawList(self):
+<a name="l00142"></a>00142         infoString= <span class="stringliteral">&#39;{\n&#39;</span>
+<a name="l00143"></a>00143         firstLine= <span class="keyword">True</span>
+<a name="l00144"></a>00144         <span class="keywordflow">for</span> i <span class="keywordflow">in</span> sorted(FlawFilters.classInfos):
+<a name="l00145"></a>00145             ci= FlawFilters.classInfos[i]
+<a name="l00146"></a>00146             <span class="keywordflow">if</span> <span class="keywordflow">not</span> firstLine:
+<a name="l00147"></a>00147                 infoString+= <span class="stringliteral">&#39;,\n&#39;</span>
+<a name="l00148"></a>00148             firstLine= <span class="keyword">False</span>
+<a name="l00149"></a>00149             infoString+= <span class="stringliteral">&#39;\t&quot;%s&quot;: %s&#39;</span> % (ci.shortname, json.dumps({ <span class="stringliteral">&#39;group&#39;</span>: ci.group, <span class="stringliteral">&#39;label&#39;</span>: ci.label, <span class="stringliteral">&#39;description&#39;</span>: ci.description }))
+<a name="l00150"></a>00150         infoString+= <span class="stringliteral">&#39;\n}\n&#39;</span>
+<a name="l00151"></a>00151         <span class="keywordflow">return</span> infoString
+<a name="l00152"></a>00152     
+<a name="l00153"></a>00153     <span class="keyword">def </span>listFlaws(self):
+<a name="l00154"></a>00154         <span class="keywordflow">print</span> self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a67b1848a47a0f4206921731df0fe5f31">getFlawList</a>()
+<a name="l00155"></a>00155     
+<a name="l00156"></a>00156     <span class="comment">## find flaws and print results to output file.</span>
+<a name="l00157"></a>00157     <span class="comment"># @param lang The wiki language code (&#39;de&#39;, &#39;fr&#39;).</span>
+<a name="l00158"></a>00158     <span class="comment"># @param queryString The query string. See CatGraphInterface.executeSearchString documentation.</span>
+<a name="l00159"></a>00159     <span class="comment"># @param queryDepth Search recursion depth.</span>
+<a name="l00160"></a>00160     <span class="comment"># @param flaws String of flaw detector names</span>
+<a name="l00161"></a><a class="code" href="classtlgbackend_1_1_task_list_generator.html#a89b17e8a632d40484629d43c63fb469c">00161</a>     <span class="keyword">def </span><a class="code" href="classtlgbackend_1_1_task_list_generator.html#a89b17e8a632d40484629d43c63fb469c" title="find flaws and print results to output file.">run</a>(self, lang, queryString, queryDepth, flaws):
+<a name="l00162"></a>00162         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a0865b71b78bd00cf58358c899baa3745">language</a>= lang
+<a name="l00163"></a>00163         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#ad34177e61b565d74a21b58bb48ce604c">wiki</a>= lang + <span class="stringliteral">&#39;wiki&#39;</span>
+<a name="l00164"></a>00164 
+<a name="l00165"></a>00165         <span class="comment"># spawn the worker threads</span>
+<a name="l00166"></a>00166         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a92da0373cd2ebdaad31123e0be78be71">initThreads</a>()
 <a name="l00167"></a>00167         
-<a name="l00168"></a>00168         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a0865b71b78bd00cf58358c899baa3745">language</a>= lang
-<a name="l00169"></a>00169         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#ad34177e61b565d74a21b58bb48ce604c">wiki</a>= lang + <span class="stringliteral">&#39;wiki&#39;</span>
+<a name="l00168"></a>00168         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a5c3e1b9b69e5eb20e2e921882caa3a92">cg</a>= <a class="code" href="classtlgcatgraph_1_1_cat_graph_interface.html">CatGraphInterface</a>(graphname=self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#ad34177e61b565d74a21b58bb48ce604c">wiki</a>)
+<a name="l00169"></a>00169         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aab28a85700811b339e6e49decf912713">pagesToTest</a>= self.cg.executeSearchString(queryString, queryDepth)
 <a name="l00170"></a>00170 
-<a name="l00171"></a>00171         <span class="comment"># spawn the worker threads</span>
-<a name="l00172"></a>00172         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a92da0373cd2ebdaad31123e0be78be71">initThreads</a>()
-<a name="l00173"></a>00173         
-<a name="l00174"></a>00174         <span class="keywordflow">yield</span> self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a7becd0c2b71fda1036f362ae6d661d32">mkStatus</a>(<span class="stringliteral">&#39;querying CatGraph for \&#39;%s\&#39; with depth %d&#39;</span> % (queryString, int(queryDepth)))
-<a name="l00175"></a>00175 
-<a name="l00176"></a>00176         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a5c3e1b9b69e5eb20e2e921882caa3a92">cg</a>= <a class="code" href="classtlgcatgraph_1_1_cat_graph_interface.html">CatGraphInterface</a>(graphname=self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#ad34177e61b565d74a21b58bb48ce604c">wiki</a>)
-<a name="l00177"></a>00177         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aab28a85700811b339e6e49decf912713">pagesToTest</a>= self.cg.executeSearchString(queryString, queryDepth)
-<a name="l00178"></a>00178         
-<a name="l00179"></a>00179         <span class="keywordflow">yield</span> self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a7becd0c2b71fda1036f362ae6d661d32">mkStatus</a>(<span class="stringliteral">&#39;CatGraph returned %d results.&#39;</span> % len(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aab28a85700811b339e6e49decf912713">pagesToTest</a>))
-<a name="l00180"></a>00180 
-<a name="l00181"></a>00181         <span class="comment"># todo: add something like MaxWaitTime, instead of this</span>
-<a name="l00182"></a>00182         <span class="comment">#~ if len(self.pagesToTest) &gt; 50000:</span>
-<a name="l00183"></a>00183             <span class="comment">#~ raise RuntimeError(&#39;result set of %d pages is too large to process in a reasonable time, please modify your search string.&#39; % len(self.pagesToTest))</span>
-<a name="l00184"></a>00184         
-<a name="l00185"></a>00185         <span class="comment"># create the actions for every page x every flaw</span>
-<a name="l00186"></a>00186         <span class="keywordflow">for</span> flawname <span class="keywordflow">in</span> flaws.split():
-<a name="l00187"></a>00187             <span class="keywordflow">try</span>:
-<a name="l00188"></a>00188                 flaw= FlawFilters.classInfos[flawname](self)
-<a name="l00189"></a>00189             <span class="keywordflow">except</span> KeyError:
-<a name="l00190"></a>00190                 <span class="keywordflow">raise</span> RuntimeError(<span class="stringliteral">&#39;Unknown flaw %s&#39;</span> % flawname)
-<a name="l00191"></a>00191             self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#af1a7ac8f4d6b628bb686de8ec6385bfd">createActions</a>(flaw, self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a0865b71b78bd00cf58358c899baa3745">language</a>, self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aab28a85700811b339e6e49decf912713">pagesToTest</a>)
-<a name="l00192"></a>00192             
-<a name="l00193"></a>00193         numActions= self.actionQueue.qsize()
-<a name="l00194"></a>00194         <span class="keywordflow">yield</span> self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a7becd0c2b71fda1036f362ae6d661d32">mkStatus</a>(<span class="stringliteral">&quot;%d pages to test, %d actions to process&quot;</span> % (len(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aab28a85700811b339e6e49decf912713">pagesToTest</a>), numActions))
-<a name="l00195"></a>00195         
-<a name="l00196"></a>00196         <span class="comment"># signal worker threads that they can run</span>
-<a name="l00197"></a>00197         self.runEvent.set()
-<a name="l00198"></a>00198         
-<a name="l00199"></a>00199         <span class="comment"># process results as they are created</span>
-<a name="l00200"></a>00200         actionsProcessed= numActions-self.actionQueue.qsize()
-<a name="l00201"></a>00201         <span class="keywordflow">while</span> threading.activeCount()&gt;1:
-<a name="l00202"></a>00202             self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a80268275f16bf4ad49c795938b619fef">drainResultQueue</a>()
-<a name="l00203"></a>00203             n= max(numActions-self.actionQueue.qsize()-(threading.activeCount()-1), 1)
-<a name="l00204"></a>00204             <span class="keywordflow">if</span> n!=actionsProcessed:
-<a name="l00205"></a>00205                 actionsProcessed= n
-<a name="l00206"></a>00206                 eta= (time.time()-begin) / actionsProcessed * (numActions-actionsProcessed)
-<a name="l00207"></a>00207                 <span class="keywordflow">yield</span> self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a7becd0c2b71fda1036f362ae6d661d32">mkStatus</a>(<span class="stringliteral">&#39;%d of %d actions processed (eta: %02d:%02d)&#39;</span> % (actionsProcessed, numActions, int(eta)/60, int(eta)%60))
-<a name="l00208"></a>00208             time.sleep(0.25)
-<a name="l00209"></a>00209         <span class="keywordflow">for</span> i <span class="keywordflow">in</span> self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a09c0089666f375ed27c846ab3ac3675f">workerThreads</a>:
-<a name="l00210"></a>00210             i.join()
-<a name="l00211"></a>00211         <span class="comment"># process the last results</span>
-<a name="l00212"></a>00212         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a80268275f16bf4ad49c795938b619fef">drainResultQueue</a>()
-<a name="l00213"></a>00213         
-<a name="l00214"></a>00214         <span class="comment"># sort by length of flaw list, flaw list, and page title</span>
-<a name="l00215"></a>00215         sortedResults= sorted(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>, key= <span class="keyword">lambda</span> result: \
-<a name="l00216"></a>00216             (-len(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>[result][<span class="stringliteral">&#39;flaws&#39;</span>]), sorted(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>[result][<span class="stringliteral">&#39;flaws&#39;</span>]), self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>[result][<span class="stringliteral">&#39;page&#39;</span>][<span class="stringliteral">&#39;page_title&#39;</span>]))
-<a name="l00217"></a>00217         
-<a name="l00218"></a>00218         <span class="keywordflow">yield</span> self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a7becd0c2b71fda1036f362ae6d661d32">mkStatus</a>(<span class="stringliteral">&#39;%d pages tested in %d actions. %d pages in result set. processing took %f seconds.&#39;</span> % \
-<a name="l00219"></a>00219             (len(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aab28a85700811b339e6e49decf912713">pagesToTest</a>), numActions, len(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>), time.time()-begin))
-<a name="l00220"></a>00220         
-<a name="l00221"></a>00221         <span class="comment"># print results</span>
-<a name="l00222"></a>00222         <span class="keywordflow">for</span> i <span class="keywordflow">in</span> sortedResults:
-<a name="l00223"></a>00223             <span class="keywordflow">yield</span> json.dumps(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>[i])
-<a name="l00224"></a>00224         
-<a name="l00225"></a>00225         <span class="keywordflow">return</span>
-<a name="l00226"></a>00226     
-<a name="l00227"></a>00227     <span class="comment">## get IDs of all the pages to be tested for flaws</span>
-<a name="l00228"></a><a class="code" href="classtlgbackend_1_1_task_list_generator.html#acdaa6b4d8c7587eb87b77d3aee6636dc">00228</a>     <span class="keyword">def </span><a class="code" href="classtlgbackend_1_1_task_list_generator.html#acdaa6b4d8c7587eb87b77d3aee6636dc" title="get IDs of all the pages to be tested for flaws">getPageIDs</a>(self):
-<a name="l00229"></a>00229         <span class="keywordflow">return</span> self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aab28a85700811b339e6e49decf912713">pagesToTest</a>
-<a name="l00230"></a>00230     
-<a name="l00231"></a><a class="code" href="classtlgbackend_1_1_task_list_generator.html#af1a7ac8f4d6b628bb686de8ec6385bfd">00231</a>     <span class="keyword">def </span><a class="code" href="classtlgbackend_1_1_task_list_generator.html#af1a7ac8f4d6b628bb686de8ec6385bfd">createActions</a>(self, flaw, language, pagesToTest):
-<a name="l00232"></a>00232         pagesLeft= len(pagesToTest)
-<a name="l00233"></a>00233         pagesPerAction= min( flaw.getPreferredPagesPerAction(), pagesLeft/self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a4abecb5439455fded26b4f5f67e72d66">numWorkerThreads</a> )
-<a name="l00234"></a>00234         <span class="keywordflow">while</span> pagesLeft:
-<a name="l00235"></a>00235             start= max(0, pagesLeft-pagesPerAction)
-<a name="l00236"></a>00236             flaw.createActions( self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a0865b71b78bd00cf58358c899baa3745">language</a>, pagesToTest[start:pagesLeft], self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aec4fb134b1cbb2e9293c17f38311933a">actionQueue</a> )
-<a name="l00237"></a>00237             pagesLeft-= (pagesLeft-start)
-<a name="l00238"></a>00238             
-<a name="l00239"></a><a class="code" href="classtlgbackend_1_1_task_list_generator.html#a80268275f16bf4ad49c795938b619fef">00239</a>     <span class="keyword">def </span><a class="code" href="classtlgbackend_1_1_task_list_generator.html#a80268275f16bf4ad49c795938b619fef">drainResultQueue</a>(self):
-<a name="l00240"></a>00240         <span class="keywordflow">while</span> <span class="keywordflow">not</span> self.resultQueue.empty():
-<a name="l00241"></a>00241             result= self.resultQueue.get()
-<a name="l00242"></a>00242             key= <span class="stringliteral">&#39;%s:%d&#39;</span> % (result.wiki, result.page[<span class="stringliteral">&#39;page_id&#39;</span>])
-<a name="l00243"></a>00243             <span class="keywordflow">try</span>:
-<a name="l00244"></a>00244                 <span class="comment"># append the name of the flaw to the list of flaws for this article </span>
-<a name="l00245"></a>00245                 self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>[key][<span class="stringliteral">&#39;flaws&#39;</span>].append(result.FlawFilter.shortname)
-<a name="l00246"></a>00246             <span class="keywordflow">except</span> KeyError:
-<a name="l00247"></a>00247                 <span class="comment"># create a new article in the result set</span>
-<a name="l00248"></a>00248                 self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>[key]= { <span class="stringliteral">&#39;page&#39;</span>: result.page, <span class="stringliteral">&#39;flaws&#39;</span>: [result.FlawFilter.shortname] }
-<a name="l00249"></a>00249 
-<a name="l00250"></a>00250     <span class="comment"># create and start worker threads</span>
-<a name="l00251"></a><a class="code" href="classtlgbackend_1_1_task_list_generator.html#a92da0373cd2ebdaad31123e0be78be71">00251</a>     <span class="keyword">def </span><a class="code" href="classtlgbackend_1_1_task_list_generator.html#a92da0373cd2ebdaad31123e0be78be71">initThreads</a>(self):
-<a name="l00252"></a>00252         <span class="keywordflow">for</span> i <span class="keywordflow">in</span> range(0, self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a4abecb5439455fded26b4f5f67e72d66">numWorkerThreads</a>):
-<a name="l00253"></a>00253             self.workerThreads.append(<a class="code" href="classtlgbackend_1_1_worker_thread.html" title="a worker thread which fetches actions from a queue and executes them">WorkerThread</a>(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aec4fb134b1cbb2e9293c17f38311933a">actionQueue</a>, self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a308b8dcce3ec06c2272daab7e33c18c1">resultQueue</a>, self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#ad34177e61b565d74a21b58bb48ce604c">wiki</a>, self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a2f85ca36230a924a2c1d7074b3fc7f5f">runEvent</a>))
-<a name="l00254"></a>00254             self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a09c0089666f375ed27c846ab3ac3675f">workerThreads</a>[-1].start()
-<a name="l00255"></a>00255 
-<a name="l00256"></a>00256 
-<a name="l00257"></a>00257 
-<a name="l00258"></a>00258 
-<a name="l00259"></a><a class="code" href="classtlgbackend_1_1test.html">00259</a> <span class="keyword">class </span><a class="code" href="classtlgbackend_1_1test.html">test</a>:
-<a name="l00260"></a><a class="code" href="classtlgbackend_1_1test.html#a8f1f8cce15b8c7fae760cef9cd4fc9b7">00260</a>     <span class="keyword">def </span><a class="code" href="classtlgbackend_1_1test.html#a16c5f19b8a4d6e2ddb8c0f58e73a6c94">__init__</a>(self):
-<a name="l00261"></a>00261         self.<a class="code" href="classtlgbackend_1_1test.html#a8f1f8cce15b8c7fae760cef9cd4fc9b7">tlg</a>= <a class="code" href="classtlgbackend_1_1_task_list_generator.html" title="main app class">TaskListGenerator</a>()
-<a name="l00262"></a>00262 
-<a name="l00263"></a><a class="code" href="classtlgbackend_1_1test.html#a1e0b3138feadadeebf05c430f0f5a798">00263</a>     <span class="keyword">def </span><a class="code" href="classtlgbackend_1_1test.html#a1e0b3138feadadeebf05c430f0f5a798">createActions</a>(self):
-<a name="l00264"></a>00264         cg= <a class="code" href="classtlgcatgraph_1_1_cat_graph_interface.html">CatGraphInterface</a>(graphname=<span class="stringliteral">&#39;dewiki&#39;</span>)
-<a name="l00265"></a>00265         pages= cg.executeSearchString(<span class="stringliteral">&#39;Biologie -Meerkatzenverwandte -Astrobiologie&#39;</span>, 2)
-<a name="l00266"></a>00266         
-<a name="l00267"></a>00267         flaw= tlgflaws.FFUnlucky()
-<a name="l00268"></a>00268         <span class="keywordflow">for</span> k <span class="keywordflow">in</span> range(0, 3):
-<a name="l00269"></a>00269             <span class="keywordflow">for</span> i <span class="keywordflow">in</span> pages:
-<a name="l00270"></a>00270                 action= flaw.createAction( <span class="stringliteral">&#39;de&#39;</span>, (i,) )
-<a name="l00271"></a>00271                 self.tlg.actionQueue.put(action)
-<a name="l00272"></a>00272     
-<a name="l00273"></a><a class="code" href="classtlgbackend_1_1test.html#a1904d9383ae3bfe8c364b29f67f805c2">00273</a>     <span class="keyword">def </span><a class="code" href="classtlgbackend_1_1test.html#a1904d9383ae3bfe8c364b29f67f805c2">drainResultQueue</a>(self):
-<a name="l00274"></a>00274         <span class="keywordflow">try</span>:
-<a name="l00275"></a>00275             <span class="keywordflow">while</span> <span class="keywordflow">not</span> self.tlg.resultQueue.empty():
-<a name="l00276"></a>00276                 foo= self.tlg.resultQueue.get()
-<a name="l00277"></a>00277                 <span class="keywordflow">print</span> foo.encodeAsJSON()
-<a name="l00278"></a>00278         <span class="keywordflow">except</span> (UnicodeEncodeError, UnicodeDecodeError) <span class="keyword">as</span> exception:  <span class="comment"># wtf?!</span>
-<a name="l00279"></a>00279             <span class="keywordflow">raise</span>
-<a name="l00280"></a>00280 
-<a name="l00281"></a><a class="code" href="classtlgbackend_1_1test.html#aaeaea747c2b7306756ee9de7e5e46d07">00281</a>     <span class="keyword">def </span><a class="code" href="classtlgbackend_1_1test.html#aaeaea747c2b7306756ee9de7e5e46d07">testSingleThread</a>(self):
-<a name="l00282"></a>00282         self.<a class="code" href="classtlgbackend_1_1test.html#a1e0b3138feadadeebf05c430f0f5a798">createActions</a>()
-<a name="l00283"></a>00283         numActions= self.tlg.actionQueue.qsize()
-<a name="l00284"></a>00284         <a class="code" href="classtlgbackend_1_1_worker_thread.html" title="a worker thread which fetches actions from a queue and executes them">WorkerThread</a>(self.<a class="code" href="classtlgbackend_1_1test.html#a8f1f8cce15b8c7fae760cef9cd4fc9b7">tlg</a>.actionQueue, self.<a class="code" href="classtlgbackend_1_1test.html#a8f1f8cce15b8c7fae760cef9cd4fc9b7">tlg</a>.resultQueue).run()
-<a name="l00285"></a>00285         self.<a class="code" href="classtlgbackend_1_1test.html#a1904d9383ae3bfe8c364b29f67f805c2">drainResultQueue</a>()
-<a name="l00286"></a>00286         <span class="keywordflow">print</span> <span class="stringliteral">&quot;numActions=%d&quot;</span> % numActions
-<a name="l00287"></a>00287         sys.stdout.flush()
-<a name="l00288"></a>00288 
-<a name="l00289"></a><a class="code" href="classtlgbackend_1_1test.html#aa0a3cd96f69cd860cb2667736c197054">00289</a>     <span class="keyword">def </span><a class="code" href="classtlgbackend_1_1test.html#aa0a3cd96f69cd860cb2667736c197054">testMultiThread</a>(self, nthreads):
-<a name="l00290"></a>00290         self.<a class="code" href="classtlgbackend_1_1test.html#a1e0b3138feadadeebf05c430f0f5a798">createActions</a>()
-<a name="l00291"></a>00291         numActions= self.tlg.actionQueue.qsize()
-<a name="l00292"></a>00292         <span class="keywordflow">for</span> i <span class="keywordflow">in</span> range(0, nthreads):
-<a name="l00293"></a>00293             <a class="code" href="namespaceutils.html#a41c9a645fe092315401b5bf8570edd6e">dprint</a>(0, <span class="stringliteral">&quot;******** before thread start %d&quot;</span> % i)
-<a name="l00294"></a>00294             self.tlg.workerThreads.append(<a class="code" href="classtlgbackend_1_1_worker_thread.html" title="a worker thread which fetches actions from a queue and executes them">WorkerThread</a>(self.<a class="code" href="classtlgbackend_1_1test.html#a8f1f8cce15b8c7fae760cef9cd4fc9b7">tlg</a>.actionQueue, self.<a class="code" href="classtlgbackend_1_1test.html#a8f1f8cce15b8c7fae760cef9cd4fc9b7">tlg</a>.resultQueue))
-<a name="l00295"></a>00295             self.<a class="code" href="classtlgbackend_1_1test.html#a8f1f8cce15b8c7fae760cef9cd4fc9b7">tlg</a>.workerThreads[-1].start()
-<a name="l00296"></a>00296         <span class="keywordflow">while</span> threading.activeCount()&gt;1:
-<a name="l00297"></a>00297             self.<a class="code" href="classtlgbackend_1_1test.html#a1904d9383ae3bfe8c364b29f67f805c2">drainResultQueue</a>()
-<a name="l00298"></a>00298             time.sleep(0.5)
-<a name="l00299"></a>00299         <span class="keywordflow">for</span> i <span class="keywordflow">in</span> self.<a class="code" href="classtlgbackend_1_1test.html#a8f1f8cce15b8c7fae760cef9cd4fc9b7">tlg</a>.workerThreads:
-<a name="l00300"></a>00300             i.join()
-<a name="l00301"></a>00301         self.<a class="code" href="classtlgbackend_1_1test.html#a1904d9383ae3bfe8c364b29f67f805c2">drainResultQueue</a>()
-<a name="l00302"></a>00302         <span class="keywordflow">print</span> <span class="stringliteral">&quot;numActions=%d&quot;</span> % numActions
-<a name="l00303"></a>00303         sys.stdout.flush()
-<a name="l00304"></a>00304 
-<a name="l00305"></a>00305 
-<a name="l00306"></a>00306 
-<a name="l00307"></a>00307 <span class="keywordflow">if</span> __name__ == <span class="stringliteral">&#39;__main__&#39;</span>:
-<a name="l00308"></a>00308     <span class="comment">#~ TaskListGenerator().listFlaws()</span>
-<a name="l00309"></a>00309     <span class="comment">#~ TaskListGenerator().run(&#39;de&#39;, &#39;Biologie +Eukaryoten -Rhizarien&#39;, 5, &#39;PageSize&#39;)</span>
-<a name="l00310"></a>00310     <span class="comment">#~ for line in TaskListGenerator().generateQuery(&#39;de&#39;, &#39;Biologie +Eukaryoten -Rhizarien&#39;, 5, &#39;Currentness:ChangeDetector&#39;):</span>
-<a name="l00311"></a>00311     <span class="keywordflow">for</span> line <span class="keywordflow">in</span> <a class="code" href="classtlgbackend_1_1_task_list_generator.html" title="main app class">TaskListGenerator</a>().generateQuery(<span class="stringliteral">&#39;de&#39;</span>, <span class="stringliteral">&#39;Politik&#39;</span>, 3, <span class="stringliteral">&#39;Currentness:ChangeDetector&#39;</span>):
-<a name="l00312"></a>00312         <span class="keywordflow">print</span> line
-<a name="l00313"></a>00313         sys.stdout.flush()
-<a name="l00314"></a>00314     
-<a name="l00315"></a>00315 
+<a name="l00171"></a>00171         <span class="comment"># todo: add something like MaxWaitTime, instead of this</span>
+<a name="l00172"></a>00172         <span class="comment">#~ if len(self.pagesToTest) &gt; 50000:</span>
+<a name="l00173"></a>00173             <span class="comment">#~ raise RuntimeError(&#39;result set of %d pages is too large to process in a reasonable time, please modify your search string.&#39; % len(self.pagesToTest))</span>
+<a name="l00174"></a>00174         
+<a name="l00175"></a>00175         <span class="comment"># create the actions for every page x every flaw</span>
+<a name="l00176"></a>00176         <span class="keywordflow">for</span> flawname <span class="keywordflow">in</span> flaws.split():
+<a name="l00177"></a>00177             <span class="keywordflow">try</span>:
+<a name="l00178"></a>00178                 flaw= FlawFilters.classInfos[flawname](self)
+<a name="l00179"></a>00179             <span class="keywordflow">except</span> KeyError:
+<a name="l00180"></a>00180                 <span class="keywordflow">raise</span> RuntimeError(<span class="stringliteral">&#39;Unknown flaw %s&#39;</span> % flawname)
+<a name="l00181"></a>00181             self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#af1a7ac8f4d6b628bb686de8ec6385bfd">createActions</a>(flaw, self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a0865b71b78bd00cf58358c899baa3745">language</a>, self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aab28a85700811b339e6e49decf912713">pagesToTest</a>)
+<a name="l00182"></a>00182             
+<a name="l00183"></a>00183         numActions= self.actionQueue.qsize()
+<a name="l00184"></a>00184         dprint(0, <span class="stringliteral">&quot;%d pages to test, %d actions to process&quot;</span> % (len(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aab28a85700811b339e6e49decf912713">pagesToTest</a>), numActions))
+<a name="l00185"></a>00185         
+<a name="l00186"></a>00186         <span class="comment"># signal worker threads that they can run</span>
+<a name="l00187"></a>00187         self.runEvent.set()
+<a name="l00188"></a>00188         
+<a name="l00189"></a>00189         <span class="comment"># process results as they are created</span>
+<a name="l00190"></a>00190         actionsProcessed= numActions-self.actionQueue.qsize()
+<a name="l00191"></a>00191         <span class="keywordflow">while</span> self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a87db3a84bdba60a1c55a0d03aab7706e">getActiveWorkerCount</a>()&gt;0:
+<a name="l00192"></a>00192             self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a80268275f16bf4ad49c795938b619fef">drainResultQueue</a>()
+<a name="l00193"></a>00193             n= numActions-self.actionQueue.qsize()
+<a name="l00194"></a>00194             <span class="keywordflow">if</span> n!=actionsProcessed:
+<a name="l00195"></a>00195                 actionsProcessed= n
+<a name="l00196"></a>00196                 dprint(0, <span class="stringliteral">&quot;%d/%d actions processed&quot;</span> % (actionsProcessed, numActions))
+<a name="l00197"></a>00197             time.sleep(0.25)
+<a name="l00198"></a>00198         <span class="keywordflow">for</span> i <span class="keywordflow">in</span> self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a09c0089666f375ed27c846ab3ac3675f">workerThreads</a>:
+<a name="l00199"></a>00199             i.join()
+<a name="l00200"></a>00200         <span class="comment"># process the last results</span>
+<a name="l00201"></a>00201         self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a80268275f16bf4ad49c795938b619fef">drainResultQueue</a>()
+<a name="l00202"></a>00202         
+<a name="l00203"></a>00203         <span class="comment"># sort by length of flaw list, flaw list, and page title</span>
+<a name="l00204"></a>00204         sortedResults= sorted(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>, key= <span class="keyword">lambda</span> result: \
+<a name="l00205"></a>00205             (-len(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>[result][<span class="stringliteral">&#39;flaws&#39;</span>]), sorted(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>[result][<span class="stringliteral">&#39;flaws&#39;</span>]), self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>[result][<span class="stringliteral">&#39;page&#39;</span>][<span class="stringliteral">&#39;page_title&#39;</span>]))
+<a name="l00206"></a>00206         
+<a name="l00207"></a>00207         <span class="comment"># print results</span>
+<a name="l00208"></a>00208         <span class="keywordflow">for</span> i <span class="keywordflow">in</span> sortedResults:
+<a name="l00209"></a>00209             <span class="keywordflow">print</span> json.dumps(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>[i])
+<a name="l00210"></a>00210         
+<a name="l00211"></a>00211         <span class="keywordflow">return</span> <span class="keyword">True</span>
+<a name="l00212"></a>00212     
+<a name="l00213"></a>00213     <span class="comment"># testing generator stuff</span>
+<a name="l00214"></a>00214     <span class="keyword">def </span>generateQuery(self, lang, queryString, queryDepth, flaws):
+<a name="l00215"></a>00215         <span class="keywordflow">try</span>:
+<a name="l00216"></a>00216             begin= time.time()
+<a name="l00217"></a>00217             
+<a name="l00218"></a>00218             self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a0865b71b78bd00cf58358c899baa3745">language</a>= lang
+<a name="l00219"></a>00219             self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#ad34177e61b565d74a21b58bb48ce604c">wiki</a>= lang + <span class="stringliteral">&#39;wiki&#39;</span>
+<a name="l00220"></a>00220 
+<a name="l00221"></a>00221             <span class="comment"># spawn the worker threads</span>
+<a name="l00222"></a>00222             self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a92da0373cd2ebdaad31123e0be78be71">initThreads</a>()
+<a name="l00223"></a>00223             
+<a name="l00224"></a>00224             <span class="keywordflow">yield</span> self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a7becd0c2b71fda1036f362ae6d661d32">mkStatus</a>(_(<span class="stringliteral">&#39;querying CatGraph for \&#39;%s\&#39; with depth %d&#39;</span>) % (queryString, int(queryDepth)))
+<a name="l00225"></a>00225 
+<a name="l00226"></a>00226             self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a5c3e1b9b69e5eb20e2e921882caa3a92">cg</a>= <a class="code" href="classtlgcatgraph_1_1_cat_graph_interface.html">CatGraphInterface</a>(graphname=self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#ad34177e61b565d74a21b58bb48ce604c">wiki</a>)
+<a name="l00227"></a>00227             self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aab28a85700811b339e6e49decf912713">pagesToTest</a>= self.cg.executeSearchString(queryString, queryDepth)
+<a name="l00228"></a>00228             
+<a name="l00229"></a>00229             <span class="keywordflow">yield</span> self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a7becd0c2b71fda1036f362ae6d661d32">mkStatus</a>(_(<span class="stringliteral">&#39;CatGraph returned %d results.&#39;</span>) % len(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aab28a85700811b339e6e49decf912713">pagesToTest</a>))
+<a name="l00230"></a>00230 
+<a name="l00231"></a>00231             <span class="comment"># todo: add something like MaxWaitTime, instead of this</span>
+<a name="l00232"></a>00232             <span class="comment">#~ if len(self.pagesToTest) &gt; 50000:</span>
+<a name="l00233"></a>00233                 <span class="comment">#~ raise RuntimeError(&#39;result set of %d pages is too large to process in a reasonable time, please modify your search string.&#39; % len(self.pagesToTest))</span>
+<a name="l00234"></a>00234             
+<a name="l00235"></a>00235             <span class="comment"># create the actions for every page x every flaw</span>
+<a name="l00236"></a>00236             <span class="keywordflow">for</span> flawname <span class="keywordflow">in</span> flaws.split():
+<a name="l00237"></a>00237                 <span class="keywordflow">try</span>:
+<a name="l00238"></a>00238                     flaw= FlawFilters.classInfos[flawname](self)
+<a name="l00239"></a>00239                 <span class="keywordflow">except</span> KeyError:
+<a name="l00240"></a>00240                     <span class="keywordflow">raise</span> RuntimeError(<span class="stringliteral">&#39;Unknown flaw %s&#39;</span> % flawname)
+<a name="l00241"></a>00241                 self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#af1a7ac8f4d6b628bb686de8ec6385bfd">createActions</a>(flaw, self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a0865b71b78bd00cf58358c899baa3745">language</a>, self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aab28a85700811b339e6e49decf912713">pagesToTest</a>)
+<a name="l00242"></a>00242             
+<a name="l00243"></a>00243             numActions= self.actionQueue.qsize()
+<a name="l00244"></a>00244             <span class="keywordflow">yield</span> self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a7becd0c2b71fda1036f362ae6d661d32">mkStatus</a>(_(<span class="stringliteral">&#39;%d pages to test, %d actions to process&#39;</span>) % (len(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aab28a85700811b339e6e49decf912713">pagesToTest</a>), numActions))
+<a name="l00245"></a>00245             
+<a name="l00246"></a>00246             <span class="comment"># signal worker threads that they can run</span>
+<a name="l00247"></a>00247             self.runEvent.set()
+<a name="l00248"></a>00248             
+<a name="l00249"></a>00249             <span class="comment"># process results as they are created</span>
+<a name="l00250"></a>00250             actionsProcessed= numActions-self.actionQueue.qsize()
+<a name="l00251"></a>00251             <span class="keywordflow">while</span> self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a87db3a84bdba60a1c55a0d03aab7706e">getActiveWorkerCount</a>()&gt;0:
+<a name="l00252"></a>00252                 self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a80268275f16bf4ad49c795938b619fef">drainResultQueue</a>()
+<a name="l00253"></a>00253                 n= max(numActions-self.actionQueue.qsize()-(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a87db3a84bdba60a1c55a0d03aab7706e">getActiveWorkerCount</a>()), 1)
+<a name="l00254"></a>00254                 <span class="keywordflow">if</span> n!=actionsProcessed:
+<a name="l00255"></a>00255                     actionsProcessed= n
+<a name="l00256"></a>00256                     eta= (time.time()-begin) / actionsProcessed * (numActions-actionsProcessed)
+<a name="l00257"></a>00257                     <span class="keywordflow">yield</span> json.dumps( { <span class="stringliteral">&#39;progress&#39;</span>: <span class="stringliteral">&#39;%d/%d&#39;</span> % (actionsProcessed, numActions) } )
+<a name="l00258"></a>00258                     <span class="keywordflow">yield</span> self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a7becd0c2b71fda1036f362ae6d661d32">mkStatus</a>(_(<span class="stringliteral">&#39;%d of %d actions processed (eta: %02d:%02d)&#39;</span>) % (actionsProcessed, numActions, int(eta)/60, int(eta)%60))
+<a name="l00259"></a>00259                 time.sleep(0.25)
+<a name="l00260"></a>00260             <span class="keywordflow">for</span> i <span class="keywordflow">in</span> self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a09c0089666f375ed27c846ab3ac3675f">workerThreads</a>:
+<a name="l00261"></a>00261                 i.join()
+<a name="l00262"></a>00262             <span class="comment"># process the last results</span>
+<a name="l00263"></a>00263             self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a80268275f16bf4ad49c795938b619fef">drainResultQueue</a>()
+<a name="l00264"></a>00264             
+<a name="l00265"></a>00265             <span class="comment"># sort by length of flaw list, flaw list, and page title</span>
+<a name="l00266"></a>00266             sortedResults= sorted(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>, key= <span class="keyword">lambda</span> result: \
+<a name="l00267"></a>00267                 (-len(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>[result][<span class="stringliteral">&#39;flaws&#39;</span>]), sorted(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>[result][<span class="stringliteral">&#39;flaws&#39;</span>]), self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>[result][<span class="stringliteral">&#39;page&#39;</span>][<span class="stringliteral">&#39;page_title&#39;</span>]))
+<a name="l00268"></a>00268             
+<a name="l00269"></a>00269             <span class="keywordflow">yield</span> self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a7becd0c2b71fda1036f362ae6d661d32">mkStatus</a>(_(<span class="stringliteral">&#39;%d pages tested in %d actions. %d pages in result set. processing took %.1f seconds.&#39;</span>) % \
+<a name="l00270"></a>00270                 (len(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aab28a85700811b339e6e49decf912713">pagesToTest</a>), numActions, len(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>), time.time()-begin))
+<a name="l00271"></a>00271             
+<a name="l00272"></a>00272             <span class="comment"># print results</span>
+<a name="l00273"></a>00273             <span class="keywordflow">for</span> i <span class="keywordflow">in</span> sortedResults:
+<a name="l00274"></a>00274                 <span class="keywordflow">yield</span> json.dumps(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>[i])
+<a name="l00275"></a>00275         
+<a name="l00276"></a>00276         <span class="keywordflow">except</span> Exception <span class="keyword">as</span> e:
+<a name="l00277"></a>00277             <span class="keywordflow">yield</span> <span class="stringliteral">&#39;{&quot;exception&quot;: &quot;%s: %s&quot;}&#39;</span> % (type(e), str(e).replace(<span class="stringliteral">&#39;\n&#39;</span>, <span class="stringliteral">&#39;\\n&#39;</span>).replace(<span class="stringliteral">&#39;&quot;&#39;</span>, <span class="stringliteral">&quot;&#39;&quot;</span>))
+<a name="l00278"></a>00278             <span class="keywordflow">return</span>
+<a name="l00279"></a>00279     
+<a name="l00280"></a>00280     <span class="comment">## get IDs of all the pages to be tested for flaws</span>
+<a name="l00281"></a><a class="code" href="classtlgbackend_1_1_task_list_generator.html#acdaa6b4d8c7587eb87b77d3aee6636dc">00281</a>     <span class="keyword">def </span><a class="code" href="classtlgbackend_1_1_task_list_generator.html#acdaa6b4d8c7587eb87b77d3aee6636dc" title="get IDs of all the pages to be tested for flaws">getPageIDs</a>(self):
+<a name="l00282"></a>00282         <span class="keywordflow">return</span> self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aab28a85700811b339e6e49decf912713">pagesToTest</a>
+<a name="l00283"></a>00283     
+<a name="l00284"></a>00284     <span class="keyword">def </span>createActions(self, flaw, language, pagesToTest):
+<a name="l00285"></a>00285         pagesLeft= len(pagesToTest)
+<a name="l00286"></a>00286         pagesPerAction= max(1, min( flaw.getPreferredPagesPerAction(), pagesLeft/self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a4abecb5439455fded26b4f5f67e72d66">numWorkerThreads</a> ))
+<a name="l00287"></a>00287         <span class="keywordflow">while</span> pagesLeft:
+<a name="l00288"></a>00288             start= max(0, pagesLeft-pagesPerAction)
+<a name="l00289"></a>00289             flaw.createActions( self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a0865b71b78bd00cf58358c899baa3745">language</a>, pagesToTest[start:pagesLeft], self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aec4fb134b1cbb2e9293c17f38311933a">actionQueue</a> )
+<a name="l00290"></a>00290             pagesLeft-= (pagesLeft-start)
+<a name="l00291"></a>00291             
+<a name="l00292"></a>00292     <span class="keyword">def </span>drainResultQueue(self):
+<a name="l00293"></a>00293         <span class="keywordflow">while</span> <span class="keywordflow">not</span> self.resultQueue.empty():
+<a name="l00294"></a>00294             result= self.resultQueue.get()
+<a name="l00295"></a>00295             key= <span class="stringliteral">&#39;%s:%d&#39;</span> % (result.wiki, result.page[<span class="stringliteral">&#39;page_id&#39;</span>])
+<a name="l00296"></a>00296             <span class="keywordflow">try</span>:
+<a name="l00297"></a>00297                 <span class="comment"># append the name of the flaw to the list of flaws for this article </span>
+<a name="l00298"></a>00298                 self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>[key][<span class="stringliteral">&#39;flaws&#39;</span>].append(result.FlawFilter.shortname)
+<a name="l00299"></a>00299                 self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>[key][<span class="stringliteral">&#39;flaws&#39;</span>].sort()
+<a name="l00300"></a>00300             <span class="keywordflow">except</span> KeyError:
+<a name="l00301"></a>00301                 <span class="comment"># create a new article in the result set</span>
+<a name="l00302"></a>00302                 self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aa182ee3cc00faf2b0c4e7f158e0391e0">mergedResults</a>[key]= { <span class="stringliteral">&#39;page&#39;</span>: result.page, <span class="stringliteral">&#39;flaws&#39;</span>: [result.FlawFilter.shortname] }
+<a name="l00303"></a>00303 
+<a name="l00304"></a>00304     <span class="comment"># create and start worker threads</span>
+<a name="l00305"></a>00305     <span class="keyword">def </span>initThreads(self):
+<a name="l00306"></a>00306         <span class="keywordflow">for</span> i <span class="keywordflow">in</span> range(0, self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a4abecb5439455fded26b4f5f67e72d66">numWorkerThreads</a>):
+<a name="l00307"></a>00307             self.workerThreads.append(<a class="code" href="classtlgbackend_1_1_worker_thread.html" title="a worker thread which fetches actions from a queue and executes them">WorkerThread</a>(self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#aec4fb134b1cbb2e9293c17f38311933a">actionQueue</a>, self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a308b8dcce3ec06c2272daab7e33c18c1">resultQueue</a>, self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#ad34177e61b565d74a21b58bb48ce604c">wiki</a>, self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a2f85ca36230a924a2c1d7074b3fc7f5f">runEvent</a>))
+<a name="l00308"></a>00308             self.<a class="code" href="classtlgbackend_1_1_task_list_generator.html#a09c0089666f375ed27c846ab3ac3675f">workerThreads</a>[-1].start()
+<a name="l00309"></a>00309 
+<a name="l00310"></a>00310 
+<a name="l00311"></a>00311 
+<a name="l00312"></a>00312 
+<a name="l00313"></a><a class="code" href="classtlgbackend_1_1test.html">00313</a> <span class="keyword">class </span><a class="code" href="classtlgbackend_1_1test.html">test</a>:
+<a name="l00314"></a>00314     <span class="keyword">def </span>__init__(self):
+<a name="l00315"></a>00315         self.<a class="code" href="classtlgbackend_1_1test.html#a8f1f8cce15b8c7fae760cef9cd4fc9b7">tlg</a>= <a class="code" href="classtlgbackend_1_1_task_list_generator.html" title="main app class">TaskListGenerator</a>()
+<a name="l00316"></a>00316 
+<a name="l00317"></a>00317     <span class="keyword">def </span>createActions(self):
+<a name="l00318"></a>00318         cg= <a class="code" href="classtlgcatgraph_1_1_cat_graph_interface.html">CatGraphInterface</a>(graphname=<span class="stringliteral">&#39;dewiki&#39;</span>)
+<a name="l00319"></a>00319         pages= cg.executeSearchString(<span class="stringliteral">&#39;Biologie -Meerkatzenverwandte -Astrobiologie&#39;</span>, 2)
+<a name="l00320"></a>00320         
+<a name="l00321"></a>00321         flaw= tlgflaws.FFUnlucky()
+<a name="l00322"></a>00322         <span class="keywordflow">for</span> k <span class="keywordflow">in</span> range(0, 3):
+<a name="l00323"></a>00323             <span class="keywordflow">for</span> i <span class="keywordflow">in</span> pages:
+<a name="l00324"></a>00324                 action= flaw.createAction( <span class="stringliteral">&#39;de&#39;</span>, (i,) )
+<a name="l00325"></a>00325                 self.tlg.actionQueue.put(action)
+<a name="l00326"></a>00326     
+<a name="l00327"></a>00327     <span class="keyword">def </span>drainResultQueue(self):
+<a name="l00328"></a>00328         <span class="keywordflow">try</span>:
+<a name="l00329"></a>00329             <span class="keywordflow">while</span> <span class="keywordflow">not</span> self.tlg.resultQueue.empty():
+<a name="l00330"></a>00330                 foo= self.tlg.resultQueue.get()
+<a name="l00331"></a>00331                 <span class="keywordflow">print</span> foo.encodeAsJSON()
+<a name="l00332"></a>00332         <span class="keywordflow">except</span> (UnicodeEncodeError, UnicodeDecodeError) <span class="keyword">as</span> exception:  <span class="comment"># wtf?!</span>
+<a name="l00333"></a>00333             <span class="keywordflow">raise</span>
+<a name="l00334"></a>00334 
+<a name="l00335"></a>00335     <span class="keyword">def </span>testSingleThread(self):
+<a name="l00336"></a>00336         self.<a class="code" href="classtlgbackend_1_1test.html#a1e0b3138feadadeebf05c430f0f5a798">createActions</a>()
+<a name="l00337"></a>00337         numActions= self.tlg.actionQueue.qsize()
+<a name="l00338"></a>00338         <a class="code" href="classtlgbackend_1_1_worker_thread.html" title="a worker thread which fetches actions from a queue and executes them">WorkerThread</a>(self.<a class="code" href="classtlgbackend_1_1test.html#a8f1f8cce15b8c7fae760cef9cd4fc9b7">tlg</a>.actionQueue, self.<a class="code" href="classtlgbackend_1_1test.html#a8f1f8cce15b8c7fae760cef9cd4fc9b7">tlg</a>.resultQueue).run()
+<a name="l00339"></a>00339         self.<a class="code" href="classtlgbackend_1_1test.html#a1904d9383ae3bfe8c364b29f67f805c2">drainResultQueue</a>()
+<a name="l00340"></a>00340         <span class="keywordflow">print</span> <span class="stringliteral">&quot;numActions=%d&quot;</span> % numActions
+<a name="l00341"></a>00341         sys.stdout.flush()
+<a name="l00342"></a>00342 
+<a name="l00343"></a>00343     <span class="keyword">def </span>testMultiThread(self, nthreads):
+<a name="l00344"></a>00344         self.<a class="code" href="classtlgbackend_1_1test.html#a1e0b3138feadadeebf05c430f0f5a798">createActions</a>()
+<a name="l00345"></a>00345         numActions= self.tlg.actionQueue.qsize()
+<a name="l00346"></a>00346         <span class="keywordflow">for</span> i <span class="keywordflow">in</span> range(0, nthreads):
+<a name="l00347"></a>00347             dprint(0, <span class="stringliteral">&quot;******** before thread start %d&quot;</span> % i)
+<a name="l00348"></a>00348             self.tlg.workerThreads.append(<a class="code" href="classtlgbackend_1_1_worker_thread.html" title="a worker thread which fetches actions from a queue and executes them">WorkerThread</a>(self.<a class="code" href="classtlgbackend_1_1test.html#a8f1f8cce15b8c7fae760cef9cd4fc9b7">tlg</a>.actionQueue, self.<a class="code" href="classtlgbackend_1_1test.html#a8f1f8cce15b8c7fae760cef9cd4fc9b7">tlg</a>.resultQueue))
+<a name="l00349"></a>00349             self.<a class="code" href="classtlgbackend_1_1test.html#a8f1f8cce15b8c7fae760cef9cd4fc9b7">tlg</a>.workerThreads[-1].start()
+<a name="l00350"></a>00350         <span class="keywordflow">while</span> threading.activeCount()&gt;1:
+<a name="l00351"></a>00351             self.<a class="code" href="classtlgbackend_1_1test.html#a1904d9383ae3bfe8c364b29f67f805c2">drainResultQueue</a>()
+<a name="l00352"></a>00352             time.sleep(0.5)
+<a name="l00353"></a>00353         <span class="keywordflow">for</span> i <span class="keywordflow">in</span> self.<a class="code" href="classtlgbackend_1_1test.html#a8f1f8cce15b8c7fae760cef9cd4fc9b7">tlg</a>.workerThreads:
+<a name="l00354"></a>00354             i.join()
+<a name="l00355"></a>00355         self.<a class="code" href="classtlgbackend_1_1test.html#a1904d9383ae3bfe8c364b29f67f805c2">drainResultQueue</a>()
+<a name="l00356"></a>00356         <span class="keywordflow">print</span> <span class="stringliteral">&quot;numActions=%d&quot;</span> % numActions
+<a name="l00357"></a>00357         sys.stdout.flush()
+<a name="l00358"></a>00358 
+<a name="l00359"></a>00359 
+<a name="l00360"></a>00360 
+<a name="l00361"></a>00361 <span class="keywordflow">if</span> __name__ == <span class="stringliteral">&#39;__main__&#39;</span>:
+<a name="l00362"></a>00362     gettext.translation(<span class="stringliteral">&#39;tlgbackend&#39;</span>, localedir= os.path.join(sys.path[0], <span class="stringliteral">&#39;messages&#39;</span>), languages=[<span class="stringliteral">&#39;de&#39;</span>]).install()
+<a name="l00363"></a>00363     <span class="comment">#~ TaskListGenerator().listFlaws()</span>
+<a name="l00364"></a>00364     <span class="comment">#~ TaskListGenerator().run(&#39;de&#39;, &#39;Biologie +Eukaryoten -Rhizarien&#39;, 5, &#39;PageSize&#39;)</span>
+<a name="l00365"></a>00365     <span class="comment">#~ for line in TaskListGenerator().generateQuery(&#39;de&#39;, &#39;Biologie +Eukaryoten -Rhizarien&#39;, 5, &#39;Timeliness:ChangeDetector&#39;):</span>
+<a name="l00366"></a>00366     <span class="keywordflow">for</span> line <span class="keywordflow">in</span> <a class="code" href="classtlgbackend_1_1_task_list_generator.html" title="main app class">TaskListGenerator</a>().generateQuery(<span class="stringliteral">&#39;de&#39;</span>, <span class="stringliteral">&#39;Medizin; Sport&#39;</span>, 2, <span class="stringliteral">&#39;RecentlyChanged&#39;</span>):
+<a name="l00367"></a>00367         <span class="keywordflow">print</span> line
+<a name="l00368"></a>00368         sys.stdout.flush()
+<a name="l00369"></a>00369     
+<a name="l00370"></a>00370 
 </pre></div></div><!-- contents -->
 </div>
 <!-- window showing the filter options -->
@@ -419,7 +473,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -430,9 +484,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
   <div id="nav-path" class="navpath">
     <ul>
-      <li class="navelem"><a class="el" href="tlgbackend_8py.html">tlgbackend.py</a>      </li>
+      <li class="navelem"><b>tlgbackend.py</b>      </li>
 
-    <li class="footer">Generated on Thu Aug 23 2012 17:24:08 for Task List Generator Backend by
+    <li class="footer">Generated on Wed Sep 12 2012 13:16:05 for Task List Generator Backend by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.6.1 </li>
    </ul>

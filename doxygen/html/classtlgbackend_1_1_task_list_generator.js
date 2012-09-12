@@ -4,6 +4,7 @@ var classtlgbackend_1_1_task_list_generator =
     [ "createActions", "classtlgbackend_1_1_task_list_generator.html#af1a7ac8f4d6b628bb686de8ec6385bfd", null ],
     [ "drainResultQueue", "classtlgbackend_1_1_task_list_generator.html#a80268275f16bf4ad49c795938b619fef", null ],
     [ "generateQuery", "classtlgbackend_1_1_task_list_generator.html#a3c382b6cef5c2acca88e3f3525020722", null ],
+    [ "getActiveWorkerCount", "classtlgbackend_1_1_task_list_generator.html#a87db3a84bdba60a1c55a0d03aab7706e", null ],
     [ "getFlawList", "classtlgbackend_1_1_task_list_generator.html#a67b1848a47a0f4206921731df0fe5f31", null ],
     [ "getPageIDs", "classtlgbackend_1_1_task_list_generator.html#acdaa6b4d8c7587eb87b77d3aee6636dc", null ],
     [ "initThreads", "classtlgbackend_1_1_task_list_generator.html#a92da0373cd2ebdaad31123e0be78be71", null ],

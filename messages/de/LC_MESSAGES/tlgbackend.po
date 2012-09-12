@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tlgbackend 0.1\n"
-"POT-Creation-Date: 2012-08-29 14:10+CEST\n"
+"POT-Creation-Date: 2012-09-06 17:02+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,29 +28,29 @@ msgstr ""
 msgid "Timeliness"
 msgstr "Aktualität"
 
-#: tlgbackend.py:231
+#: tlgbackend.py:224
 msgid "querying CatGraph for '%s' with depth %d"
 msgstr "Sende Anfrage an CatGraph: '%s', mit Suchtiefe %d"
 
-#: tlgbackend.py:236
+#: tlgbackend.py:229
 msgid "CatGraph returned %d results."
 msgstr "CatGraph gab %d Ergebnisse zurück."
 
-#: tlgbackend.py:251
+#: tlgbackend.py:244
 msgid "%d pages to test, %d actions to process"
 msgstr "%d Seiten zu testen, %d Aktionen auszuführen"
 
-#: tlgbackend.py:265
+#: tlgbackend.py:258
 msgid "%d of %d actions processed (eta: %02d:%02d)"
 msgstr "%d von %d Aktionen verarbeitet (ETA: %02d:%02d)"
 
-#: tlgbackend.py:276
+#: tlgbackend.py:269
 msgid ""
-"%d pages tested in %d actions. %d pages in result set. processing took %f "
+"%d pages tested in %d actions. %d pages in result set. processing took %.1f "
 "seconds."
 msgstr ""
 "%d Seiten getestet in %d Aktionen. %d Seiten in der Ergebnismenge. "
-"Verarbeitung dauerte %f Sekunden."
+"Verarbeitung dauerte %.1f Sekunden."
 
 #: tlgflaws.py:121
 msgid "All Pages"
@@ -136,11 +136,11 @@ msgstr "Keine Bilder"
 msgid "Article has no image links."
 msgstr "Artikel verlinkt keine Bilder."
 
-#: tlgwsgi.py:157
+#: tlgwsgi.py:108
 msgid "Filters"
 msgstr "Filter"
 
-#: tlgwsgi.py:158
+#: tlgwsgi.py:109
 msgid "Page"
 msgstr "Seite"
 

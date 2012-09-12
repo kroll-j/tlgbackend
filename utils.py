@@ -1,4 +1,5 @@
 #!/usr/bin/python
+## @file utils.py
 import os
 import sys
 import time
@@ -53,7 +54,8 @@ def GetTempCursors():
     except KeyError:
         t.cache['tempcursors']= dict()
         return t.cache['tempcursors']
-    
+
+## a temporary cursor to be used with the 'with' statement. will pe cached per thread and automatically cleaned up.
 class TempCursor:
     def __init__(self, host, dbname):
         self.host= host
@@ -86,9 +88,9 @@ class TempCursor:
         GetTempCursors()[self.key].lastuse= time.time()
 
 
-# get cursor for a wikipedia database ('enwiki_p' etc)
-# cursors are created on demand and stored locally for each thread
-# the DictCursor class is used, i. e. you get dicts with the column names as keys in query results
+## get cursor for a wikipedia database ('enwiki_p' etc).
+#  cursors are created on demand and stored locally for each thread.
+#  the DictCursor class is used, i. e. you get dicts with the column names as keys in query results.
 def getCursors():
     class Cursors(DictCache):
         def createEntry(self, key):
@@ -111,8 +113,11 @@ def getCursors():
             return cur
     return CachedThreadValue('SQLCursors', Cursors)
 
-# get page entries matching a given page_title and optional namespace
-# returns a tuple of dicts containing the result rows, or a tuple with length 0 if not found
+## get page entries matching a given page_title and optional namespace.
+#  returns a tuple of dicts containing the result rows, or a tuple with length 0 if not found.
+#  @param wiki wiki database name
+#  @param pageTitle page title
+#  @param pageNamespace namespace to look for, or None (default) for all namespaces
 @cache_region('mem1h', 'pageTitles')
 def getPageByTitle(wiki, pageTitle, pageNamespace=None):
     cur= getCursors()[wiki]
@@ -124,16 +129,16 @@ def getPageByTitle(wiki, pageTitle, pageNamespace=None):
     cur.execute(query, params)
     return cur.fetchall()
 
-# get a page entry given its page_id
-# returns a tuple of dicts containing the result row, or a tuple with length 0 if not found
+## get a page entry given its page_id.
+#  returns a tuple of dicts containing the result row, or a tuple with length 0 if not found.
 @cache_region('mem1h', 'pageIDs')
 def getPageByID(wiki, pageID):
     cur= getCursors()[wiki]
     cur.execute("SELECT * FROM page WHERE page_id = %s", (pageID,))
     return cur.fetchall()
 
-# find a category ID given its title
-# returns category ID, or None if not found
+## find a category ID given its title.
+#  returns category ID, or None if not found.
 @cache_region('disk24h')
 def getCategoryID(wiki, catTitle):
     page= getPageByTitle(wiki, catTitle, NS_CATEGORY)
@@ -160,6 +165,7 @@ def MakeTimestamp(unixtime= time.time()):
     return time.strftime("[%Y%m%d %H:%M.%S] ", time.gmtime(unixtime))
 
 debuglevel= 1
+## debug print. only shows if level >= debuglevel.
 def dprint(level, *args):
     if(debuglevel>=level):
         sys.stderr.write(MakeTimestamp())

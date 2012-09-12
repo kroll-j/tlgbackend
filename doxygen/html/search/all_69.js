@@ -1,8 +1,7 @@
 var searchData=
 [
-  ['identifier',['identifier',['../classcaching_1_1_file_based_cache.html#a46081caf672d33b215529b195fc9170a',1,'caching::FileBasedCache::identifier()'],['../classcaching_1_1_page_title_mem_cache.html#a920ac820d0c00e89e2b2baea4e0987ce',1,'caching::PageTitleMemCache::identifier()'],['../classcaching_1_1_page_i_d_mem_cache.html#a25103141a13209832a4922f5feebf391',1,'caching::PageIDMemCache::identifier()']]],
-  ['initcachedirs',['initCacheDirs',['../classcaching_1_1_file_based_cache.html#a6a081ea8f380cff76b8166b89483a585',1,'caching::FileBasedCache']]],
-  ['initthreads',['initThreads',['../classtlgbackend_1_1_task_list_generator.html#a92da0373cd2ebdaad31123e0be78be71',1,'tlgbackend::TaskListGenerator']]],
-  ['isatty',['isatty',['../classtlgwsgi_1_1_file_like_list.html#a623f029ab41a9aedc2c1ca8bc572238b',1,'tlgwsgi::FileLikeList']]],
-  ['ishit',['isHit',['../classcaching_1_1_file_based_cache.html#a7812962216f9718cbbc99226b389b27c',1,'caching::FileBasedCache']]]
+  ['isclosed',['isClosed',['../classgp_1_1client_1_1_connection.html#a85513ace8e0720e7adc85d57578060af',1,'gp::client::Connection.isClosed()'],['../namespacegp_1_1client.html#a5459d37657fe0baca1e6aaf2bb585974',1,'gp::client.isClosed()']]],
+  ['isvalidcommandargument',['isValidCommandArgument',['../classgp_1_1client_1_1_connection.html#a3839687882c911705dfe3e98ad77554e',1,'gp::client::Connection']]],
+  ['isvalidcommandname',['isValidCommandName',['../classgp_1_1client_1_1_connection.html#aecb41e586960b56d6f1283acc18ee0d9',1,'gp::client::Connection']]],
+  ['isvalidcommandstring',['isValidCommandString',['../classgp_1_1client_1_1_connection.html#ab387db6a8fc080f59c18e4ad74390ed4',1,'gp::client::Connection']]]
 ];

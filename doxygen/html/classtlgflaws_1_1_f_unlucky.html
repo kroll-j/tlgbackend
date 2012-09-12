@@ -52,7 +52,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -112,14 +111,7 @@ Inheritance diagram for tlgflaws.FUnlucky:</div>
 <div class="dyncontent">
 <div class="center"><img src="classtlgflaws_1_1_f_unlucky__inherit__graph.png" border="0" usemap="#tlgflaws_8_f_unlucky_inherit__map" alt="Inheritance graph"/></div>
 <map name="tlgflaws_8_f_unlucky_inherit__map" id="tlgflaws_8_f_unlucky_inherit__map">
-<area shape="rect" id="node2" href="classtlgflaws_1_1_flaw_filter.html" title="base class for flaw testers" alt="" coords="5,5,133,35"/></map>
-<center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
-<div class="dynheader">
-Collaboration diagram for tlgflaws.FUnlucky:</div>
-<div class="dyncontent">
-<div class="center"><img src="classtlgflaws_1_1_f_unlucky__coll__graph.png" border="0" usemap="#tlgflaws_8_f_unlucky_coll__map" alt="Collaboration graph"/></div>
-<map name="tlgflaws_8_f_unlucky_coll__map" id="tlgflaws_8_f_unlucky_coll__map">
-<area shape="rect" id="node2" href="classtlgflaws_1_1_flaw_filter.html" title="base class for flaw testers" alt="" coords="5,5,133,35"/></map>
+<area shape="rect" id="node2" href="classtlgflaws_1_1_flaw_filter.html" title="base class for flaw filters" alt="" coords="5,5,133,35"/></map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 
 <p><a href="classtlgflaws_1_1_f_unlucky-members.html">List of all members.</a></p>
@@ -130,16 +122,20 @@ Classes</h2></td></tr>
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlgflaws_1_1_f_unlucky.html#add525478a6b35808970333e69bca6c2a">createActions</a></td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">this method should return an object of some class derived from <a class="el" href="classtlgflaws_1_1_tlg_action.html" title="base class for actions to be executed by task list generator">TlgAction</a>  <a href="#add525478a6b35808970333e69bca6c2a"></a><br/></td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">this method should return an object of a class derived from <a class="el" href="classtlgflaws_1_1_tlg_action.html" title="base class for actions to be executed by task list generator">TlgAction</a>.  <a href="#add525478a6b35808970333e69bca6c2a"></a><br/></td></tr>
 <tr><td colspan="2"><h2><a name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlgflaws_1_1_f_unlucky.html#a389d6455831ed4ad98df228cbd332c06">shortname</a> = 'Unlucky'</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlgflaws_1_1_f_unlucky.html#a5aff7c8fc5498089da84dd10f5615d2c">description</a> = 'Page ID mod 13 == 0. For testing only.'</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a389d6455831ed4ad98df228cbd332c06"></a><!-- doxytag: member="tlgflaws::FUnlucky::shortname" ref="a389d6455831ed4ad98df228cbd332c06" args="" -->
+string&#160;</td><td class="memItemRight" valign="bottom"><b>shortname</b> = 'Test:Unlucky'</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac56d2c40a3452007065a7e5c8a1fb3c9"></a><!-- doxytag: member="tlgflaws::FUnlucky::label" ref="ac56d2c40a3452007065a7e5c8a1fb3c9" args="" -->
+string&#160;</td><td class="memItemRight" valign="bottom"><b>label</b> = 'Unlucky'</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5aff7c8fc5498089da84dd10f5615d2c"></a><!-- doxytag: member="tlgflaws::FUnlucky::description" ref="a5aff7c8fc5498089da84dd10f5615d2c" args="" -->
+string&#160;</td><td class="memItemRight" valign="bottom"><b>description</b> = 'Page ID mod 13 == 0. For testing only.'</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2efd7476d47fd730c285690595896496"></a><!-- doxytag: member="tlgflaws::FUnlucky::group" ref="a2efd7476d47fd730c285690595896496" args="" -->
+string&#160;</td><td class="memItemRight" valign="bottom"><b>group</b> = 'Test'</td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>example flaw tester which detects pages whose ID mod 13 == 0 </p>
-
-<p>Definition at line <a class="el" href="tlgflaws_8py_source.html#l00091">91</a> of file <a class="el" href="tlgflaws_8py_source.html">tlgflaws.py</a>.</p>
 </div><hr/><h2>Member Function Documentation</h2>
 <a class="anchor" id="add525478a6b35808970333e69bca6c2a"></a><!-- doxytag: member="tlgflaws::FUnlucky::createActions" ref="add525478a6b35808970333e69bca6c2a" args="" -->
 <div class="memitem">
@@ -178,47 +174,14 @@ Static Public Attributes</h2></td></tr>
 </div>
 <div class="memdoc">
 
-<p>this method should return an object of some class derived from <a class="el" href="classtlgflaws_1_1_tlg_action.html" title="base class for actions to be executed by task list generator">TlgAction</a> </p>
+<p>this method should return an object of a class derived from <a class="el" href="classtlgflaws_1_1_tlg_action.html" title="base class for actions to be executed by task list generator">TlgAction</a>. </p>
 
 <p>Reimplemented from <a class="el" href="classtlgflaws_1_1_flaw_filter.html#a64b737cb212e7b0261e98c3761cf9b8f">tlgflaws.FlawFilter</a>.</p>
-
-<p>Definition at line <a class="el" href="tlgflaws_8py_source.html#l00108">108</a> of file <a class="el" href="tlgflaws_8py_source.html">tlgflaws.py</a>.</p>
-
-</div>
-</div>
-<hr/><h2>Member Data Documentation</h2>
-<a class="anchor" id="a5aff7c8fc5498089da84dd10f5615d2c"></a><!-- doxytag: member="tlgflaws::FUnlucky::description" ref="a5aff7c8fc5498089da84dd10f5615d2c" args="" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">string <a class="el" href="classtlgflaws_1_1_f_unlucky.html#a5aff7c8fc5498089da84dd10f5615d2c">tlgflaws.FUnlucky::description</a> = 'Page ID mod 13 == 0. For testing only.'<code> [static]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>Definition at line <a class="el" href="tlgflaws_8py_source.html#l00093">93</a> of file <a class="el" href="tlgflaws_8py_source.html">tlgflaws.py</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a389d6455831ed4ad98df228cbd332c06"></a><!-- doxytag: member="tlgflaws::FUnlucky::shortname" ref="a389d6455831ed4ad98df228cbd332c06" args="" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">string <a class="el" href="classtlgflaws_1_1_f_unlucky.html#a389d6455831ed4ad98df228cbd332c06">tlgflaws.FUnlucky::shortname</a> = 'Unlucky'<code> [static]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>Definition at line <a class="el" href="tlgflaws_8py_source.html#l00092">92</a> of file <a class="el" href="tlgflaws_8py_source.html">tlgflaws.py</a>.</p>
 
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>/home/johannesk/code/tests/tlgbe/<a class="el" href="tlgflaws_8py_source.html">tlgflaws.py</a></li>
+<li>/home/johannesk/code/tests/tlgbe/tlgflaws.py</li>
 </ul>
 </div><!-- contents -->
 </div>
@@ -227,7 +190,7 @@ Static Public Attributes</h2></td></tr>
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -238,10 +201,10 @@ Static Public Attributes</h2></td></tr>
 
   <div id="nav-path" class="navpath">
     <ul>
-      <li class="navelem"><a class="el" href="namespacetlgflaws.html">tlgflaws</a>      </li>
+      <li class="navelem"><b>tlgflaws</b>      </li>
       <li class="navelem"><a class="el" href="classtlgflaws_1_1_f_unlucky.html">FUnlucky</a>      </li>
 
-    <li class="footer">Generated on Thu Aug 23 2012 17:24:08 for Task List Generator Backend by
+    <li class="footer">Generated on Wed Sep 12 2012 13:19:31 for Task List Generator Backend by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.6.1 </li>
    </ul>

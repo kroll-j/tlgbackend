@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tlgbackend 0.1\n"
-"POT-Creation-Date: 2012-08-29 13:05+CEST\n"
+"POT-Creation-Date: 2012-08-29 14:10+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,23 +28,23 @@ msgstr ""
 msgid "Timeliness"
 msgstr "Aktualität"
 
-#: tlgbackend.py:232
+#: tlgbackend.py:231
 msgid "querying CatGraph for '%s' with depth %d"
 msgstr "Sende Anfrage an CatGraph: '%s', mit Suchtiefe %d"
 
-#: tlgbackend.py:237
+#: tlgbackend.py:236
 msgid "CatGraph returned %d results."
 msgstr "CatGraph gab %d Ergebnisse zurück."
 
-#: tlgbackend.py:252
+#: tlgbackend.py:251
 msgid "%d pages to test, %d actions to process"
 msgstr "%d Seiten zu testen, %d Aktionen auszuführen"
 
-#: tlgbackend.py:266
+#: tlgbackend.py:265
 msgid "%d of %d actions processed (eta: %02d:%02d)"
 msgstr "%d von %d Aktionen verarbeitet (ETA: %02d:%02d)"
 
-#: tlgbackend.py:277
+#: tlgbackend.py:276
 msgid ""
 "%d pages tested in %d actions. %d pages in result set. processing took %f "
 "seconds."
@@ -136,11 +136,11 @@ msgstr "Keine Bilder"
 msgid "Article has no image links."
 msgstr "Artikel verlinkt keine Bilder."
 
-#: tlgwsgi.py:158
+#: tlgwsgi.py:157
 msgid "Filters"
 msgstr "Filter"
 
-#: tlgwsgi.py:159
+#: tlgwsgi.py:158
 msgid "Page"
 msgstr "Seite"
 

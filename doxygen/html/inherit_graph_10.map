@@ -1,10 +1,13 @@
 <map id="G" name="G">
-<area shape="rect" id="node1" href="$classtlgflaws_1_1_flaw_filter.html" title="base class for flaw testers" alt="" coords="5,112,133,141"/>
-<area shape="rect" id="node3" href="$classtlgflaws_1_1_f_missing_sources_templates.html" title="tlgflaws.FMissingSourcesTemplates" alt="" coords="183,5,415,35"/>
-<area shape="rect" id="node5" href="$classtlgflaws_1_1_f_no_images.html" title="tlgflaws.FNoImages" alt="" coords="229,59,368,88"/>
-<area shape="rect" id="node7" href="$classtlgflaws_1_1_f_nop.html" title="an example flaw tester which does nothing" alt="" coords="248,112,349,141"/>
-<area shape="rect" id="node9" href="$classtlgflaws_1_1_f_page_size_base.html" title="todo: make results usable by both small + large filter" alt="" coords="216,165,381,195"/>
-<area shape="rect" id="node15" href="$classtlgflaws_1_1_f_unlucky.html" title="example flaw tester which detects pages whose ID mod 13 == 0" alt="" coords="236,219,361,248"/>
-<area shape="rect" id="node11" href="$classtlgflaws_1_1_f_large.html" title="tlgflaws.FLarge" alt="" coords="465,139,575,168"/>
-<area shape="rect" id="node13" href="$classtlgflaws_1_1_f_small.html" title="tlgflaws.FSmall" alt="" coords="464,192,576,221"/>
+<area shape="rect" id="node1" href="$classtlgflaws_1_1_flaw_filter.html" title="base class for flaw filters" alt="" coords="5,192,133,221"/>
+<area shape="rect" id="node3" href="$classchangedetector_1_1_f_change_detector.html" title="this filter finds articles listed in the ChangeDetector database." alt="" coords="181,5,400,35"/>
+<area shape="rect" id="node5" href="$classmiscfilters_1_1_f_all.html" title="miscfilters.FAll" alt="" coords="236,59,345,88"/>
+<area shape="rect" id="node7" href="$classmiscfilters_1_1_f_no_images.html" title="miscfilters.FNoImages" alt="" coords="213,112,368,141"/>
+<area shape="rect" id="node9" href="$classmiscfilters_1_1_f_page_size_base.html" title="todo: make results usable by both small + large filter" alt="" coords="201,165,380,195"/>
+<area shape="rect" id="node15" href="$classmiscfilters_1_1_f_templates_base.html" title="base class for filters which check for lists of templates." alt="" coords="199,219,383,248"/>
+<area shape="rect" id="node17" href="$classrecent_1_1_f_recently_changed.html" title="Ein Filter, der alle Seiten findet, die heute geändert wurden." alt="" coords="204,272,377,301"/>
+<area shape="rect" id="node19" href="$classtlgflaws_1_1_f_nop.html" title="an example flaw tester which does nothing" alt="" coords="240,325,341,355"/>
+<area shape="rect" id="node21" href="$classtlgflaws_1_1_f_unlucky.html" title="example flaw tester which detects pages whose ID mod 13 == 0" alt="" coords="228,379,353,408"/>
+<area shape="rect" id="node11" href="$classmiscfilters_1_1_f_large.html" title="miscfilters.FLarge" alt="" coords="449,139,575,168"/>
+<area shape="rect" id="node13" href="$classmiscfilters_1_1_f_small.html" title="miscfilters.FSmall" alt="" coords="449,192,575,221"/>
 </map>

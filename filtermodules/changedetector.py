@@ -14,7 +14,6 @@ class FChangeDetector(FlawFilter):
         def execute(self, resultQueue):
             dprint(3, "%s: execute begin" % (self.parent.description))
             
-            #~ cur= getCursors()['p_render_change_detector_p']
             with TempCursor('sql', 'p_render_change_detector_p') as cur:
                 format_strings = ','.join(['%s'] * len(self.pageIDs))
                 date= time.strftime( '%Y%m%d', time.localtime(time.time()-60*60*24) )

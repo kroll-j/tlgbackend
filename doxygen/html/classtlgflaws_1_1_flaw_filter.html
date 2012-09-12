@@ -52,7 +52,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li class="current"><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -104,65 +103,34 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div><!--header-->
 <div class="contents">
 <!-- doxytag: class="tlgflaws::FlawFilter" -->
-<p>base class for flaw testers  
+<p>base class for flaw filters  
  <a href="classtlgflaws_1_1_flaw_filter.html#details">More...</a></p>
 <div class="dynheader">
 Inheritance diagram for tlgflaws.FlawFilter:</div>
 <div class="dyncontent">
 <div class="center"><img src="classtlgflaws_1_1_flaw_filter__inherit__graph.png" border="0" usemap="#tlgflaws_8_flaw_filter_inherit__map" alt="Inheritance graph"/></div>
 <map name="tlgflaws_8_flaw_filter_inherit__map" id="tlgflaws_8_flaw_filter_inherit__map">
-<area shape="rect" id="node3" href="classtlgflaws_1_1_f_missing_sources_templates.html" title="tlgflaws.FMissingSourcesTemplates" alt="" coords="183,5,415,35"/><area shape="rect" id="node5" href="classtlgflaws_1_1_f_no_images.html" title="tlgflaws.FNoImages" alt="" coords="229,59,368,88"/><area shape="rect" id="node7" href="classtlgflaws_1_1_f_nop.html" title="an example flaw tester which does nothing" alt="" coords="248,112,349,141"/><area shape="rect" id="node9" href="classtlgflaws_1_1_f_page_size_base.html" title="todo: make results usable by both small + large filter" alt="" coords="216,165,381,195"/><area shape="rect" id="node15" href="classtlgflaws_1_1_f_unlucky.html" title="example flaw tester which detects pages whose ID mod 13 == 0" alt="" coords="236,219,361,248"/><area shape="rect" id="node11" href="classtlgflaws_1_1_f_large.html" title="tlgflaws.FLarge" alt="" coords="465,139,575,168"/><area shape="rect" id="node13" href="classtlgflaws_1_1_f_small.html" title="tlgflaws.FSmall" alt="" coords="464,192,576,221"/></map>
+<area shape="rect" id="node3" href="classchangedetector_1_1_f_change_detector.html" title="this filter finds articles listed in the ChangeDetector database." alt="" coords="181,5,400,35"/><area shape="rect" id="node5" href="classmiscfilters_1_1_f_all.html" title="miscfilters.FAll" alt="" coords="236,59,345,88"/><area shape="rect" id="node7" href="classmiscfilters_1_1_f_no_images.html" title="miscfilters.FNoImages" alt="" coords="213,112,368,141"/><area shape="rect" id="node9" href="classmiscfilters_1_1_f_page_size_base.html" title="todo: make results usable by both small + large filter" alt="" coords="201,165,380,195"/><area shape="rect" id="node15" href="classmiscfilters_1_1_f_templates_base.html" title="base class for filters which check for lists of templates." alt="" coords="199,219,383,248"/><area shape="rect" id="node17" href="classrecent_1_1_f_recently_changed.html" title="Ein Filter, der alle Seiten findet, die heute geändert wurden." alt="" coords="204,272,377,301"/><area shape="rect" id="node19" href="classtlgflaws_1_1_f_nop.html" title="an example flaw tester which does nothing" alt="" coords="240,325,341,355"/><area shape="rect" id="node21" href="classtlgflaws_1_1_f_unlucky.html" title="example flaw tester which detects pages whose ID mod 13 == 0" alt="" coords="228,379,353,408"/><area shape="rect" id="node11" href="classmiscfilters_1_1_f_large.html" title="miscfilters.FLarge" alt="" coords="449,139,575,168"/><area shape="rect" id="node13" href="classmiscfilters_1_1_f_small.html" title="miscfilters.FSmall" alt="" coords="449,192,575,221"/></map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 
 <p><a href="classtlgflaws_1_1_flaw_filter-members.html">List of all members.</a></p>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlgflaws_1_1_flaw_filter.html#a2c27e3d264bedd771c49a4b25d6f4615">__init__</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2c27e3d264bedd771c49a4b25d6f4615"></a><!-- doxytag: member="tlgflaws::FlawFilter::__init__" ref="a2c27e3d264bedd771c49a4b25d6f4615" args="" -->
+def&#160;</td><td class="memItemRight" valign="bottom"><b>__init__</b></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlgflaws_1_1_flaw_filter.html#a4cdc6432422b03e36b0512978ef1519c">getPreferredPagesPerAction</a></td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">override this method if you want to process more than one article per action.  <a href="#a4cdc6432422b03e36b0512978ef1519c"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlgflaws_1_1_flaw_filter.html#a64b737cb212e7b0261e98c3761cf9b8f">createActions</a></td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">this method should return an object of some class derived from <a class="el" href="classtlgflaws_1_1_tlg_action.html" title="base class for actions to be executed by task list generator">TlgAction</a>  <a href="#a64b737cb212e7b0261e98c3761cf9b8f"></a><br/></td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">this method should return an object of a class derived from <a class="el" href="classtlgflaws_1_1_tlg_action.html" title="base class for actions to be executed by task list generator">TlgAction</a>.  <a href="#a64b737cb212e7b0261e98c3761cf9b8f"></a><br/></td></tr>
 <tr><td colspan="2"><h2><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlgflaws_1_1_flaw_filter.html#af985d08b547d9e98c1ffcd28f955da78">tlg</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af985d08b547d9e98c1ffcd28f955da78"></a><!-- doxytag: member="tlgflaws::FlawFilter::tlg" ref="af985d08b547d9e98c1ffcd28f955da78" args="" -->
+&#160;</td><td class="memItemRight" valign="bottom"><b>tlg</b></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p>base class for flaw testers </p>
-
-<p>Definition at line <a class="el" href="tlgflaws_8py_source.html#l00031">31</a> of file <a class="el" href="tlgflaws_8py_source.html">tlgflaws.py</a>.</p>
-</div><hr/><h2>Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="a2c27e3d264bedd771c49a4b25d6f4615"></a><!-- doxytag: member="tlgflaws::FlawFilter::__init__" ref="a2c27e3d264bedd771c49a4b25d6f4615" args="" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">def <a class="el" href="classtlgflaws_1_1_flaw_filter.html#a2c27e3d264bedd771c49a4b25d6f4615">tlgflaws.FlawFilter.__init__</a> </td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>self</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>tlg</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>Reimplemented in <a class="el" href="classtlgflaws_1_1_f_page_size_base.html#a055761b9ed6ee3bc536cc8fd045e7247">tlgflaws.FPageSizeBase</a>.</p>
-
-<p>Definition at line <a class="el" href="tlgflaws_8py_source.html#l00032">32</a> of file <a class="el" href="tlgflaws_8py_source.html">tlgflaws.py</a>.</p>
-
-</div>
-</div>
-<hr/><h2>Member Function Documentation</h2>
+<div class="textblock"><p>base class for flaw filters </p>
+</div><hr/><h2>Member Function Documentation</h2>
 <a class="anchor" id="a64b737cb212e7b0261e98c3761cf9b8f"></a><!-- doxytag: member="tlgflaws::FlawFilter::createActions" ref="a64b737cb212e7b0261e98c3761cf9b8f" args="" -->
 <div class="memitem">
 <div class="memproto">
@@ -200,11 +168,9 @@ Public Attributes</h2></td></tr>
 </div>
 <div class="memdoc">
 
-<p>this method should return an object of some class derived from <a class="el" href="classtlgflaws_1_1_tlg_action.html" title="base class for actions to be executed by task list generator">TlgAction</a> </p>
+<p>this method should return an object of a class derived from <a class="el" href="classtlgflaws_1_1_tlg_action.html" title="base class for actions to be executed by task list generator">TlgAction</a>. </p>
 
-<p>Reimplemented in <a class="el" href="classtlgflaws_1_1_f_no_images.html#a3d445b44c8489b0462f6ab15f36f75aa">tlgflaws.FNoImages</a>, <a class="el" href="classtlgflaws_1_1_f_large.html#aa8f10c52e134d8ac25ec1f6619f816fd">tlgflaws.FLarge</a>, <a class="el" href="classtlgflaws_1_1_f_small.html#a5ef6a9c6e00bca85f6eb2d6e57c6c0b1">tlgflaws.FSmall</a>, <a class="el" href="classtlgflaws_1_1_f_page_size_base.html#abf4162af3d0528f877687494b06a8c13">tlgflaws.FPageSizeBase</a>, <a class="el" href="classtlgflaws_1_1_f_missing_sources_templates.html#ad6d8a2f053686cffeffccb771158e32f">tlgflaws.FMissingSourcesTemplates</a>, <a class="el" href="classtlgflaws_1_1_f_unlucky.html#add525478a6b35808970333e69bca6c2a">tlgflaws.FUnlucky</a>, and <a class="el" href="classtlgflaws_1_1_f_nop.html#aa02063aa8dd13a25bd7ba5b307e131de">tlgflaws.FNop</a>.</p>
-
-<p>Definition at line <a class="el" href="tlgflaws_8py_source.html#l00040">40</a> of file <a class="el" href="tlgflaws_8py_source.html">tlgflaws.py</a>.</p>
+<p>Reimplemented in <a class="el" href="classmiscfilters_1_1_f_no_images.html#a498b0e33c73f5538b8842e03f710a233">miscfilters.FNoImages</a>, <a class="el" href="classmiscfilters_1_1_f_large.html#a6a15f3ffa1c23eb58e5396863b827d88">miscfilters.FLarge</a>, <a class="el" href="classmiscfilters_1_1_f_small.html#a1ee1dd29160caf4a9e7c5953c74d4b48">miscfilters.FSmall</a>, <a class="el" href="classmiscfilters_1_1_f_page_size_base.html#a15f4dea1e23dd783b3376433a98b48b3">miscfilters.FPageSizeBase</a>, <a class="el" href="classtlgflaws_1_1_f_unlucky.html#add525478a6b35808970333e69bca6c2a">tlgflaws.FUnlucky</a>, <a class="el" href="classtlgflaws_1_1_f_nop.html#aa02063aa8dd13a25bd7ba5b307e131de">tlgflaws.FNop</a>, <a class="el" href="classmiscfilters_1_1_f_templates_base.html#abfefd4935d432ed9fe410422b760c4e0">miscfilters.FTemplatesBase</a>, <a class="el" href="classchangedetector_1_1_f_change_detector.html#a7f1fd7f7c9b6f5da2c37da87c2d7fa0d">changedetector.FChangeDetector</a>, <a class="el" href="classrecent_1_1_f_recently_changed.html#a436b52dfa8014c8dfc61d34b770bf545">recent.FRecentlyChanged</a>, and <a class="el" href="classmiscfilters_1_1_f_all.html#a1a901aa23c68ccd0ab03a19e38d595a7">miscfilters.FAll</a>.</p>
 
 </div>
 </div>
@@ -223,30 +189,14 @@ Public Attributes</h2></td></tr>
 </div>
 <div class="memdoc">
 
-<p>Reimplemented in <a class="el" href="classtlgflaws_1_1_f_no_images.html#a6afaa8d0c1d682392c05c9f846615b25">tlgflaws.FNoImages</a>, <a class="el" href="classtlgflaws_1_1_f_page_size_base.html#ab9ccf2fdade62d0be99ecc60997b4352">tlgflaws.FPageSizeBase</a>, and <a class="el" href="classtlgflaws_1_1_f_missing_sources_templates.html#a44af5201e0588bad70f63e8740338b5c">tlgflaws.FMissingSourcesTemplates</a>.</p>
+<p>override this method if you want to process more than one article per action. </p>
 
-<p>Definition at line <a class="el" href="tlgflaws_8py_source.html#l00036">36</a> of file <a class="el" href="tlgflaws_8py_source.html">tlgflaws.py</a>.</p>
-
-</div>
-</div>
-<hr/><h2>Member Data Documentation</h2>
-<a class="anchor" id="af985d08b547d9e98c1ffcd28f955da78"></a><!-- doxytag: member="tlgflaws::FlawFilter::tlg" ref="af985d08b547d9e98c1ffcd28f955da78" args="" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classtlgflaws_1_1_flaw_filter.html#af985d08b547d9e98c1ffcd28f955da78">tlgflaws.FlawFilter::tlg</a></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>Definition at line <a class="el" href="tlgflaws_8py_source.html#l00032">32</a> of file <a class="el" href="tlgflaws_8py_source.html">tlgflaws.py</a>.</p>
+<p>Reimplemented in <a class="el" href="classmiscfilters_1_1_f_no_images.html#afbaf928c709e8d47d74aa7a798049358">miscfilters.FNoImages</a>, <a class="el" href="classmiscfilters_1_1_f_page_size_base.html#ad00ac8ebb0f2c0ae358333c11e9b1820">miscfilters.FPageSizeBase</a>, <a class="el" href="classmiscfilters_1_1_f_templates_base.html#aae9c9f65977c0e43c90cf0af87817e15">miscfilters.FTemplatesBase</a>, <a class="el" href="classchangedetector_1_1_f_change_detector.html#ad02db134557a096b68b802f3b4664644">changedetector.FChangeDetector</a>, <a class="el" href="classrecent_1_1_f_recently_changed.html#ae5237f71025165fcf8aa378f5ad144df">recent.FRecentlyChanged</a>, and <a class="el" href="classmiscfilters_1_1_f_all.html#a0a039f4daec7391a7bb07fcc009dfdb7">miscfilters.FAll</a>.</p>
 
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>/home/johannesk/code/tests/tlgbe/<a class="el" href="tlgflaws_8py_source.html">tlgflaws.py</a></li>
+<li>/home/johannesk/code/tests/tlgbe/tlgflaws.py</li>
 </ul>
 </div><!-- contents -->
 </div>
@@ -255,7 +205,7 @@ Public Attributes</h2></td></tr>
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -266,10 +216,10 @@ Public Attributes</h2></td></tr>
 
   <div id="nav-path" class="navpath">
     <ul>
-      <li class="navelem"><a class="el" href="namespacetlgflaws.html">tlgflaws</a>      </li>
+      <li class="navelem"><b>tlgflaws</b>      </li>
       <li class="navelem"><a class="el" href="classtlgflaws_1_1_flaw_filter.html">FlawFilter</a>      </li>
 
-    <li class="footer">Generated on Thu Aug 23 2012 17:24:08 for Task List Generator Backend by
+    <li class="footer">Generated on Wed Sep 12 2012 13:19:31 for Task List Generator Backend by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.6.1 </li>
    </ul>

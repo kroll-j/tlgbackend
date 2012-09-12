@@ -52,7 +52,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="namespaces.html"><span>Namespaces</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -95,64 +94,94 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#namespaces">Namespaces</a> &#124;
 <a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
 <div class="title">/home/johannesk/code/tests/tlgbe/utils.py File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-
-<p><a href="utils_8py_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="nested-classes"></a>
 Classes</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classutils_1_1_temp_cursor.html">utils.TempCursor</a></td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">a temporary cursor to be used with the 'with' statement.  <a href="classutils_1_1_temp_cursor.html#details">More...</a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classutils_1_1_dict_cache.html">utils.DictCache</a></td></tr>
-<tr><td colspan="2"><h2><a name="namespaces"></a>
-Namespaces</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html">utils</a></td></tr>
 <tr><td colspan="2"><h2><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#ae3076c8315af058e4421e0e307bfd66a">utils.getCursors</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#ac02bfbab8109c2ed1c187b2bfde920fe">utils.getPageByTitle</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#a1379e46bec093b8195d4d59b0197a0f6">utils.getPageByID</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#a28c9676c2514a1a2929591cf5497ab1f">utils.getCategoryID</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#a8d0d1151e84fa4c99cf834018133d83a">utils.getPagelinksForID</a></td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">find everything that links to this page (table 'pagelinks')  <a href="#a8d0d1151e84fa4c99cf834018133d83a"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#a86031d8245b89b239eac8b993a68ade5">utils.getTemplatelinksForID</a></td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">find templates of this page (table 'categorylinks')  <a href="#a86031d8245b89b239eac8b993a68ade5"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#a41c9a645fe092315401b5bf8570edd6e">utils.dprint</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#a6de1d163d3293c0f3971c6005b5ad9c5">utils.getWikiServerMap</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#ae103923aef29769e4b5f04a7513d41d1">utils.CachedThreadValue</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#ab03626e4895bed297f086d664c2acff2">utils.getConnections</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5a9e13dd6b6840174d9f35a531ea3152"></a><!-- doxytag: member="utils.py::GetTempCursors" ref="a5a9e13dd6b6840174d9f35a531ea3152" args="" -->
+def&#160;</td><td class="memItemRight" valign="bottom"><b>utils.GetTempCursors</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><b>utils.getCursors</b></td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">get cursor for a wikipedia database ('enwiki_p' etc) cursors are created on demand and stored locally for each thread.  <a href="#ae3076c8315af058e4421e0e307bfd66a"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><b>utils.getPageByTitle</b></td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">get page entries matching a given page_title and optional namespace.  <a href="#ac02bfbab8109c2ed1c187b2bfde920fe"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><b>utils.getPageByID</b></td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">get a page entry given its page_id.  <a href="#a1379e46bec093b8195d4d59b0197a0f6"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><b>utils.getCategoryID</b></td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">find a category ID given its title.  <a href="#a28c9676c2514a1a2929591cf5497ab1f"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8d0d1151e84fa4c99cf834018133d83a"></a><!-- doxytag: member="utils.py::getPagelinksForID" ref="a8d0d1151e84fa4c99cf834018133d83a" args="" -->
+def&#160;</td><td class="memItemRight" valign="bottom"><b>utils.getPagelinksForID</b></td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">find everything that links to this page (table 'pagelinks') <br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a86031d8245b89b239eac8b993a68ade5"></a><!-- doxytag: member="utils.py::getTemplatelinksForID" ref="a86031d8245b89b239eac8b993a68ade5" args="" -->
+def&#160;</td><td class="memItemRight" valign="bottom"><b>utils.getTemplatelinksForID</b></td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">find templates of this page (table 'categorylinks') <br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a58f9abd93ee8fa4aefb5538911d242f8"></a><!-- doxytag: member="utils.py::MakeTimestamp" ref="a58f9abd93ee8fa4aefb5538911d242f8" args="" -->
+def&#160;</td><td class="memItemRight" valign="bottom"><b>utils.MakeTimestamp</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><b>utils.dprint</b></td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">debug print.  <a href="#a41c9a645fe092315401b5bf8570edd6e"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6de1d163d3293c0f3971c6005b5ad9c5"></a><!-- doxytag: member="utils.py::getWikiServerMap" ref="a6de1d163d3293c0f3971c6005b5ad9c5" args="" -->
+def&#160;</td><td class="memItemRight" valign="bottom"><b>utils.getWikiServerMap</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae103923aef29769e4b5f04a7513d41d1"></a><!-- doxytag: member="utils.py::CachedThreadValue" ref="ae103923aef29769e4b5f04a7513d41d1" args="" -->
+def&#160;</td><td class="memItemRight" valign="bottom"><b>utils.CachedThreadValue</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab03626e4895bed297f086d664c2acff2"></a><!-- doxytag: member="utils.py::getConnections" ref="ab03626e4895bed297f086d664c2acff2" args="" -->
+def&#160;</td><td class="memItemRight" valign="bottom"><b>utils.getConnections</b></td></tr>
 <tr><td colspan="2"><h2><a name="var-members"></a>
 Variables</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#ab38e473f461cc9fb86d08a55cb3df7cd">utils.beakerCacheDir</a> = '/mnt/user-store/jkroll/tlgbackend/tip/beaker-cache'</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#a210afe493e349df2d5788d0816e55480">utils.NS_MAIN</a> = 0</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#ad61791a9ab26d5c6ad76f11b8b86834c">utils.NS_TALK</a> = 1</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#ac1533deb2de9f873d263ad9cf18d7362">utils.NS_USER</a> = 2</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#a131d24946185b3fbba4bc1bdc26edafb">utils.NS_USER_TALK</a> = 3</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#ad36da7da5347b74c0e97fef466896c0d">utils.NS_PROJECT</a> = 4</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#ab500c473042a7266efedc9f37b9b7630">utils.NS_PROJECT_TALK</a> = 5</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#a3828ffd209a1125e5210f78ecb7a866a">utils.NS_FILE</a> = 6</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#ae13df04ecb958e1753e94f2bffc2b058">utils.NS_FILE_TALK</a> = 7</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#a9f61cafe395d30e21d26a4d122b8e437">utils.NS_MEDIAWIKI</a> = 8</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#af20d768ee8c62271989c11850d1d3c43">utils.NS_MEDIAWIKI_TALK</a> = 9</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#a4659049fffd55909a593953d1de2a492">utils.NS_TEMPLATE</a> = 10</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#acf3a38d59387aa477f4dcf22afebf7af">utils.NS_TEMPLATE_TALK</a> = 11</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#ad532e0db3aebd7872ad3a201b824381d">utils.NS_HELP</a> = 12</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#a940b1af3f09228dda4da45091f1e8173">utils.NS_HELP_TALK</a> = 13</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#a4855c16470e94774fa789c7ae6c534e5">utils.NS_CATEGORY</a> = 14</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceutils.html#aaa033429d59230e9af7df153e39a77ed">utils.NS_CATEGORY_TALK</a> = 15</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a34a3c78e1f500a7a578154cc2d742563"></a><!-- doxytag: member="utils.py::DATADIR" ref="a34a3c78e1f500a7a578154cc2d742563" args="" -->
+string&#160;</td><td class="memItemRight" valign="bottom"><b>utils.DATADIR</b> = '/mnt/user-store/jkroll/tlgbackend/tip'</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5f7e3b408add434b6c0ac7651a984201"></a><!-- doxytag: member="utils.py::beakerCacheDir" ref="a5f7e3b408add434b6c0ac7651a984201" args="" -->
+tuple&#160;</td><td class="memItemRight" valign="bottom"><b>utils.beakerCacheDir</b> = os.path.join(DATADIR, 'beaker-cache')</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a210afe493e349df2d5788d0816e55480"></a><!-- doxytag: member="utils.py::NS_MAIN" ref="a210afe493e349df2d5788d0816e55480" args="" -->
+int&#160;</td><td class="memItemRight" valign="bottom"><b>utils.NS_MAIN</b> = 0</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad61791a9ab26d5c6ad76f11b8b86834c"></a><!-- doxytag: member="utils.py::NS_TALK" ref="ad61791a9ab26d5c6ad76f11b8b86834c" args="" -->
+int&#160;</td><td class="memItemRight" valign="bottom"><b>utils.NS_TALK</b> = 1</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac1533deb2de9f873d263ad9cf18d7362"></a><!-- doxytag: member="utils.py::NS_USER" ref="ac1533deb2de9f873d263ad9cf18d7362" args="" -->
+int&#160;</td><td class="memItemRight" valign="bottom"><b>utils.NS_USER</b> = 2</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a131d24946185b3fbba4bc1bdc26edafb"></a><!-- doxytag: member="utils.py::NS_USER_TALK" ref="a131d24946185b3fbba4bc1bdc26edafb" args="" -->
+int&#160;</td><td class="memItemRight" valign="bottom"><b>utils.NS_USER_TALK</b> = 3</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad36da7da5347b74c0e97fef466896c0d"></a><!-- doxytag: member="utils.py::NS_PROJECT" ref="ad36da7da5347b74c0e97fef466896c0d" args="" -->
+int&#160;</td><td class="memItemRight" valign="bottom"><b>utils.NS_PROJECT</b> = 4</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab500c473042a7266efedc9f37b9b7630"></a><!-- doxytag: member="utils.py::NS_PROJECT_TALK" ref="ab500c473042a7266efedc9f37b9b7630" args="" -->
+int&#160;</td><td class="memItemRight" valign="bottom"><b>utils.NS_PROJECT_TALK</b> = 5</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3828ffd209a1125e5210f78ecb7a866a"></a><!-- doxytag: member="utils.py::NS_FILE" ref="a3828ffd209a1125e5210f78ecb7a866a" args="" -->
+int&#160;</td><td class="memItemRight" valign="bottom"><b>utils.NS_FILE</b> = 6</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae13df04ecb958e1753e94f2bffc2b058"></a><!-- doxytag: member="utils.py::NS_FILE_TALK" ref="ae13df04ecb958e1753e94f2bffc2b058" args="" -->
+int&#160;</td><td class="memItemRight" valign="bottom"><b>utils.NS_FILE_TALK</b> = 7</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9f61cafe395d30e21d26a4d122b8e437"></a><!-- doxytag: member="utils.py::NS_MEDIAWIKI" ref="a9f61cafe395d30e21d26a4d122b8e437" args="" -->
+int&#160;</td><td class="memItemRight" valign="bottom"><b>utils.NS_MEDIAWIKI</b> = 8</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af20d768ee8c62271989c11850d1d3c43"></a><!-- doxytag: member="utils.py::NS_MEDIAWIKI_TALK" ref="af20d768ee8c62271989c11850d1d3c43" args="" -->
+int&#160;</td><td class="memItemRight" valign="bottom"><b>utils.NS_MEDIAWIKI_TALK</b> = 9</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4659049fffd55909a593953d1de2a492"></a><!-- doxytag: member="utils.py::NS_TEMPLATE" ref="a4659049fffd55909a593953d1de2a492" args="" -->
+int&#160;</td><td class="memItemRight" valign="bottom"><b>utils.NS_TEMPLATE</b> = 10</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acf3a38d59387aa477f4dcf22afebf7af"></a><!-- doxytag: member="utils.py::NS_TEMPLATE_TALK" ref="acf3a38d59387aa477f4dcf22afebf7af" args="" -->
+int&#160;</td><td class="memItemRight" valign="bottom"><b>utils.NS_TEMPLATE_TALK</b> = 11</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad532e0db3aebd7872ad3a201b824381d"></a><!-- doxytag: member="utils.py::NS_HELP" ref="ad532e0db3aebd7872ad3a201b824381d" args="" -->
+int&#160;</td><td class="memItemRight" valign="bottom"><b>utils.NS_HELP</b> = 12</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a940b1af3f09228dda4da45091f1e8173"></a><!-- doxytag: member="utils.py::NS_HELP_TALK" ref="a940b1af3f09228dda4da45091f1e8173" args="" -->
+int&#160;</td><td class="memItemRight" valign="bottom"><b>utils.NS_HELP_TALK</b> = 13</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4855c16470e94774fa789c7ae6c534e5"></a><!-- doxytag: member="utils.py::NS_CATEGORY" ref="a4855c16470e94774fa789c7ae6c534e5" args="" -->
+int&#160;</td><td class="memItemRight" valign="bottom"><b>utils.NS_CATEGORY</b> = 14</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaa033429d59230e9af7df153e39a77ed"></a><!-- doxytag: member="utils.py::NS_CATEGORY_TALK" ref="aaa033429d59230e9af7df153e39a77ed" args="" -->
+int&#160;</td><td class="memItemRight" valign="bottom"><b>utils.NS_CATEGORY_TALK</b> = 15</td></tr>
 </table>
-</div><!-- contents -->
+<hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
+<div class="textblock"></div></div><!-- contents -->
 </div>
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -165,7 +194,7 @@ Variables</h2></td></tr>
     <ul>
       <li class="navelem"><a class="el" href="utils_8py.html">utils.py</a>      </li>
 
-    <li class="footer">Generated on Thu Aug 23 2012 17:24:08 for Task List Generator Backend by
+    <li class="footer">Generated on Wed Sep 12 2012 13:19:31 for Task List Generator Backend by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.6.1 </li>
    </ul>

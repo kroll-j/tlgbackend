@@ -248,7 +248,8 @@ def Wikify(tlgResult, action, chunked, params, showThreads, tlg):
                 pass
             else:
                 # output unknown stuff too?
-                pass
+                #~ pass
+                wikitext.write(str(data))
             
         while len(wikitext.values)>0:
             yield wikitext.values.pop(0) + '\n'
@@ -257,99 +258,105 @@ def Wikify(tlgResult, action, chunked, params, showThreads, tlg):
         yield 'No Results.\n'
     
 
-def generator_test(environ, start_response):
-    params= parseCGIargs(environ)
-    
-    mailto= getParam(params, 'mailto', None)
-    chunked= getBoolParam(params, 'chunked', False) and not bool(mailto)
-    showThreads= getBoolParam(params, 'showthreads', False) and not bool(mailto)
-    action= getParam(params, 'action', 'listflaws')
-    format= getParam(params, 'format', 'json')
-    if mailto and format=='json': format= 'html'    # no json via email (probably not useful anyway)
-    i18n= getParam(params, 'i18n', 'de')
-    
+############## wsgi generator function
+def generator_app(environ, start_response):
     try:
-        gettext.translation('tlgbackend', localedir= os.path.join(sys.path[0], 'messages'), languages=[i18n]).install()
-    except:
-        # fall back to untranslated strings
-        def ident(msg): return msg
-        global _
-        _= ident
-    
-    if mailto:
-        if 'daemon' in environ and environ['daemon']=='True':
-            # in daemon process
-            import daemon
-            context= daemon.DaemonContext()
-            context.stdout= open(os.path.join(DATADIR, 'mailer-stdout'), 'a')
-            context.stderr= open(os.path.join(DATADIR, 'mailer-stderr'), 'a')
-            context.open()
-            dprint(0, 'hello from daemon, pid=%d, format=%s' % (os.getpid(), format))
+        params= parseCGIargs(environ)
+        
+        mailto= getParam(params, 'mailto', None)
+        chunked= getBoolParam(params, 'chunked', False) and not bool(mailto)
+        showThreads= getBoolParam(params, 'showthreads', False) and not bool(mailto)
+        action= getParam(params, 'action', 'listflaws')
+        format= getParam(params, 'format', 'json')
+        if mailto and format=='json': format= 'html'    # no json via email (probably not useful anyway)
+        i18n= getParam(params, 'i18n', 'de')
+        
+        try:
+            gettext.translation('tlgbackend', localedir= os.path.join(sys.path[0], 'messages'), languages=[i18n]).install()
+        except:
+            # fall back to untranslated strings
+            def ident(msg): return msg
+            global _
+            _= ident
+        
+        if mailto:
+            if 'daemon' in environ and environ['daemon']=='True':
+                # in daemon process
+                import daemon
+                context= daemon.DaemonContext()
+                context.stdout= open(os.path.join(DATADIR, 'mailer-stdout'), 'a')
+                context.stderr= open(os.path.join(DATADIR, 'mailer-stderr'), 'a')
+                context.open()
+                dprint(0, 'hello from daemon, pid=%d, format=%s' % (os.getpid(), format))
 
+            else:
+                # cgi context, create daemon
+                import subprocess
+                scriptname= os.path.join(sys.path[0], sys.argv[0])
+                subprocess.Popen([scriptname], env= { 'QUERY_STRING': environ['QUERY_STRING'], 'daemon': 'True' })
+                start_response('200 OK', [('Content-Type', 'text/plain; charset=utf-8')])
+                return ( '{ "status": "background process started" }', )
+        
+        tlg= tlgbackend.TaskListGenerator()
+        
+        if action=='query':
+            lang= getParam(params, 'lang')
+            queryString= getParam(params, 'query')
+            queryDepth= getParam(params, 'querydepth', 1)
+            flaws= getParam(params, 'flaws')
+            tlgResult= tlg.generateQuery(lang=lang, queryString=queryString, queryDepth=queryDepth, flaws=flaws)
+        elif action=='listflaws':
+            tlgResult= (tlg.getFlawList(),)
+        
+        if format=='html':
+            # output something html-ish
+            outputIterable= HTMLify(tlgResult, action, chunked, params, showThreads, tlg)
+            mimeSubtype= 'html'
+        
+        elif format=='wikitext':
+            # format to wikitext
+            outputIterable= Wikify(tlgResult, action, chunked, params, showThreads, tlg)
+            mimeSubtype= 'plain'
+        
         else:
-            # cgi context, create daemon
-            import subprocess
-            scriptname= os.path.join(sys.path[0], sys.argv[0])
-            subprocess.Popen([scriptname], env= { 'QUERY_STRING': environ['QUERY_STRING'], 'daemon': 'True' })
-            start_response('200 OK', [('Content-Type', 'text/plain; charset=utf-8')])
-            return ( '{ "status": "background process started" }', )
-    
-    tlg= tlgbackend.TaskListGenerator()
-    
-    if action=='query':
-        lang= getParam(params, 'lang')
-        queryString= getParam(params, 'query')
-        queryDepth= getParam(params, 'querydepth', 1)
-        flaws= getParam(params, 'flaws')
-        tlgResult= tlg.generateQuery(lang=lang, queryString=queryString, queryDepth=queryDepth, flaws=flaws)
-    elif action=='listflaws':
-        tlgResult= (tlg.getFlawList(),)
-    
-    if format=='html':
-        # output something html-ish
-        outputIterable= HTMLify(tlgResult, action, chunked, params, showThreads, tlg)
-        mimeSubtype= 'html'
-    
-    elif format=='wikitext':
-        # format to wikitext
-        outputIterable= Wikify(tlgResult, action, chunked, params, showThreads, tlg)
-        mimeSubtype= 'plain'
-    
-    else:
-        # plain json
-        outputIterable= addLinebreaks(tlgResult)
-        mimeSubtype= 'plain'
-    
-    if mailto:  # we are in the daemon if we get here
-        dprint(0, 'starting email stuff')
-        send_mail(queryString, queryDepth, flaws, lang, format, outputIterable, action, mailto, mimeSubtype)
-        dprint(0, 'mail stuff finished, exiting.')
-        sys.exit(0)
+            # plain json
+            outputIterable= addLinebreaks(tlgResult)
+            mimeSubtype= 'plain'
+        
+        if mailto:  # we are in the daemon if we get here
+            dprint(0, 'starting email stuff')
+            send_mail(queryString, queryDepth, flaws, lang, format, outputIterable, action, mailto, mimeSubtype)
+            dprint(0, 'mail stuff finished, exiting.')
+            sys.exit(0)
 
-    else:   # no email address given. cgi context.
-        if chunked: 
-            start_response('200 OK', [('Content-Type', 'text/%s; charset=utf-8' % mimeSubtype), ('Transfer-Encoding', 'chunked')])
-        else:
-            start_response('200 OK', [('Content-Type', 'text/%s; charset=utf-8' % mimeSubtype)])
-        return outputIterable
+        else:   # no email address given. cgi context.
+            if chunked: 
+                start_response('200 OK', [('Content-Type', 'text/%s; charset=utf-8' % mimeSubtype), ('Transfer-Encoding', 'chunked')])
+            else:
+                start_response('200 OK', [('Content-Type', 'text/%s; charset=utf-8' % mimeSubtype)])
+            return outputIterable
+    
+    except Exception as e:
+        start_response('200 OK', [('Content-Type', 'text/plain; charset=utf-8')])
+        return [ '{ "exception": "%s" }' % str(e).replace('\n', '\\n') ]
 
 
 if __name__ == "__main__":
     if 'daemon' in os.environ and os.environ['daemon']=='True':
-        for foo in generator_test(os.environ, None):
+        for foo in generator_app(os.environ, None):
             pass
         sys.exit(0)
     
     # change this to "flup.server.fcgi" when/if fcgid is installed on the toolserver
     from flup.server.cgi import WSGIServer
     # enable pretty stack traces
-    import cgitb
-    cgitb.enable()
+    #~ import cgitb
+    #~ cgitb.enable()
     try:
         os.environ['QUERY_STRING']
     except KeyError:
         # started from non-cgi context, create request string for testing.
-        os.environ['QUERY_STRING']= 'action=query&format=wikitext&lang=de&query=Sport&querydepth=2&flaws=NoImages%20Small&mailto=foobar'
-    WSGIServer(generator_test).run()
+        os.environ['QUERY_STRING']= 'action=query&format=wikitext&lang=de&query=Sport&querydepth=2&flaws=NoImages%20Small'
+    WSGIServer(generator_app).run()
 
 

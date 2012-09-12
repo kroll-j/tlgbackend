@@ -4,7 +4,6 @@
 import os
 import sys
 import gettext
-gettext.translation('tlgbackend', localedir= os.path.join(sys.path[0], 'messages'), languages=['de']).install()
 import time
 import json
 import Queue
@@ -213,67 +212,70 @@ class TaskListGenerator:
     
     # testing generator stuff
     def generateQuery(self, lang, queryString, queryDepth, flaws):
-        begin= time.time()
-        
-        self.language= lang
-        self.wiki= lang + 'wiki'
+        try:
+            begin= time.time()
+            
+            self.language= lang
+            self.wiki= lang + 'wiki'
 
-        # spawn the worker threads
-        self.initThreads()
-        
-        yield self.mkStatus(_('querying CatGraph for \'%s\' with depth %d') % (queryString, int(queryDepth)))
+            # spawn the worker threads
+            self.initThreads()
+            
+            yield self.mkStatus(_('querying CatGraph for \'%s\' with depth %d') % (queryString, int(queryDepth)))
 
-        self.cg= CatGraphInterface(graphname=self.wiki)
-        self.pagesToTest= self.cg.executeSearchString(queryString, queryDepth)
-        
-        yield self.mkStatus(_('CatGraph returned %d results.') % len(self.pagesToTest))
+            self.cg= CatGraphInterface(graphname=self.wiki)
+            self.pagesToTest= self.cg.executeSearchString(queryString, queryDepth)
+            
+            yield self.mkStatus(_('CatGraph returned %d results.') % len(self.pagesToTest))
 
-        # todo: add something like MaxWaitTime, instead of this
-        #~ if len(self.pagesToTest) > 50000:
-            #~ raise RuntimeError('result set of %d pages is too large to process in a reasonable time, please modify your search string.' % len(self.pagesToTest))
-        
-        # create the actions for every page x every flaw
-        for flawname in flaws.split():
-            try:
-                flaw= FlawFilters.classInfos[flawname](self)
-            except KeyError:
-                raise RuntimeError('Unknown flaw %s' % flawname)
-            self.createActions(flaw, self.language, self.pagesToTest)
-        
-        numActions= self.actionQueue.qsize()
-        yield self.mkStatus(_('%d pages to test, %d actions to process') % (len(self.pagesToTest), numActions))
-        
-        # signal worker threads that they can run
-        self.runEvent.set()
-        
-        # process results as they are created
-        actionsProcessed= numActions-self.actionQueue.qsize()
-        while self.getActiveWorkerCount()>0:
+            # todo: add something like MaxWaitTime, instead of this
+            #~ if len(self.pagesToTest) > 50000:
+                #~ raise RuntimeError('result set of %d pages is too large to process in a reasonable time, please modify your search string.' % len(self.pagesToTest))
+            
+            # create the actions for every page x every flaw
+            for flawname in flaws.split():
+                try:
+                    flaw= FlawFilters.classInfos[flawname](self)
+                except KeyError:
+                    raise RuntimeError('Unknown flaw %s' % flawname)
+                self.createActions(flaw, self.language, self.pagesToTest)
+            
+            numActions= self.actionQueue.qsize()
+            yield self.mkStatus(_('%d pages to test, %d actions to process') % (len(self.pagesToTest), numActions))
+            
+            # signal worker threads that they can run
+            self.runEvent.set()
+            
+            # process results as they are created
+            actionsProcessed= numActions-self.actionQueue.qsize()
+            while self.getActiveWorkerCount()>0:
+                self.drainResultQueue()
+                n= max(numActions-self.actionQueue.qsize()-(self.getActiveWorkerCount()), 1)
+                if n!=actionsProcessed:
+                    actionsProcessed= n
+                    eta= (time.time()-begin) / actionsProcessed * (numActions-actionsProcessed)
+                    yield json.dumps( { 'progress': '%d/%d' % (actionsProcessed, numActions) } )
+                    yield self.mkStatus(_('%d of %d actions processed (eta: %02d:%02d)') % (actionsProcessed, numActions, int(eta)/60, int(eta)%60))
+                time.sleep(0.25)
+            for i in self.workerThreads:
+                i.join()
+            # process the last results
             self.drainResultQueue()
-            n= max(numActions-self.actionQueue.qsize()-(self.getActiveWorkerCount()), 1)
-            if n!=actionsProcessed:
-                actionsProcessed= n
-                eta= (time.time()-begin) / actionsProcessed * (numActions-actionsProcessed)
-                yield json.dumps( { 'progress': '%d/%d' % (actionsProcessed, numActions) } )
-                yield self.mkStatus(_('%d of %d actions processed (eta: %02d:%02d)') % (actionsProcessed, numActions, int(eta)/60, int(eta)%60))
-            time.sleep(0.25)
-        for i in self.workerThreads:
-            i.join()
-        # process the last results
-        self.drainResultQueue()
+            
+            # sort by length of flaw list, flaw list, and page title
+            sortedResults= sorted(self.mergedResults, key= lambda result: \
+                (-len(self.mergedResults[result]['flaws']), sorted(self.mergedResults[result]['flaws']), self.mergedResults[result]['page']['page_title']))
+            
+            yield self.mkStatus(_('%d pages tested in %d actions. %d pages in result set. processing took %.1f seconds.') % \
+                (len(self.pagesToTest), numActions, len(self.mergedResults), time.time()-begin))
+            
+            # print results
+            for i in sortedResults:
+                yield json.dumps(self.mergedResults[i])
         
-        # sort by length of flaw list, flaw list, and page title
-        sortedResults= sorted(self.mergedResults, key= lambda result: \
-            (-len(self.mergedResults[result]['flaws']), sorted(self.mergedResults[result]['flaws']), self.mergedResults[result]['page']['page_title']))
-        
-        yield self.mkStatus(_('%d pages tested in %d actions. %d pages in result set. processing took %f seconds.') % \
-            (len(self.pagesToTest), numActions, len(self.mergedResults), time.time()-begin))
-        
-        # print results
-        for i in sortedResults:
-            yield json.dumps(self.mergedResults[i])
-        
-        return
+        except Exception as e:
+            yield '{"exception": "%s: %s"}' % (type(e), str(e).replace('\n', '\\n').replace('"', "'"))
+            return
     
     ## get IDs of all the pages to be tested for flaws
     def getPageIDs(self):
@@ -357,10 +359,11 @@ class test:
 
 
 if __name__ == '__main__':
+    gettext.translation('tlgbackend', localedir= os.path.join(sys.path[0], 'messages'), languages=['de']).install()
     #~ TaskListGenerator().listFlaws()
     #~ TaskListGenerator().run('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'PageSize')
     #~ for line in TaskListGenerator().generateQuery('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'Timeliness:ChangeDetector'):
-    for line in TaskListGenerator().generateQuery('de', 'Medizin +Sport', 2, 'ALL'):
+    for line in TaskListGenerator().generateQuery('de', 'Medizin; Sport', 2, 'RecentlyChanged'):
         print line
         sys.stdout.flush()
     
