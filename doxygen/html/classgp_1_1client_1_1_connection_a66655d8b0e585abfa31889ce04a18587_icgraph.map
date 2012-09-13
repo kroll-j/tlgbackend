@@ -1,0 +1,5 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$classgp_1_1client_1_1_connection.html#a0212abebbebae57eaf96b96a02aff436" title="gp.client.Connection.supportsProtocolVersion" alt="" coords="311,5,596,35"/>
+<area shape="rect" id="node5" href="$classgp_1_1client_1_1_connection.html#ad4b1fbc71cc1ef9223ba7b987ab9d937" title="gp.client.Connection.checkProtocolVersion" alt="" coords="317,59,589,88"/>
+<area shape="rect" id="node7" href="$classgp_1_1client_1_1_connection.html#ab00973f3ffd83d4ffdd7dc7e9fa2f294" title="gp.client.Connection.connect" alt="" coords="647,59,836,88"/>
+</map>

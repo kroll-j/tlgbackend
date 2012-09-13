@@ -1,0 +1,15 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$classgp_1_1client_1_1_connection.html#a30cef28b85543ed877f941d2598df768" title="gp.client.Connection._trace" alt="" coords="305,5,487,35"/>
+<area shape="rect" id="node5" href="$classgp_1_1client_1_1_connection.html#a85513ace8e0720e7adc85d57578060af" title="gp.client.Connection.isClosed" alt="" coords="299,59,493,88"/>
+<area shape="rect" id="node7" href="$classgp_1_1client_1_1_data_source.html#a3b389a277d818029f04f675230e41b0c" title="gp.client.DataSource.close" alt="" coords="307,112,485,141"/>
+<area shape="rect" id="node9" href="$classgp_1_1client_1_1_file_source.html#a30608ce0ffd6f215819b2f6e22bf41c5" title="gp.client.FileSource.close" alt="" coords="311,165,481,195"/>
+<area shape="rect" id="node11" href="$classgp_1_1client_1_1_file_sink.html#ab32e6cda461d6bf17a9c6900396282fe" title="gp.client.FileSink.close" alt="" coords="317,219,475,248"/>
+<area shape="rect" id="node13" href="$classgp_1_1client_1_1_client_transport.html#a91658691b686598701199f8210e743ad" title="gp.client.ClientTransport.close" alt="" coords="297,272,495,301"/>
+<area shape="rect" id="node15" href="$classgp_1_1client_1_1_slave_transport.html#a6725a3f8474b79e3a36849502e530453" title="gp.client.SlaveTransport.close" alt="" coords="297,325,495,355"/>
+<area shape="rect" id="node17" href="$classgp_1_1client_1_1_connection.html#ae5dd97c42ec5ba28939d396ee467c604" title="gp.client.Connection.close" alt="" coords="308,379,484,408"/>
+<area shape="rect" id="node19" href="$classgp_1_1client_1_1_connection.html#aecb41e586960b56d6f1283acc18ee0d9" title="gp.client.Connection.isValidCommandName" alt="" coords="257,432,535,461"/>
+<area shape="rect" id="node21" href="$classgp_1_1client_1_1_connection.html#a3839687882c911705dfe3e98ad77554e" title="gp.client.Connection.isValidCommandArgument" alt="" coords="247,485,545,515"/>
+<area shape="rect" id="node23" href="$classgp_1_1client_1_1_connection.html#ab387db6a8fc080f59c18e4ad74390ed4" title="gp.client.Connection.isValidCommandString" alt="" coords="257,539,535,568"/>
+<area shape="rect" id="node25" href="$classgp_1_1client_1_1_connection.html#a1d2f2020abe8f5d0772fd2231d55c5e5" title="gp.client.Connection._copyFromSource" alt="" coords="271,592,521,621"/>
+<area shape="rect" id="node27" href="$classgp_1_1client_1_1_connection.html#a2d2cd4d35d48e0eace73b4477df4b518" title="gp.client.Connection._copyToSink" alt="" coords="285,645,507,675"/>
+</map>

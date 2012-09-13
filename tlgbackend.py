@@ -14,7 +14,7 @@ from tlgcatgraph import CatGraphInterface
 from tlgflaws import FlawFilters
 from utils import *
 
-# todo: check what happens when uncaught exceptions get thrown (script doesn't exit)
+# todo: propagate exceptions in workers to main thread
 # daemon threads
 
 ## a worker thread which fetches actions from a queue and executes them

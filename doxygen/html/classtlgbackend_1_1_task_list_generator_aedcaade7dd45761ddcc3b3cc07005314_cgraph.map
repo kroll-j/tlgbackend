@@ -1,0 +1,15 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$classtlgbackend_1_1_task_list_generator.html#a6019aff00b72e74afc24b03e84a40d7a" title="initThreads" alt="" coords="203,5,288,35"/>
+<area shape="rect" id="node5" href="$classchangedetector_1_1_f_change_detector.html#aa30a907ebb23e2a31f7ac65e15ae8806" title="this method should return an object of a class derived from TlgAction." alt="" coords="95,59,396,88"/>
+<area shape="rect" id="node7" href="$classmiscfilters_1_1_f_all.html#aa30a907ebb23e2a31f7ac65e15ae8806" title="this method should return an object of a class derived from TlgAction." alt="" coords="149,112,341,141"/>
+<area shape="rect" id="node9" href="$classmiscfilters_1_1_f_templates_base.html#aa30a907ebb23e2a31f7ac65e15ae8806" title="this method should return an object of a class derived from TlgAction." alt="" coords="111,165,380,195"/>
+<area shape="rect" id="node11" href="$classmiscfilters_1_1_f_page_size_base.html#aa30a907ebb23e2a31f7ac65e15ae8806" title="this method should return an object of a class derived from TlgAction." alt="" coords="113,219,377,248"/>
+<area shape="rect" id="node13" href="$classmiscfilters_1_1_f_small.html#aa30a907ebb23e2a31f7ac65e15ae8806" title="this method should return an object of a class derived from TlgAction." alt="" coords="140,272,351,301"/>
+<area shape="rect" id="node15" href="$classmiscfilters_1_1_f_large.html#aa30a907ebb23e2a31f7ac65e15ae8806" title="this method should return an object of a class derived from TlgAction." alt="" coords="140,325,351,355"/>
+<area shape="rect" id="node17" href="$classmiscfilters_1_1_f_no_images.html#aa30a907ebb23e2a31f7ac65e15ae8806" title="this method should return an object of a class derived from TlgAction." alt="" coords="127,379,364,408"/>
+<area shape="rect" id="node19" href="$classrecent_1_1_f_recently_changed.html#aa30a907ebb23e2a31f7ac65e15ae8806" title="this method should return an object of a class derived from TlgAction." alt="" coords="116,432,375,461"/>
+<area shape="rect" id="node21" href="$classtlgbackend_1_1_task_list_generator.html#aa30a907ebb23e2a31f7ac65e15ae8806" title="createActions" alt="" coords="195,485,296,515"/>
+<area shape="rect" id="node23" href="$classtlgbackend_1_1_task_list_generator.html#a5397e84085fd4a01d54587055c0be2ea" title="getActiveWorkerCount" alt="" coords="168,539,323,568"/>
+<area shape="rect" id="node25" href="$classtlgbackend_1_1_task_list_generator.html#ab53e9dd9f6975df7bcd969140d069533" title="drainResultQueue" alt="" coords="183,592,308,621"/>
+<area shape="rect" id="node27" href="$classtlgbackend_1_1_task_list_generator.html#a77bd7c41f3128a9b99022498bf63e1ff" title="mkStatus" alt="" coords="207,645,284,675"/>
+</map>

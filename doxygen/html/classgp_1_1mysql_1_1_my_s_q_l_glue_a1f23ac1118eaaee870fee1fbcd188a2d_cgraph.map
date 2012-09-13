@@ -1,0 +1,13 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$classgp_1_1mysql_1_1_my_s_q_l_glue.html#af4c7232e6e43834f683fcfbb88b8e4c7" title="gp.mysql.MySQLGlue.__make_mysql_closure" alt="" coords="272,5,563,35"/>
+<area shape="rect" id="node5" href="$classgp_1_1mysql_1_1_my_s_q_l_glue.html#a242cfd15abfba4ab770fc7629d5bd179" title="gp.mysql.MySQLGlue.quote_string" alt="" coords="305,59,529,88"/>
+<area shape="rect" id="node7" href="$classgp_1_1mysql_1_1_my_s_q_l_glue.html#ae42829c137d91345c4852a167596b87b" title="gp.mysql.MySQLGlue.mysql_update" alt="" coords="300,112,535,141"/>
+<area shape="rect" id="node9" href="$classgp_1_1mysql_1_1_my_s_q_l_glue.html#a860b12c3272e2ecbe2e508058bae530d" title="gp.mysql.MySQLGlue.next_id" alt="" coords="320,165,515,195"/>
+<area shape="rect" id="node11" href="$classgp_1_1mysql_1_1_my_s_q_l_glue.html#ae1f1eefe8a6455ba3758bb7728cf9533" title="gp.mysql.MySQLGlue.mysql_query_record" alt="" coords="283,219,552,248"/>
+<area shape="rect" id="node13" href="$classgp_1_1mysql_1_1_my_s_q_l_glue.html#a6ee605a8097807093652e95e65ccef91" title="gp.mysql.MySQLGlue.mysql_query" alt="" coords="304,272,531,301"/>
+<area shape="rect" id="node15" href="$classgp_1_1mysql_1_1_my_s_q_l_glue.html#aa4744dbe239ae18b98efe9f07e4b76ec" title="gp.mysql.MySQLGlue.mysql_query_value" alt="" coords="284,325,551,355"/>
+<area shape="rect" id="node17" href="$classgp_1_1client_1_1_connection.html#a123b6b02cb3614083fca1bc82df41d3e" title="gp.client.Connection.copy" alt="" coords="331,379,504,408"/>
+<area shape="rect" id="node21" href="$classgp_1_1mysql_1_1_my_s_q_l_glue.html#af9b7ed24e5526351ffae7c7796f45239" title="gp.mysql.MySQLGlue.make_temp_table" alt="" coords="289,432,545,461"/>
+<area shape="rect" id="node23" href="$classgp_1_1mysql_1_1_my_s_q_l_glue.html#a05b6f9007cb12363c6b19f3d6a99724f" title="gp.mysql.MySQLGlue._new_inserter" alt="" coords="300,485,535,515"/>
+<area shape="rect" id="node19" href="$classgp_1_1client_1_1_connection.html#a30cef28b85543ed877f941d2598df768" title="gp.client.Connection._trace" alt="" coords="611,379,792,408"/>
+</map>

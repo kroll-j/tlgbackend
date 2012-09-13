@@ -1,0 +1,25 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$classchangedetector_1_1_f_change_detector_1_1_action.html#ac3f32d056ff76bddad7138f51a0abd1a" title="test the pages and put TlgResults describing flawed pages into resultQueue" alt="" coords="264,5,573,35"/>
+<area shape="rect" id="node5" href="$classmiscfilters_1_1_f_all_1_1_action.html#a4c5a367f686f9af859c87de4321f5dbe" title="test the pages and put TlgResults describing flawed pages into resultQueue" alt="" coords="319,59,519,88"/>
+<area shape="rect" id="node7" href="$classmiscfilters_1_1_f_templates_base_1_1_action.html#ab7437d2e971ff4ae30b9a2657f109804" title="test the pages and put TlgResults describing flawed pages into resultQueue" alt="" coords="281,112,556,141"/>
+<area shape="rect" id="node9" href="$classmiscfilters_1_1_f_page_size_base_1_1_action.html#af05e9a3b74a68a96c38c7957f1f36d8f" title="test the pages and put TlgResults describing flawed pages into resultQueue" alt="" coords="284,165,553,195"/>
+<area shape="rect" id="node11" href="$classmiscfilters_1_1_f_page_size_base_1_1_final_action.html#abaebebad84eb0f82ef0ff3bd8f8e8ef4" title="test the pages and put TlgResults describing flawed pages into resultQueue" alt="" coords="269,219,568,248"/>
+<area shape="rect" id="node13" href="$classmiscfilters_1_1_f_small_1_1_final_action.html#a5dce50fa6b8b7ab3fc45eaa2647b9939" title="test the pages and put TlgResults describing flawed pages into resultQueue" alt="" coords="296,272,541,301"/>
+<area shape="rect" id="node15" href="$classmiscfilters_1_1_f_large_1_1_final_action.html#aebdd54f5682bf3db09819abf07e79441" title="test the pages and put TlgResults describing flawed pages into resultQueue" alt="" coords="296,325,541,355"/>
+<area shape="rect" id="node17" href="$classmiscfilters_1_1_f_no_images_1_1_action.html#a1a447136b4b34732cdc8c1b5a17c9328" title="test the pages and put TlgResults describing flawed pages into resultQueue" alt="" coords="296,379,541,408"/>
+<area shape="rect" id="node19" href="$classrecent_1_1_f_recently_changed_1_1_action.html#a40a5f92ccc18608c87398ca2884a143c" title="test the pages and put TlgResults describing flawed pages into resultQueue" alt="" coords="287,432,551,461"/>
+<area shape="rect" id="node21" href="$classgp_1_1client_1_1_connection.html#a2eac0c38d4260147555022f04bbab135" title="gp.client.Connection.execute" alt="" coords="324,485,513,515"/>
+<area shape="rect" id="node23" href="$classgp_1_1client_1_1_connection.html#a30cef28b85543ed877f941d2598df768" title="gp.client.Connection._trace" alt="" coords="681,165,863,195"/>
+<area shape="rect" id="node25" href="$classgp_1_1client_1_1_connection.html#a85513ace8e0720e7adc85d57578060af" title="gp.client.Connection.isClosed" alt="" coords="675,219,869,248"/>
+<area shape="rect" id="node27" href="$classgp_1_1client_1_1_data_source.html#a3b389a277d818029f04f675230e41b0c" title="gp.client.DataSource.close" alt="" coords="683,272,861,301"/>
+<area shape="rect" id="node29" href="$classgp_1_1client_1_1_file_source.html#a30608ce0ffd6f215819b2f6e22bf41c5" title="gp.client.FileSource.close" alt="" coords="687,325,857,355"/>
+<area shape="rect" id="node31" href="$classgp_1_1client_1_1_file_sink.html#ab32e6cda461d6bf17a9c6900396282fe" title="gp.client.FileSink.close" alt="" coords="693,379,851,408"/>
+<area shape="rect" id="node33" href="$classgp_1_1client_1_1_client_transport.html#a91658691b686598701199f8210e743ad" title="gp.client.ClientTransport.close" alt="" coords="673,432,871,461"/>
+<area shape="rect" id="node35" href="$classgp_1_1client_1_1_slave_transport.html#a6725a3f8474b79e3a36849502e530453" title="gp.client.SlaveTransport.close" alt="" coords="673,485,871,515"/>
+<area shape="rect" id="node37" href="$classgp_1_1client_1_1_connection.html#ae5dd97c42ec5ba28939d396ee467c604" title="gp.client.Connection.close" alt="" coords="684,539,860,568"/>
+<area shape="rect" id="node39" href="$classgp_1_1client_1_1_connection.html#aecb41e586960b56d6f1283acc18ee0d9" title="gp.client.Connection.isValidCommandName" alt="" coords="633,592,911,621"/>
+<area shape="rect" id="node41" href="$classgp_1_1client_1_1_connection.html#a3839687882c911705dfe3e98ad77554e" title="gp.client.Connection.isValidCommandArgument" alt="" coords="623,645,921,675"/>
+<area shape="rect" id="node43" href="$classgp_1_1client_1_1_connection.html#ab387db6a8fc080f59c18e4ad74390ed4" title="gp.client.Connection.isValidCommandString" alt="" coords="633,699,911,728"/>
+<area shape="rect" id="node45" href="$classgp_1_1client_1_1_connection.html#a1d2f2020abe8f5d0772fd2231d55c5e5" title="gp.client.Connection._copyFromSource" alt="" coords="647,752,897,781"/>
+<area shape="rect" id="node47" href="$classgp_1_1client_1_1_connection.html#a2d2cd4d35d48e0eace73b4477df4b518" title="gp.client.Connection._copyToSink" alt="" coords="661,805,883,835"/>
+</map>

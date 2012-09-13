@@ -1,0 +1,5 @@
+<map id="G" name="G">
+<area shape="rect" id="node5" href="$classmiscfilters_1_1_f_large_1_1_final_action.html" title="miscfilters.FLarge.FinalAction" alt="" coords="5,160,200,189"/>
+<area shape="rect" id="node7" href="$classmiscfilters_1_1_f_small_1_1_final_action.html" title="miscfilters.FSmall.FinalAction" alt="" coords="224,160,419,189"/>
+<area shape="rect" id="node2" href="$classtlgflaws_1_1_tlg_action.html" title="base class for actions to be executed by task list generator" alt="" coords="149,5,275,35"/>
+</map>

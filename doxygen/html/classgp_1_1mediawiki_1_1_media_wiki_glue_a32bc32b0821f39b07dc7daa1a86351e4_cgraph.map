@@ -1,0 +1,11 @@
+<map id="G" name="G">
+<area shape="rect" id="node3" href="$classgp_1_1mediawiki_1_1_media_wiki_glue.html#a2479011c33f2d7207a237389f941fecf" title="gp.mediawiki.MediaWikiGlue.wiki_table" alt="" coords="301,5,552,35"/>
+<area shape="rect" id="node5" href="$classgp_1_1mysql_1_1_my_s_q_l_glue.html#a242cfd15abfba4ab770fc7629d5bd179" title="gp.mysql.MySQLGlue.quote_string" alt="" coords="315,59,539,88"/>
+<area shape="rect" id="node7" href="$classgp_1_1mediawiki_1_1_media_wiki_glue.html#a204f714578909a25b894a8b47c67e112" title="gp.mediawiki.MediaWikiGlue.get_db_key" alt="" coords="296,112,557,141"/>
+<area shape="rect" id="node9" href="$classgp_1_1mysql_1_1_my_s_q_l_glue.html#aa4744dbe239ae18b98efe9f07e4b76ec" title="gp.mysql.MySQLGlue.mysql_query_value" alt="" coords="293,165,560,195"/>
+<area shape="rect" id="node11" href="$classgp_1_1mediawiki_1_1_page_set.html#add820e6288aaac759d83977ff8f8d0b6" title="gp.mediawiki.PageSet.make_source" alt="" coords="309,219,544,248"/>
+<area shape="rect" id="node13" href="$classgp_1_1mysql_1_1_my_s_q_l_glue.html#aa12240f1d7291a119eeba04b3a2988cc" title="gp.mysql.MySQLGlue.make_source" alt="" coords="311,272,543,301"/>
+<area shape="rect" id="node15" href="$classgp_1_1mediawiki_1_1_media_wiki_glue.html#a7fa9907a2f70398f32a714f4b8bfde41" title="gp.mediawiki.MediaWikiGlue.get_page_id" alt="" coords="295,325,559,355"/>
+<area shape="rect" id="node17" href="$classgp_1_1mysql_1_1_my_s_q_l_glue.html#aff9f0c3b61e5c471ed874e0f211d4111" title="gp.mysql.MySQLGlue.make_temp_sink" alt="" coords="300,379,553,408"/>
+<area shape="rect" id="node19" href="$classgp_1_1mysql_1_1_my_s_q_l_glue.html#ae22d85a062025e5406c5a6772ac38c57" title="gp.mysql.MySQLGlue.select_into" alt="" coords="319,432,535,461"/>
+</map>
