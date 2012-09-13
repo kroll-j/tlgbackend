@@ -75,7 +75,7 @@ class TempCursor:
                 if 'max_user_connections' in str(e):
                     dprint(0, 'exceeded max connections, retrying...')
                     time.sleep(0.5)
-                    raise   #xxxxx
+                    #~ raise   #xxxxx
                 else:
                     raise
         
