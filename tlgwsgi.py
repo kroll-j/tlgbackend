@@ -193,7 +193,7 @@ function setStatus(text, percentage) { document.getElementById("thestatus").inne
                     percentage= -1
                     if match and int(match.group(2))!=0:
                         percentage= int(match.group(1))*100/int(match.group(2))
-                        html.write('<script>setMeter(%d)</script>' % (percentage))
+                        html.write('<script>setMeter("%d%%")</script>' % (percentage))
             else:
                 html.endTable()
                 html.write(line)
@@ -356,7 +356,7 @@ if __name__ == "__main__":
         os.environ['QUERY_STRING']
     except KeyError:
         # started from non-cgi context, create request string for testing.
-        os.environ['QUERY_STRING']= 'action=query&format=wikitext&lang=de&query=Sport&querydepth=2&flaws=NoImages%20Small'
+        os.environ['QUERY_STRING']= 'action=query&format=html&chunked=true&lang=de&query=Sport&querydepth=2&flaws=NoImages%20Small'
     WSGIServer(generator_app).run()
 
 

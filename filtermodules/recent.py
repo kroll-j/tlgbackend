@@ -3,7 +3,7 @@
 import time
 from tlgflaws import *
 
-## Ein Filter, der alle Seiten findet, die heute geaändert wurden.
+## Ein Filter, der alle Seiten findet, die heute geändert wurden.
 class FRecentlyChanged(FlawFilter):
     shortname= 'RecentlyChanged'                # Name, der den Filter identifiziert (nicht übersetzen!)
     label= _('Recently Changed')                # Label, das im Frontend neben der Checkbox angezeigt wird
