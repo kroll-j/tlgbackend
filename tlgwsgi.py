@@ -12,12 +12,12 @@ import tlgflaws
 from utils import *
 
 
-# general procedure of things:
+# general procedure of things (not accurate any more):
 # - redirect stdout and stderr to different tmp files (or file-like objects that write to memory)
 # - if TaskListGenerator.run() throws or returns False, start 5xx error response and return stderr file
 # - else start 200 OK response and return stdout file
 
-# todo: cleanup
+# todo: maybe some more cleanup
 
 class FileLikeList:
     def __init__(self):
@@ -72,7 +72,7 @@ def send_mail(queryString, queryDepth, flaws, lang, format, outputIterable, acti
             "\tSearch filters: '%s'" % flaws
     elif action=='listflaws':
         pass
-    msgText= ("""Hi!
+    msgText= (_("""Hi!
 
 This is the Wikimedia task list generator background process running on %s. 
 You (or someone else) requested a task list to be generated and sent to this email address. 
@@ -81,13 +81,13 @@ for the TLG, send email to jkroll@toolserver.org.
 
 The task list was successfully generated. Input was:
 
-""" % socket.getfqdn() + actionText + """
+""") % socket.getfqdn() + actionText + _("""
 
 Attached is the result of the command in %s format.
 
 Sincerely, 
 The friendly task list generator robot. 
-""" % format)
+""") % format)
     mail.sendFriendlyBotMessage(mailto, msgText, attachmentText, mimeSubtype)
     
 def HTMLify(tlgResult, action, chunked, params, showThreads, tlg):

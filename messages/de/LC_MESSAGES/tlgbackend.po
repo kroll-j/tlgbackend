@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tlgbackend 0.1\n"
-"POT-Creation-Date: 2012-09-06 17:02+CEST\n"
+"POT-Creation-Date: 2012-09-17 16:07+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,7 +24,111 @@ msgstr ""
 "Seite scheint veraltet zu sein, verglichen mit dem gleichen Artikel in "
 "anderen Sprachversionen der Wikipedia (ChangeDetector-Daten)."
 
-#: filtermodules/changedetector.py:11 tlgflaws.py:202
+#: filtermodules/changedetector.py:11 filtermodules/miscfilters.py:90
+msgid "Currentness"
+msgstr "Aktualität"
+
+#: filtermodules/miscfilters.py:9
+msgid "All Pages"
+msgstr "Alle Seiten"
+
+#: filtermodules/miscfilters.py:10
+msgid "Every page from CatGraph result."
+msgstr "Jede Seite aus dem CatGraph-Suchergebnis."
+
+#: filtermodules/miscfilters.py:80
+msgid "Neutrality"
+msgstr "Neutralität"
+
+#: filtermodules/miscfilters.py:80
+msgid "Neutrality Template"
+msgstr "Neutralitäts-Vorlage"
+
+#: filtermodules/miscfilters.py:80
+msgid "Page has 'neutrality' template set."
+msgstr "Seite hat 'Neutralität'-Vorlage gesetzt."
+
+#: filtermodules/miscfilters.py:85
+msgid "Missing Sources/References Template"
+msgstr "Fehlende Quellen/Referenzen-Vorlage"
+
+#: filtermodules/miscfilters.py:85
+msgid "Page has 'missing sources' template set."
+msgstr "Seite hat 'Fehlende Quellen'-Vorlage gesetzt."
+
+#: filtermodules/miscfilters.py:85 filtermodules/miscfilters.py:104
+msgid "Completeness"
+msgstr "Vollständigkeit"
+
+#: filtermodules/miscfilters.py:90
+msgid "Obsolete Template"
+msgstr "Veraltet-Vorlage"
+
+#: filtermodules/miscfilters.py:90
+msgid "Page has 'obsolete' template set."
+msgstr "Seite hat 'Veraltet'-Vorlage gesetzt."
+
+#: filtermodules/miscfilters.py:94
+msgid "Cleanup Template"
+msgstr "Überarbeiten-Vorlage"
+
+#: filtermodules/miscfilters.py:94
+msgid "Page has 'cleanup' template set."
+msgstr "Seite hat 'Überarbeiten'-Vorlage gesetzt."
+
+#: filtermodules/miscfilters.py:99
+msgid "'Too Technical' Template"
+msgstr "Allgemeinverständlichkeit-Vorlage"
+
+#: filtermodules/miscfilters.py:99
+msgid "Page has 'too technical' template set."
+msgstr "Seite hat 'Allgemeinverständlichkeit'-Vorlage gesetzt."
+
+#: filtermodules/miscfilters.py:104
+msgid "Globalize Template"
+msgstr "Staatslastig-Vorlage"
+
+#: filtermodules/miscfilters.py:104
+msgid "Page has 'globalize' template set."
+msgstr "Seite hat 'Staatslastig'-Vorlage gesetzt."
+
+#: filtermodules/miscfilters.py:173
+msgid "Small Pages"
+msgstr "Kleine Seiten"
+
+#: filtermodules/miscfilters.py:174
+msgid "Page is very small, relative to mean page size in result set."
+msgstr ""
+"Seite ist sehr klein, verglichen mit der Durchschnitts-Seitengröße im "
+"Suchergebnis."
+
+#: filtermodules/miscfilters.py:201
+msgid "Large Pages"
+msgstr "Große Seiten"
+
+#: filtermodules/miscfilters.py:202
+msgid "Page is very large, relative to mean page size in result set."
+msgstr ""
+"Seite ist sehr groß, verglichen mit der Durchschnitts-Seitengröße im "
+"Suchergebnis."
+
+#: filtermodules/miscfilters.py:230
+msgid "No Images"
+msgstr "Keine Bilder"
+
+#: filtermodules/miscfilters.py:231
+msgid "Article has no image links."
+msgstr "Artikel verlinkt keine Bilder."
+
+#: filtermodules/recent.py:9
+msgid "Recently Changed"
+msgstr "Kürzlich geändert"
+
+#: filtermodules/recent.py:10
+msgid "Page was touched today."
+msgstr "Seite wurde heute geändert."
+
+#: filtermodules/recent.py:11
 msgid "Timeliness"
 msgstr "Aktualität"
 
@@ -52,89 +156,47 @@ msgstr ""
 "%d Seiten getestet in %d Aktionen. %d Seiten in der Ergebnismenge. "
 "Verarbeitung dauerte %.1f Sekunden."
 
-#: tlgflaws.py:121
-msgid "All Pages"
-msgstr "Alle Seiten"
-
-#: tlgflaws.py:122
-msgid "Every page from CatGraph result."
-msgstr "Jede Seite aus dem CatGraph-Suchergebnis."
-
-#: tlgflaws.py:192
-msgid "Neutrality Template"
-msgstr "Neutralitäts-Vorlage"
-
-#: tlgflaws.py:192
-msgid "Page has 'neutrality' template set."
-msgstr "Seite hat 'Neutralität'-Vorlage gesetzt."
-
-#: tlgflaws.py:197
-msgid "Missing Sources/References Template"
-msgstr "Fehlende Quellen/Referenzen-Vorlage"
-
-#: tlgflaws.py:197
-msgid "Page has 'missing sources' template set."
-msgstr "Seite hat 'Fehlende Quellen'-Vorlage gesetzt."
-
-#: tlgflaws.py:202
-msgid "Obsolete Template"
-msgstr "Veraltet-Vorlage"
-
-#: tlgflaws.py:202
-msgid "Page has 'obsolete' template set."
-msgstr "Seite hat 'Veraltet'-Vorlage gesetzt."
-
-#: tlgflaws.py:206
-msgid "Cleanup Template"
-msgstr "Überarbeiten-Vorlage"
-
-#: tlgflaws.py:206
-msgid "Page has 'cleanup' template set."
-msgstr "Seite hat 'Überarbeiten'-Vorlage gesetzt."
-
-#: tlgflaws.py:211
-msgid "'Too Technical' Template"
-msgstr "Allgemeinverständlichkeit-Vorlage"
-
-#: tlgflaws.py:211
-msgid "Page has 'too technical' template set."
-msgstr "Seite hat 'Allgemeinverständlichkeit'-Vorlage gesetzt."
-
-#: tlgflaws.py:216
-msgid "Globalize Template"
-msgstr "Staatslastig-Vorlage"
-
-#: tlgflaws.py:216
-msgid "Page has 'globalize' template set."
-msgstr "Seite hat 'Staatslastig'-Vorlage gesetzt."
-
-#: tlgflaws.py:285
-msgid "Small Pages"
-msgstr "Kleine Seiten"
-
-#: tlgflaws.py:286
-msgid "Page is very small, relative to mean page size in result set."
+#: tlgwsgi.py:75
+msgid ""
+"Hi!\n"
+"\n"
+"This is the Wikimedia task list generator background process running on "
+"%s. \n"
+"You (or someone else) requested a task list to be generated and sent to this "
+"email address. \n"
+"If you think this mail was generated in error, something went wrong, or you "
+"have suggestions \n"
+"for the TLG, send email to jkroll@toolserver.org.\n"
+"\n"
+"The task list was successfully generated. Input was:\n"
+"\n"
 msgstr ""
-"Seite ist sehr klein, verglichen mit der Durchschnitts-Seitengröße im "
-"Suchergebnis."
+"Hi!\n"
+"\n"
+"Dies ist der Wikimedia Arbeitslistengenerator-Hintergrundprozess auf %s.\n"
+"Du (oder jemand anders) hat eine Arbeitsliste für diese Emailadresse angefordert.\n"
+"Wenn diese Mail nicht angefordert wurde, wenn Problemen auftreten\n"
+"oder bei Vorschlägen für den TLG, schicke eine Mail an jkroll@toolserver."
+"org.\n"
+"\n"
+"Arbeitsliste erfolgreich erstellt. Eingabe war:\n"
+"\n"
 
-#: tlgflaws.py:313
-msgid "Large Pages"
-msgstr "Große Seiten"
-
-#: tlgflaws.py:314
-msgid "Page is very large, relative to mean page size in result set."
+#: tlgwsgi.py:84
+msgid ""
+"\n"
+"\n"
+"Attached is the result of the command in %s format.\n"
+"\n"
+"Sincerely, \n"
+"The friendly task list generator robot. \n"
 msgstr ""
-"Seite ist sehr groß, verglichen mit der Durchschnitts-Seitengröße im "
-"Suchergebnis."
-
-#: tlgflaws.py:342
-msgid "No Images"
-msgstr "Keine Bilder"
-
-#: tlgflaws.py:343
-msgid "Article has no image links."
-msgstr "Artikel verlinkt keine Bilder."
+"\n"
+"\n"
+"Im Anhang findest Du die Liste im %s-Format.\n"
+"\n"
+"Emsige Grüße, \n"
+"Der Freundliche TLG-Roboter. \n"
 
 #: tlgwsgi.py:108
 msgid "Filters"

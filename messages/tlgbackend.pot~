@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tlgbackend 0.1\n"
-"POT-Creation-Date: 2012-08-29 14:10+CEST\n"
+"POT-Creation-Date: 2012-09-17 16:06+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,116 +21,166 @@ msgid ""
 "language versions (ChangeDetector data)."
 msgstr ""
 
-#: filtermodules/changedetector.py:11 tlgflaws.py:202
-msgid "Timeliness"
+#: filtermodules/changedetector.py:11 filtermodules/miscfilters.py:90
+msgid "Currentness"
 msgstr ""
 
-#: tlgbackend.py:231
-msgid "querying CatGraph for '%s' with depth %d"
-msgstr ""
-
-#: tlgbackend.py:236
-msgid "CatGraph returned %d results."
-msgstr ""
-
-#: tlgbackend.py:251
-msgid "%d pages to test, %d actions to process"
-msgstr ""
-
-#: tlgbackend.py:265
-msgid "%d of %d actions processed (eta: %02d:%02d)"
-msgstr ""
-
-#: tlgbackend.py:276
-msgid ""
-"%d pages tested in %d actions. %d pages in result set. processing took %f "
-"seconds."
-msgstr ""
-
-#: tlgflaws.py:121
+#: filtermodules/miscfilters.py:9
 msgid "All Pages"
 msgstr ""
 
-#: tlgflaws.py:122
+#: filtermodules/miscfilters.py:10
 msgid "Every page from CatGraph result."
 msgstr ""
 
-#: tlgflaws.py:192
+#: filtermodules/miscfilters.py:80
+msgid "Neutrality"
+msgstr ""
+
+#: filtermodules/miscfilters.py:80
 msgid "Neutrality Template"
 msgstr ""
 
-#: tlgflaws.py:192
+#: filtermodules/miscfilters.py:80
 msgid "Page has 'neutrality' template set."
 msgstr ""
 
-#: tlgflaws.py:197
+#: filtermodules/miscfilters.py:85
 msgid "Missing Sources/References Template"
 msgstr ""
 
-#: tlgflaws.py:197
+#: filtermodules/miscfilters.py:85
 msgid "Page has 'missing sources' template set."
 msgstr ""
 
-#: tlgflaws.py:202
+#: filtermodules/miscfilters.py:85 filtermodules/miscfilters.py:104
+msgid "Completeness"
+msgstr ""
+
+#: filtermodules/miscfilters.py:90
 msgid "Obsolete Template"
 msgstr ""
 
-#: tlgflaws.py:202
+#: filtermodules/miscfilters.py:90
 msgid "Page has 'obsolete' template set."
 msgstr ""
 
-#: tlgflaws.py:206
+#: filtermodules/miscfilters.py:94
 msgid "Cleanup Template"
 msgstr ""
 
-#: tlgflaws.py:206
+#: filtermodules/miscfilters.py:94
 msgid "Page has 'cleanup' template set."
 msgstr ""
 
-#: tlgflaws.py:211
+#: filtermodules/miscfilters.py:99
 msgid "'Too Technical' Template"
 msgstr ""
 
-#: tlgflaws.py:211
+#: filtermodules/miscfilters.py:99
 msgid "Page has 'too technical' template set."
 msgstr ""
 
-#: tlgflaws.py:216
+#: filtermodules/miscfilters.py:104
 msgid "Globalize Template"
 msgstr ""
 
-#: tlgflaws.py:216
+#: filtermodules/miscfilters.py:104
 msgid "Page has 'globalize' template set."
 msgstr ""
 
-#: tlgflaws.py:285
+#: filtermodules/miscfilters.py:173
 msgid "Small Pages"
 msgstr ""
 
-#: tlgflaws.py:286
+#: filtermodules/miscfilters.py:174
 msgid "Page is very small, relative to mean page size in result set."
 msgstr ""
 
-#: tlgflaws.py:313
+#: filtermodules/miscfilters.py:201
 msgid "Large Pages"
 msgstr ""
 
-#: tlgflaws.py:314
+#: filtermodules/miscfilters.py:202
 msgid "Page is very large, relative to mean page size in result set."
 msgstr ""
 
-#: tlgflaws.py:342
+#: filtermodules/miscfilters.py:230
 msgid "No Images"
 msgstr ""
 
-#: tlgflaws.py:343
+#: filtermodules/miscfilters.py:231
 msgid "Article has no image links."
 msgstr ""
 
-#: tlgwsgi.py:157
+#: filtermodules/recent.py:9
+msgid "Recently Changed"
+msgstr ""
+
+#: filtermodules/recent.py:10
+msgid "Page was touched today."
+msgstr ""
+
+#: filtermodules/recent.py:11
+msgid "Timeliness"
+msgstr ""
+
+#: tlgbackend.py:224
+msgid "querying CatGraph for '%s' with depth %d"
+msgstr ""
+
+#: tlgbackend.py:229
+msgid "CatGraph returned %d results."
+msgstr ""
+
+#: tlgbackend.py:244
+msgid "%d pages to test, %d actions to process"
+msgstr ""
+
+#: tlgbackend.py:258
+msgid "%d of %d actions processed (eta: %02d:%02d)"
+msgstr ""
+
+#: tlgbackend.py:269
+msgid ""
+"%d pages tested in %d actions. %d pages in result set. processing took %.1f "
+"seconds."
+msgstr ""
+
+#: tlgflaws.py:130
+msgid "foo"
+msgstr ""
+
+#: tlgwsgi.py:75
+msgid ""
+"Hi!\n"
+"\n"
+"This is the Wikimedia task list generator background process running on "
+"%s. \n"
+"You (or someone else) requested a task list to be generated and sent to this "
+"email address. \n"
+"If you think this mail was generated in error, something went wrong, or you "
+"have suggestions \n"
+"for the TLG, send email to jkroll@toolserver.org.\n"
+"\n"
+"The task list was successfully generated. Input was:\n"
+"\n"
+msgstr ""
+
+#: tlgwsgi.py:84
+msgid ""
+"\n"
+"\n"
+"Attached is the result of the command in %s format.\n"
+"\n"
+"Sincerely, \n"
+"The friendly task list generator robot. \n"
+msgstr ""
+
+#: tlgwsgi.py:108
 msgid "Filters"
 msgstr ""
 
-#: tlgwsgi.py:158
+#: tlgwsgi.py:109
 msgid "Page"
 msgstr ""
