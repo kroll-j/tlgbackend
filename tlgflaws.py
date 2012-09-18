@@ -119,9 +119,10 @@ class FUnlucky(FlawFilter):
 
 
 if __name__ == '__main__':
-    #~ FMissingSourcesTemplates().createActions( 'dewiki_p', [2,4,26] ).execute(Queue.LifoQueue())
-    #~ pass
+    import gettext
+    gettext.translation('tlgbackend', localedir= os.path.join(sys.path[0], 'messages'), languages=['de']).install()
+    
     from tlgbackend import TaskListGenerator
-    TaskListGenerator().run('de', 'Fahrzeug -Landfahrzeug -Luftfahrzeug', 4, 'MissingSourcesTemplates')
+    TaskListGenerator().run('de', 'Fahrzeug; -Landfahrzeug; -Luftfahrzeug', 4, 'TemplateMissingSources')
     #~ stddevtest()
     

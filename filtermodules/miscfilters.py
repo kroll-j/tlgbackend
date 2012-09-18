@@ -77,43 +77,43 @@ def makeTemplateFilter(shortname, label, description, group, templateNames):
 def registerTemplateFilter(*args):
     FlawFilters.register(makeTemplateFilter(*args))
 
-registerTemplateFilter('TemplateNeutrality', _('Neutrality Template'), _('Page has \'neutrality\' template set.'), None, {
-    'dewiki_p': [ 'Neutralität' ],
+registerTemplateFilter('TemplateNeutrality', _('Neutrality Template'), _('Page has \'neutrality\' template set.'), _('Neutrality'), {
+    'dewiki_p': [ 'NeutralitÃ¤t' ],
     'enwiki_p': [ 'Neutrality' ],
 })
 
-registerTemplateFilter('TemplateMissingSources', _('Missing Sources/References Template'), _('Page has \'missing sources\' template set.'), None, {
+registerTemplateFilter('TemplateMissingSources', _('Missing Sources/References Template'), _('Page has \'missing sources\' template set.'), _('Completeness'), {
     'dewiki_p': [ 'Belege_fehlen' ],
     'enwiki_p': [ 'Refimprove' ]
 })
 
-registerTemplateFilter('Timeliness:TemplateObsolete', _('Obsolete Template'), _('Page has \'obsolete\' template set.'), _('Timeliness'), {
+registerTemplateFilter('Currentness:TemplateObsolete', _('Obsolete Template'), _('Page has \'obsolete\' template set.'), _('Currentness'), {
     'dewiki_p': [ 'Veraltet' ],
 })
 
 registerTemplateFilter('TemplateCleanup', _('Cleanup Template'), _('Page has \'cleanup\' template set.'), None, {
-    'dewiki_p': [ 'Überarbeiten' ],
+    'dewiki_p': [ 'Ãœberarbeiten' ],
     'enwiki_p': [ 'Cleanup' ],
 })
 
 registerTemplateFilter('TemplateTechnical', _('\'Too Technical\' Template'), _('Page has \'too technical\' template set.'), None, {
-    'dewiki_p': [ 'Allgemeinverständlichkeit' ],
+    'dewiki_p': [ 'AllgemeinverstÃ¤ndlichkeit' ],
     'enwiki_p': [ 'Technical' ],
 })
 
-registerTemplateFilter('TemplateGlobalize', _('Globalize Template'), _('Page has \'globalize\' template set.'), None, {
+registerTemplateFilter('TemplateGlobalize', _('Globalize Template'), _('Page has \'globalize\' template set.'), _('Completeness'), {
     'dewiki_p': [ 'Staatslastig' ],
     'enwiki_p': [ 'Globalize' ],
 })
 
 # todo: extract template names of other languages from langlinks
 
-# todo: gibt es für jedes wartungs-template eine kategorie analog zu http://de.wikipedia.org/wiki/Kategorie:Wikipedia:Neutralit%C3%A4t ? 
-# wenn ja, dann könnte man den ganzen kram durch catgraph-anfragen ersetzen.
+# todo: gibt es fÃ¼r jedes wartungs-template eine kategorie analog zu http://de.wikipedia.org/wiki/Kategorie:Wikipedia:Neutralit%C3%A4t ? 
+# wenn ja, dann kÃ¶nnte man den ganzen kram durch catgraph-anfragen ersetzen.
 # in der deutschen wikipedia scheint jedem wartungstemplate eine Kategorie:Wikipedia:Wartungstemplate zu entsprechen.
-# in der englischen scheint es was ähnliches zu geben, z. b. gibt es da http://en.wikipedia.org/wiki/Category:Articles_to_be_split .
-# mir ist nicht klar, ob die kategorien automatisch hinzugefügt werden, sobald jemand das entsprechende template setzt.
-# es gibt auch die möglichkeit, nach '+Wikipedia:Wartungskategorie' mit filter 'All' zu suchen.
+# in der englischen scheint es was Ã¤hnliches zu geben, z. b. gibt es da http://en.wikipedia.org/wiki/Category:Articles_to_be_split .
+# mir ist nicht klar, ob die kategorien automatisch hinzugefÃ¼gt werden, sobald jemand das entsprechende template setzt.
+# es gibt auch die mÃ¶glichkeit, nach '+Wikipedia:Wartungskategorie' mit filter 'All' zu suchen.
 
 
 ## 

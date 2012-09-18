@@ -74,7 +74,7 @@ if __name__ == '__main__':
             cg.gp.capture_traverse_successors(catID, depth)
     traw= time.time()-t
     
-    search= '+Biologie, -Katzen, -Astrobiologie, Foo'
+    search= '+Biologie; -Katzen; -Astrobiologie, Foo'
     print "searching for '%s'..." % search
     sys.stdout.flush()
     t= time.time()
