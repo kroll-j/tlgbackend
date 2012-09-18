@@ -176,16 +176,16 @@ class FSmall(FPageSizeBase):
     class FinalAction(FPageSizeBase.FinalAction):
         # todo: the final action stuff takes a while, maybe this can be optimized.
         def execute(self, resultQueue):
-            #~ FPageSizeBase.FinalAction.execute(self, resultQueue)
             pageLengths= self.parent.pageLengths
-            self.avg= self.parent.lengthSum / float(len(pageLengths))
-            threshold= self.avg/4
-            for i in pageLengths:
-                #~ delta= pageLengths[i]-self.avg
-                #~ if delta > self.stddev*8:
-                    #~ resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, i)[0], self.parent))
-                if pageLengths[i] < threshold:
-                    resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, i)[0], self.parent))
+            if len(pageLengths):
+                self.avg= self.parent.lengthSum / float(len(pageLengths))
+                threshold= self.avg/4
+                for i in pageLengths:
+                    #~ delta= pageLengths[i]-self.avg
+                    #~ if delta > self.stddev*8:
+                        #~ resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, i)[0], self.parent))
+                    if pageLengths[i] < threshold:
+                        resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, i)[0], self.parent))
 
     def createActions(self, language, pages, actionQueue):
         actionQueue.put(FPageSizeBase.Action(self, language, pages))
@@ -210,8 +210,6 @@ class FLarge(FPageSizeBase):
                 delta= pageLengths[i]-self.avg
                 if delta > self.stddev*8:
                     resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, i)[0], self.parent))
-                #~ if pageLengths[i] < self.avg / 4:
-                    #~ resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, i)[0], self.parent))
 
     def createActions(self, language, pages, actionQueue):
         actionQueue.put(FPageSizeBase.Action(self, language, pages))
