@@ -7,6 +7,7 @@ import gettext
 import time
 import json
 import Queue
+import traceback
 import threading
 import tlgflaws
 
@@ -35,44 +36,50 @@ class WorkerThread(threading.Thread):
         return self.currentAction
     
     def run(self):
-        # create cursor which will most likely be used by actions later
-        cur= getCursors()[self.wikiname+'_p']
-        # wait until action queue is ready
-        self.runEvent.wait()
         try:
-            while True: 
-                # todo: catch exceptions from execute()
-                # todo: if there are only actions left which cannot be run, exit the thread
-                action= self.actionQueue.get(True, 0)
-                if action.canExecute():
-                    self.setCurrentAction(action.parent.shortname)
-                    action.execute(self.resultQueue)
-                else:
-                    dprint(3, "re-queueing action " + str(action) + " from %s, queue len=%d" % (action.parent.shortname, self.actionQueue.qsize()))
-                    self.actionQueue.put(action)
-                
+            # create cursor which will most likely be used by actions later
+            cur= getCursors()[self.wikiname+'_p']
+            # wait until action queue is ready
+            self.runEvent.wait()
+            
+            try:
+                while True: 
+                    # todo: if there are only actions left which cannot be run, exit the thread
+                    action= self.actionQueue.get(True, 0)
+                    if action.canExecute():
+                        self.setCurrentAction(action.parent.shortname)
+                        action.execute(self.resultQueue)
+                    else:
+                        dprint(3, "re-queueing action " + str(action) + " from %s, queue len=%d" % (action.parent.shortname, self.actionQueue.qsize()))
+                        self.actionQueue.put(action)
+                    
+                    tempCursors= GetTempCursors()
+                    rmkeys= []
+                    for key in tempCursors:
+                        tc= tempCursors[key]
+                        if time.time() - tc.lastuse > 3:
+                            dprint(0, 'closing temp cursor %s' % tc.key)
+                            tc.cursor.close()
+                            tc.conn.close()
+                            rmkeys.append(key)
+                    for k in rmkeys:
+                        del tempCursors[k]
+                            
+            except Queue.Empty:
+                self.setCurrentAction('')
                 tempCursors= GetTempCursors()
-                rmkeys= []
                 for key in tempCursors:
                     tc= tempCursors[key]
-                    if time.time() - tc.lastuse > 3:
-                        dprint(0, 'closing temp cursor %s' % tc.key)
-                        tc.cursor.close()
-                        tc.conn.close()
-                        rmkeys.append(key)
-                for k in rmkeys:
-                    del tempCursors[k]
-                        
-        except Queue.Empty:
-            self.setCurrentAction('')
-            tempCursors= GetTempCursors()
-            for key in tempCursors:
-                tc= tempCursors[key]
-                tc.cursor.close()
-                tc.conn.close()
-            tempCursors.clear()
-            # todo: close other open connections
-            return
+                    tc.cursor.close()
+                    tc.conn.close()
+                tempCursors.clear()
+                # todo: close other open connections
+                return
+        
+        except Exception:
+            # unhandled exception, propagate to main thread
+            self.resultQueue.put(sys.exc_info())
+
 
 # replacing Queue with this lock-free container might be faster
 import collections
@@ -274,7 +281,8 @@ class TaskListGenerator:
                 yield json.dumps(self.mergedResults[i])
         
         except Exception as e:
-            yield '{"exception": "%s: %s"}' % (type(e), str(e).replace('\n', '\\n').replace('"', "'"))
+            info= sys.exc_info()
+            yield '{"exception": "%s"}' % (traceback.format_exc(info[2]).replace('\n', '\\n'))
             return
     
     ## get IDs of all the pages to be tested for flaws
@@ -289,17 +297,25 @@ class TaskListGenerator:
             flaw.createActions( self.language, pagesToTest[start:pagesLeft], self.actionQueue )
             pagesLeft-= (pagesLeft-start)
             
+    
+    def processResult(self, result):
+        key= '%s:%d' % (result.wiki, result.page['page_id'])
+        try:
+            # append the name of the flaw to the list of flaws for this article 
+            self.mergedResults[key]['flaws'].append(result.FlawFilter.shortname)
+            self.mergedResults[key]['flaws'].sort()
+        except KeyError:
+            # create a new article in the result set
+            self.mergedResults[key]= { 'page': result.page, 'flaws': [result.FlawFilter.shortname] }
+    
+    def processWorkerException(self, exc_info):
+        raise exc_info[0], exc_info[1], exc_info[2] # re-throw exception from worker thread
+        
     def drainResultQueue(self):
         while not self.resultQueue.empty():
             result= self.resultQueue.get()
-            key= '%s:%d' % (result.wiki, result.page['page_id'])
-            try:
-                # append the name of the flaw to the list of flaws for this article 
-                self.mergedResults[key]['flaws'].append(result.FlawFilter.shortname)
-                self.mergedResults[key]['flaws'].sort()
-            except KeyError:
-                # create a new article in the result set
-                self.mergedResults[key]= { 'page': result.page, 'flaws': [result.FlawFilter.shortname] }
+            if isinstance(result, tlgflaws.TlgResult): self.processResult(result)
+            else: self.processWorkerException(result)
 
     # create and start worker threads
     def initThreads(self):
@@ -363,7 +379,7 @@ if __name__ == '__main__':
     #~ TaskListGenerator().listFlaws()
     #~ TaskListGenerator().run('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'PageSize')
     #~ for line in TaskListGenerator().generateQuery('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'Timeliness:ChangeDetector'):
-    for line in TaskListGenerator().generateQuery('de', 'Medizin; Sport', 2, 'RecentlyChanged'):
+    for line in TaskListGenerator().generateQuery('de', 'Medizin; Sport', 2, 'Small'):
         print line
         sys.stdout.flush()
     
