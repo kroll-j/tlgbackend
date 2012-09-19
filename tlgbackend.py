@@ -125,7 +125,8 @@ class TaskListGenerator:
     
     @staticmethod
     def mkStatus(string):
-        return json.dumps({'status': string})
+        status= json.dumps({'status': string})
+        return status
         
     def loadFilterModules(self):
         import imp
@@ -143,7 +144,7 @@ class TaskListGenerator:
                         pass
                     finally:
                         if file: file.close()
-                        if module: dprint(0, "loaded filter module '%s'" % modname)
+                        if module: dprint(3, "loaded filter module '%s'" % modname)
 
     def getFlawList(self):
         infoString= '{\n'
@@ -228,6 +229,8 @@ class TaskListGenerator:
             # spawn the worker threads
             self.initThreads()
             
+            dprint(0, 'generateQuery(): lang "%s", query string "%s", depth %s, flaws "%s"' % (lang, queryString, queryDepth, flaws))
+            
             yield self.mkStatus(_('querying CatGraph for \'%s\' with depth %d') % (queryString, int(queryDepth)))
 
             self.cg= CatGraphInterface(graphname=self.wiki)
@@ -276,12 +279,16 @@ class TaskListGenerator:
             yield self.mkStatus(_('%d pages tested in %d actions. %d pages in result set. processing took %.1f seconds.') % \
                 (len(self.pagesToTest), numActions, len(self.mergedResults), time.time()-begin))
             
+            dprint(1, '%d pages tested in %d actions. %d pages in result set. processing took %.1f seconds.' % \
+                (len(self.pagesToTest), numActions, len(self.mergedResults), time.time()-begin))
+            
             # print results
             for i in sortedResults:
                 yield json.dumps(self.mergedResults[i])
         
         except Exception as e:
             info= sys.exc_info()
+            dprint(0, traceback.format_exc(info[2]))
             yield '{"exception": "%s"}' % (traceback.format_exc(info[2]).replace('\n', '\\n'))
             return
     

@@ -39,8 +39,6 @@ class FTemplatesBase(FlawFilter):
     
     class Action(TlgAction):
         def execute(self, resultQueue):
-            dprint(3, "%s: execute begin" % (self.parent.description))
-                        
             cur= getCursors()[self.wiki]
             format_strings = ','.join(['%s'] * len(self.pageIDs))
             cur.execute('SELECT tl_title, tl_from FROM templatelinks WHERE tl_from IN (%s)' % format_strings, self.pageIDs)
@@ -57,8 +55,6 @@ class FTemplatesBase(FlawFilter):
                 except KeyError:
                     # we have no template names for this language version.
                     pass
-
-            dprint(3, "%s: execute end" % (self.parent.description))
 
     def getPreferredPagesPerAction(self):
         return 200
@@ -231,8 +227,6 @@ class FNoImages(FlawFilter):
     # our action class
     class Action(TlgAction):
         def execute(self, resultQueue):
-            dprint(3, "%s: execute begin" % (self.parent.description))
-            
             cur= getCursors()[self.wiki]
             format_strings = ','.join(['%s'] * len(self.pageIDs))
             # find all pages in set without any image links
@@ -246,8 +240,7 @@ class FNoImages(FlawFilter):
             
             for row in sqlres:
                 resultQueue.put(TlgResult(self.wiki, row, self.parent))
-            
-            dprint(3, "%s: execute end" % (self.parent.description))
+
 
     def getPreferredPagesPerAction(self):
         return 100

@@ -12,8 +12,6 @@ class FChangeDetector(FlawFilter):
 
     class Action(TlgAction):
         def execute(self, resultQueue):
-            dprint(3, "%s: execute begin" % (self.parent.description))
-            
             with TempCursor('sql', 'p_render_change_detector_p') as cur:
                 format_strings = ','.join(['%s'] * len(self.pageIDs))
                 date= time.strftime( '%Y%m%d', time.localtime(time.time()-60*60*24) )
@@ -30,8 +28,6 @@ class FChangeDetector(FlawFilter):
                         res= cur.fetchall()
                         if len(res) > 4:    # xxx this value depends on the setting in change.ini 
                             resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, row['page_id'])[0], self.parent))
-            
-            dprint(3, "%s: execute end" % (self.parent.description))
 
     def getPreferredPagesPerAction(self):
         return 100

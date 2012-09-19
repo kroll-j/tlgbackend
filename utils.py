@@ -1,8 +1,10 @@
 #!/usr/bin/python
+# -*- coding:utf-8 -*-
 ## @file utils.py
 import os
 import sys
 import time
+import sqlite3
 import MySQLdb
 import MySQLdb.cursors 
 import threading
@@ -162,13 +164,31 @@ def getTemplatelinksForID(wiki, pageID):
     return cur.fetchall()
 
 def MakeTimestamp(unixtime= time.time()):
-    return time.strftime("[%Y%m%d %H:%M.%S] ", time.gmtime(unixtime))
+    return time.strftime("%Y%m%d %H:%M.%S", time.gmtime(unixtime))
+
+def logToDB(timestamp, level, *args):
+    def createLogCursor():
+        conn= sqlite3.connect(os.path.join(DATADIR, "log.db"), isolation_level= None, timeout= 30.0)
+        logCursor= conn.cursor()
+        try:
+            logCursor.execute('CREATE TABLE logs(timestamp TEXT, level INTEGER, message VARBINARY)')
+            logCursor.execute('CREATE INDEX timestamp ON logs (timestamp)')
+        except sqlite3.OperationalError as ex:
+            pass
+        logCursor.execute('DELETE FROM logs WHERE timestamp < ?', (MakeTimestamp(time.time() - 60*60*24*30*3),) )  # remove everything older than 3 months
+        return logCursor
+    logCursor= CachedThreadValue('logCursor', createLogCursor)
+    logCursor.execute('INSERT INTO logs VALUES (?, ?, ?)', (timestamp, level, unicode(str(*args).decode('utf-8'))))
 
 debuglevel= 1
 ## debug print. only shows if level >= debuglevel.
 def dprint(level, *args):
+    timestamp= MakeTimestamp()
+    
+    logToDB(timestamp, level, *args)
+    
     if(debuglevel>=level):
-        sys.stderr.write(MakeTimestamp())
+        sys.stderr.write('[%s] ' % timestamp)
         sys.stderr.write(*args)
         sys.stderr.write("\n")
 
@@ -184,7 +204,6 @@ def getWikiServerMap():
         try:
             __WikiToServerMapLock.acquire() # just in case someone calls this from different threads in parallel.
             def getWikiServerMapping():
-                dprint(2, "getWikiServerMapping called")
                 conn= MySQLdb.connect(read_default_file=os.path.expanduser('~')+'/.my.cnf')
                 cur= conn.cursor()
                 cur.execute("SELECT dbname, server FROM toolserver.wiki WHERE family = 'wikipedia'")
@@ -229,6 +248,9 @@ if threading.currentThread().name == 'MainThread':
     getWikiServerMap()
 
 if __name__ == '__main__':
+    dprint(1, "foo")
+    dprint(1, "bar")
+    dprint(1, "äöü")
     print getConnections()['sql-s1']
     print getCursors()['dewiki_p']
     print getCursors()
