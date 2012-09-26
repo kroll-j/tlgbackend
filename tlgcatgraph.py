@@ -38,24 +38,30 @@ class CatGraphInterface:
         n= 0
         for param in string.split(';'):
             param= param.strip()
+            if len(param)==0:
+                raise RuntimeError(_('Empty category name specified.'))
             if param[0] in '+-':
-                category= param[1:]
+                category= param[1:].strip().replace(' ', '_')
                 op= param[0]
             else:
-                category= param
+                category= param.replace(' ', '_')
                 op= '|'
             if op=='|':
                 result|= set(self.getPagesInCategory(category, depth))
+                dprint(2, ' | "%s"' % category)
             elif op=='+':
                 if n==0:
                     # '+' on first category should do the expected thing
                     result|= set(self.getPagesInCategory(category, depth))
+                    dprint(2, ' | "%s"' % category)
                 else:
                     result&= set(self.getPagesInCategory(category, depth))
+                    dprint(2, ' & "%s"' % category)
             elif op=='-':
                 # '-' on first category has no effect
                 if n!=0:
                     result-= set(self.getPagesInCategory(category, depth))
+                    dprint(2, ' - "%s"' % category)
             n+= 1
         return list(result)
         
@@ -74,7 +80,7 @@ if __name__ == '__main__':
             cg.gp.capture_traverse_successors(catID, depth)
     traw= time.time()-t
     
-    search= '+Biologie; -Katzen; -Astrobiologie, Foo'
+    search= '+Biologie; -Katzen; -Astrobiologie; Foo'
     print "searching for '%s'..." % search
     sys.stdout.flush()
     t= time.time()
