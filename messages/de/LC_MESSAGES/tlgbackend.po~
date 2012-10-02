@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tlgbackend 0.1\n"
-"POT-Creation-Date: 2012-09-17 16:06+CEST\n"
+"POT-Creation-Date: 2012-09-30 19:39+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,7 +24,7 @@ msgstr ""
 "Seite scheint veraltet zu sein, verglichen mit dem gleichen Artikel in "
 "anderen Sprachversionen der Wikipedia (ChangeDetector-Daten)."
 
-#: filtermodules/changedetector.py:11 filtermodules/miscfilters.py:90
+#: filtermodules/changedetector.py:11 filtermodules/miscfilters.py:86
 msgid "Currentness"
 msgstr "Aktualität"
 
@@ -36,89 +36,97 @@ msgstr "Alle Seiten"
 msgid "Every page from CatGraph result."
 msgstr "Jede Seite aus dem CatGraph-Suchergebnis."
 
-#: filtermodules/miscfilters.py:80
+#: filtermodules/miscfilters.py:76
 msgid "Neutrality"
 msgstr "Neutralität"
 
-#: filtermodules/miscfilters.py:80
+#: filtermodules/miscfilters.py:76
 msgid "Neutrality Template"
 msgstr "Neutralitäts-Vorlage"
 
-#: filtermodules/miscfilters.py:80
+#: filtermodules/miscfilters.py:76
 msgid "Page has 'neutrality' template set."
 msgstr "Seite hat 'Neutralität'-Vorlage gesetzt."
 
-#: filtermodules/miscfilters.py:85
+#: filtermodules/miscfilters.py:81
 msgid "Missing Sources/References Template"
 msgstr "Fehlende Quellen/Referenzen-Vorlage"
 
-#: filtermodules/miscfilters.py:85
+#: filtermodules/miscfilters.py:81
 msgid "Page has 'missing sources' template set."
 msgstr "Seite hat 'Fehlende Quellen'-Vorlage gesetzt."
 
-#: filtermodules/miscfilters.py:85 filtermodules/miscfilters.py:104
+#: filtermodules/miscfilters.py:81 filtermodules/miscfilters.py:101
 msgid "Completeness"
 msgstr "Vollständigkeit"
 
-#: filtermodules/miscfilters.py:90
-msgid "Obsolete Template"
+#: filtermodules/miscfilters.py:86
+msgid "Out of Date Template"
 msgstr "Veraltet-Vorlage"
 
-#: filtermodules/miscfilters.py:90
-msgid "Page has 'obsolete' template set."
+#: filtermodules/miscfilters.py:86
+msgid "Page has 'out of date' template set."
 msgstr "Seite hat 'Veraltet'-Vorlage gesetzt."
 
-#: filtermodules/miscfilters.py:94
+#: filtermodules/miscfilters.py:91
 msgid "Cleanup Template"
 msgstr "Überarbeiten-Vorlage"
 
-#: filtermodules/miscfilters.py:94
+#: filtermodules/miscfilters.py:91
 msgid "Page has 'cleanup' template set."
 msgstr "Seite hat 'Überarbeiten'-Vorlage gesetzt."
 
-#: filtermodules/miscfilters.py:99
+#: filtermodules/miscfilters.py:96
 msgid "'Too Technical' Template"
 msgstr "Allgemeinverständlichkeit-Vorlage"
 
-#: filtermodules/miscfilters.py:99
+#: filtermodules/miscfilters.py:96
 msgid "Page has 'too technical' template set."
 msgstr "Seite hat 'Allgemeinverständlichkeit'-Vorlage gesetzt."
 
-#: filtermodules/miscfilters.py:104
+#: filtermodules/miscfilters.py:101
 msgid "Globalize Template"
 msgstr "Staatslastig-Vorlage"
 
-#: filtermodules/miscfilters.py:104
+#: filtermodules/miscfilters.py:101
 msgid "Page has 'globalize' template set."
 msgstr "Seite hat 'Staatslastig'-Vorlage gesetzt."
 
-#: filtermodules/miscfilters.py:173
+#: filtermodules/miscfilters.py:170
 msgid "Small Pages"
 msgstr "Kleine Seiten"
 
-#: filtermodules/miscfilters.py:174
+#: filtermodules/miscfilters.py:171
 msgid "Page is very small, relative to mean page size in result set."
 msgstr ""
 "Seite ist sehr klein, verglichen mit der Durchschnitts-Seitengröße im "
 "Suchergebnis."
 
-#: filtermodules/miscfilters.py:201
+#: filtermodules/miscfilters.py:198
 msgid "Large Pages"
 msgstr "Große Seiten"
 
-#: filtermodules/miscfilters.py:202
+#: filtermodules/miscfilters.py:199
 msgid "Page is very large, relative to mean page size in result set."
 msgstr ""
 "Seite ist sehr groß, verglichen mit der Durchschnitts-Seitengröße im "
 "Suchergebnis."
 
-#: filtermodules/miscfilters.py:230
+#: filtermodules/miscfilters.py:225
 msgid "No Images"
 msgstr "Keine Bilder"
 
-#: filtermodules/miscfilters.py:231
+#: filtermodules/miscfilters.py:226
 msgid "Article has no image links."
 msgstr "Artikel verlinkt keine Bilder."
+
+#: filtermodules/miscfilters.py:257
+msgid "No Links to this page"
+msgstr ""
+
+#: filtermodules/miscfilters.py:258
+msgid "Article is not linked from any other article."
+msgstr ""
 
 #: filtermodules/recent.py:9
 msgid "Recently Changed"
@@ -132,23 +140,31 @@ msgstr "Seite wurde heute geändert."
 msgid "Timeliness"
 msgstr "Aktualität"
 
-#: tlgbackend.py:224
-msgid "querying CatGraph for '%s' with depth %d"
-msgstr "Sende Anfrage an CatGraph: '%s', mit Suchtiefe %d"
+#: tlgbackend.py:248 tlgcatgraph.py:42
+msgid "Empty category name specified."
+msgstr "Leerer Kategoriename angegeben."
 
-#: tlgbackend.py:229
-msgid "CatGraph returned %d results."
-msgstr "CatGraph gab %d Ergebnisse zurück."
+#: tlgbackend.py:290
+msgid "Empty category search string."
+msgstr "Leere Kategorie-Suchanfrage."
 
-#: tlgbackend.py:244
+#: tlgbackend.py:293
+msgid "evaluating query string '%s' with depth %d"
+msgstr "Bearbeite Suchanfrage: '%s', mit Suchtiefe %d"
+
+#: tlgbackend.py:299
+msgid "query found %d results."
+msgstr "Suche lieferte %d Ergebnisse zurück."
+
+#: tlgbackend.py:314
 msgid "%d pages to test, %d actions to process"
 msgstr "%d Seiten zu testen, %d Aktionen auszuführen"
 
-#: tlgbackend.py:258
+#: tlgbackend.py:328
 msgid "%d of %d actions processed (eta: %02d:%02d)"
 msgstr "%d von %d Aktionen verarbeitet (ETA: %02d:%02d)"
 
-#: tlgbackend.py:269
+#: tlgbackend.py:339
 msgid ""
 "%d pages tested in %d actions. %d pages in result set. processing took %.1f "
 "seconds."
@@ -156,11 +172,7 @@ msgstr ""
 "%d Seiten getestet in %d Aktionen. %d Seiten in der Ergebnismenge. "
 "Verarbeitung dauerte %.1f Sekunden."
 
-#: tlgflaws.py:130
-msgid "foo"
-msgstr ""
-
-#: tlgwsgi.py:75
+#: tlgwsgi.py:76
 msgid ""
 "Hi!\n"
 "\n"
@@ -177,9 +189,8 @@ msgid ""
 msgstr ""
 "Hi!\n"
 "\n"
-"Dies ist der Wikimedia Arbeitslistengenerator-Hintergrundprozess \n"
-"auf %s. \n"
-"Du (oder jemand anders) hat eine Arbeitsliste für diese Emailadresse\n"
+"Dies ist der Wikimedia Arbeitslistengenerator-Hintergrundprozess auf %s.\n"
+"Du (oder jemand anders) hat eine Arbeitsliste für diese Emailadresse "
 "angefordert.\n"
 "Wenn diese Mail nicht angefordert wurde, wenn Problemen auftreten\n"
 "oder bei Vorschlägen für den TLG, schicke eine Mail an jkroll@toolserver."
@@ -188,7 +199,7 @@ msgstr ""
 "Arbeitsliste erfolgreich erstellt. Eingabe war:\n"
 "\n"
 
-#: tlgwsgi.py:84
+#: tlgwsgi.py:85
 msgid ""
 "\n"
 "\n"
@@ -201,16 +212,24 @@ msgstr ""
 "\n"
 "Im Anhang findest Du die Liste im %s-Format.\n"
 "\n"
-"Emsigen Grüße, \n"
+"Emsige Grüße, \n"
 "Der Freundliche TLG-Roboter. \n"
 
-#: tlgwsgi.py:108
+#: tlgwsgi.py:109
 msgid "Filters"
 msgstr "Filter"
 
-#: tlgwsgi.py:109
+#: tlgwsgi.py:110
 msgid "Page"
 msgstr "Seite"
+
+#: wiki.py:41
+msgid "= Task List =\n"
+msgstr ""
+
+#: wiki.py:42
+msgid "Categories: %s, Search depth: %s, Selected filters: %s\n"
+msgstr ""
 
 #~ msgid "Returns every page."
 #~ msgstr "Gibt jede Seite zurück."
