@@ -10,13 +10,13 @@ import Queue
 import traceback
 import threading
 import tlgflaws
+import wiki
 
 from tlgcatgraph import CatGraphInterface
 from tlgflaws import FlawFilters
 from utils import *
 
-# todo: propagate exceptions in workers to main thread
-# daemon threads
+# todo: daemon threads?
 
 ## a worker thread which fetches actions from a queue and executes them
 class WorkerThread(threading.Thread):
@@ -116,6 +116,7 @@ class TaskListGenerator:
         self.cg= None
         self.runEvent= threading.Event()
         self.loadFilterModules()
+        self.simpleMW= None # SimpleMW instance
     
     def getActiveWorkerCount(self):
         count= 0
@@ -218,6 +219,61 @@ class TaskListGenerator:
         
         return True
     
+    
+    ## evaluate a single query category.
+    # 'wl:USER,TOKEN' special syntax queries USER's watchlist instead of CatGraph.
+    def evalQueryCategory(self, string, defaultdepth):
+        s= string.split(':', 1)
+        if len(s)==1:
+            res= self.cg.getPagesInCategory(string.replace(' ', '_'), defaultdepth)
+            #~ print res
+            return res
+        else:
+            if s[0]=='wl':  # watchlist
+                wlparams= s[1].split(',')
+                if len(wlparams)!=2:
+                    raise RuntimeError('watchlist syntax is: wl:USERNAME,TOKEN')
+                dprint(2, 'watchlist query: user %s, token %s' % (wlparams[0], wlparams[1]))
+                res= []
+                for pageid in self.simpleMW.getWatchlistPages(wlparams[0], wlparams[1]):
+                    res.append(pageid)
+                #~ print res
+                return res
+            else:
+                raise RuntimeError('invalid query type: \'%s\'' % s[0])
+    
+    def evalQueryString(self, string, depth):
+        result= set()
+        n= 0
+        for param in string.split(';'):
+            param= param.strip()
+            if len(param)==0:
+                raise RuntimeError(_('Empty category name specified.'))
+            if param[0] in '+-':
+                category= param[1:].strip()
+                op= param[0]
+            else:
+                category= param
+                op= '|'
+            if op=='|':
+                result|= set(self.evalQueryCategory(category, depth))
+                dprint(2, ' | "%s"' % category)
+            elif op=='+':
+                if n==0:
+                    # '+' on first category should do the expected thing
+                    result|= set(self.evalQueryCategory(category, depth))
+                    dprint(2, ' | "%s"' % category)
+                else:
+                    result&= set(self.evalQueryCategory(category, depth))
+                    dprint(2, ' & "%s"' % category)
+            elif op=='-':
+                # '-' on first category has no effect
+                if n!=0:
+                    result-= set(self.evalQueryCategory(category, depth))
+                    dprint(2, ' - "%s"' % category)
+            n+= 1
+        return list(result)
+    
     # testing generator stuff
     def generateQuery(self, lang, queryString, queryDepth, flaws):
         try:
@@ -225,18 +281,25 @@ class TaskListGenerator:
             
             self.language= lang
             self.wiki= lang + 'wiki'
+            self.simpleMW= wiki.SimpleMW(lang)
 
+            dprint(0, 'generateQuery(): lang "%s", query string "%s", depth %s, flaws "%s"' % (lang, queryString, queryDepth, flaws))
+            
             # spawn the worker threads
             self.initThreads()
             
-            dprint(0, 'generateQuery(): lang "%s", query string "%s", depth %s, flaws "%s"' % (lang, queryString, queryDepth, flaws))
+            if len(queryString)==0:
+                # todo: use InputValidationError exception
+                yield '{"exception": "%s"}' % _('Empty category search string.')
+                return
             
-            yield self.mkStatus(_('querying CatGraph for \'%s\' with depth %d') % (queryString, int(queryDepth)))
+            yield self.mkStatus(_('evaluating query string \'%s\' with depth %d') % (queryString, int(queryDepth)))
 
             self.cg= CatGraphInterface(graphname=self.wiki)
-            self.pagesToTest= self.cg.executeSearchString(queryString, queryDepth)
+            #~ self.pagesToTest= self.cg.executeSearchString(queryString, queryDepth)
+            self.pagesToTest= self.evalQueryString(queryString, queryDepth)
             
-            yield self.mkStatus(_('CatGraph returned %d results.') % len(self.pagesToTest))
+            yield self.mkStatus(_('query found %d results.') % len(self.pagesToTest))
 
             # todo: add something like MaxWaitTime, instead of this
             #~ if len(self.pagesToTest) > 50000:
@@ -257,10 +320,10 @@ class TaskListGenerator:
             self.runEvent.set()
             
             # process results as they are created
-            actionsProcessed= numActions-self.actionQueue.qsize()
+            actionsProcessed= 0 #numActions-self.actionQueue.qsize()
             while self.getActiveWorkerCount()>0:
                 self.drainResultQueue()
-                n= max(numActions-self.actionQueue.qsize()-(self.getActiveWorkerCount()), 1)
+                n= max(numActions-self.actionQueue.qsize()-(self.getActiveWorkerCount()), 0)
                 if n!=actionsProcessed:
                     actionsProcessed= n
                     eta= (time.time()-begin) / actionsProcessed * (numActions-actionsProcessed)
@@ -284,12 +347,15 @@ class TaskListGenerator:
             
             # print results
             for i in sortedResults:
-                yield json.dumps(self.mergedResults[i])
+                res= self.mergedResults[i]
+                if 'page' in res:
+                    res['page']['page_title']= res['page']['page_title'].replace('_', ' ')
+                yield json.dumps(res)
         
         except Exception as e:
             info= sys.exc_info()
             dprint(0, traceback.format_exc(info[2]))
-            yield '{"exception": "%s"}' % (traceback.format_exc(info[2]).replace('\n', '\\n'))
+            yield '{"exception": "%s"}' % (traceback.format_exc(info[2]).replace('\n', '\\n').replace('"', '\\"'))
             return
     
     ## get IDs of all the pages to be tested for flaws
@@ -386,7 +452,8 @@ if __name__ == '__main__':
     #~ TaskListGenerator().listFlaws()
     #~ TaskListGenerator().run('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'PageSize')
     #~ for line in TaskListGenerator().generateQuery('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'Timeliness:ChangeDetector'):
-    for line in TaskListGenerator().generateQuery('de', 'Medizin; +Sport', 2, 'Small'):
+    #~ for line in TaskListGenerator().generateQuery('de', 'Politik; +Physik', 3, 'ALL'):
+    for line in TaskListGenerator().generateQuery('de', 'Berga/Elster; +wl:Johannes Kroll (WMDE),5e936929bde94754ef270918c939cdd70d68cb5b', 3, 'ALL'):
         print line
         sys.stdout.flush()
     

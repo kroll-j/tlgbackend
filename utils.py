@@ -3,6 +3,7 @@
 ## @file utils.py
 import os
 import sys
+import pwd
 import time
 import sqlite3
 import MySQLdb
@@ -107,7 +108,7 @@ def getCursors():
                     if 'max_user_connections' in str(e):
                         dprint(0, 'exceeded max connections, retrying...')
                         time.sleep(0.5)
-                        raise   #xxxxx
+                        #~ raise   #xxxxx
                     else:
                         raise
             cur= conn.cursor()
@@ -163,25 +164,31 @@ def getTemplatelinksForID(wiki, pageID):
     cur.execute("SELECT * FROM templatelinks WHERE tl_from = %s", (pageID,))
     return cur.fetchall()
 
-def MakeTimestamp(unixtime= time.time()):
+def MakeTimestamp(unixtime= None):
+    if unixtime==None: unixtime= time.time()
     return time.strftime("%Y%m%d %H:%M.%S", time.gmtime(unixtime))
 
+def getUsername():
+    return pwd.getpwuid( os.getuid() )[ 0 ]
+
+# logging to files makes filtering hard, logging to sql server is impractical too (what if we want to log an sql connection failure?), so we use sqlite.
 def logToDB(timestamp, level, *args):
     def createLogCursor():
         conn= sqlite3.connect(os.path.join(DATADIR, "log.db"), isolation_level= None, timeout= 30.0)
         logCursor= conn.cursor()
         try:
-            logCursor.execute('CREATE TABLE logs(timestamp TEXT, level INTEGER, message VARBINARY)')
+            logCursor.execute('CREATE TABLE logs(timestamp VARBINARY, level INTEGER, message VARBINARY)')
             logCursor.execute('CREATE INDEX timestamp ON logs (timestamp)')
-        except sqlite3.OperationalError as ex:
-            pass
-        logCursor.execute('DELETE FROM logs WHERE timestamp < ?', (MakeTimestamp(time.time() - 60*60*24*30*3),) )  # remove everything older than 3 months
+        except sqlite3.OperationalError:
+            pass    # table exists
+        if threading.currentThread().name == 'MainThread':
+            logCursor.execute('DELETE FROM logs WHERE timestamp < ?', (MakeTimestamp(time.time() - 60*60*24*30*3),) )  # remove logs older than 3 months
         return logCursor
     logCursor= CachedThreadValue('logCursor', createLogCursor)
     logCursor.execute('INSERT INTO logs VALUES (?, ?, ?)', (timestamp, level, unicode(str(*args).decode('utf-8'))))
 
 debuglevel= 1
-## debug print. only shows if level >= debuglevel.
+## debug print. only shows on stderr if level >= debuglevel. everything is logged to sqlite file DATADIR/log.db.
 def dprint(level, *args):
     timestamp= MakeTimestamp()
     

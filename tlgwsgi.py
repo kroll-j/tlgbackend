@@ -7,6 +7,7 @@ import time
 import json
 import gettext
 import threading
+import traceback
 import tlgbackend
 import tlgflaws
 from utils import *
@@ -179,6 +180,7 @@ function setStatus(text, percentage) { document.getElementById("thestatus").inne
                 html.write('<td>')
                 title= data['page']['page_title'].encode('utf-8')
                 html.write('<a href="https://%s.wikipedia.org/wiki/%s">%s</a>' % (params['lang'], title, title))
+                html.write(' page_id = %d' % (data['page']['page_id']))
                 html.write('</td>')
                 html.write('</tr>\n')
             elif 'status' in data:
@@ -270,6 +272,8 @@ def generator_app(environ, start_response):
         format= getParam(params, 'format', 'json')
         if mailto and format=='json': format= 'html'    # no json via email (probably not useful anyway)
         i18n= getParam(params, 'i18n', 'de')
+        wikipage= getParam(params, 'wikipage', None)
+        if wikipage: format= 'wikitext' # writing to wiki page implies wikitext format
         
         try:
             gettext.translation('tlgbackend', localedir= os.path.join(sys.path[0], 'messages'), languages=[i18n]).install()
@@ -279,18 +283,18 @@ def generator_app(environ, start_response):
             global _
             _= ident
         
-        if mailto:
+        if mailto or wikipage:
             if 'daemon' in environ and environ['daemon']=='True':
-                # in daemon process
+                # we are in the background process, open daemon context
                 import daemon
                 context= daemon.DaemonContext()
                 context.stdout= open(os.path.join(DATADIR, 'mailer-stdout'), 'a')
                 context.stderr= open(os.path.join(DATADIR, 'mailer-stderr'), 'a')
                 context.open()
-                dprint(0, 'hello from daemon, pid=%d, format=%s' % (os.getpid(), format))
+                dprint(0, 'hello from background process, pid=%d, format=%s' % (os.getpid(), format))
 
             else:
-                # cgi context, create daemon
+                # cgi context, create background process
                 import subprocess
                 scriptname= os.path.join(sys.path[0], sys.argv[0])
                 subprocess.Popen([scriptname], env= { 'QUERY_STRING': environ['QUERY_STRING'], 'daemon': 'True' })
@@ -323,13 +327,20 @@ def generator_app(environ, start_response):
             outputIterable= addLinebreaks(tlgResult)
             mimeSubtype= 'plain'
         
-        if mailto:  # we are in the daemon if we get here
-            dprint(0, 'starting email stuff')
+        if mailto:      # we are in the daemon if we get here
+            dprint(0, 'starting email')
             send_mail(queryString, queryDepth, flaws, lang, format, outputIterable, action, mailto, mimeSubtype)
-            dprint(0, 'mail stuff finished, exiting.')
+            dprint(0, 'mail sent, exiting.')
             sys.exit(0)
 
-        else:   # no email address given. cgi context.
+        elif wikipage:  # we are in the daemon if we get here, write output to wiki page
+            dprint(0, 'begin writing to wiki page %s' % wikipage)
+            import wiki
+            wiki.SimpleMW(lang).writeToPage(queryString, queryDepth, flaws, outputIterable, action, wikipage)
+            dprint(0, 'finished writing to wiki page \'%s\'' % wikipage)
+            sys.exit(0)
+
+        else:   # no email address or wiki page given. normal cgi context.
             if chunked: 
                 start_response('200 OK', [('Content-Type', 'text/%s; charset=utf-8' % mimeSubtype), ('Transfer-Encoding', 'chunked')])
             else:
@@ -337,8 +348,11 @@ def generator_app(environ, start_response):
             return outputIterable
     
     except Exception as e:
+        info= sys.exc_info()
+        dprint(0, traceback.format_exc(info[2]))
         start_response('200 OK', [('Content-Type', 'text/plain; charset=utf-8')])
-        return [ '{ "exception": "%s" }' % str(e).replace('\n', '\\n') ]
+        return [ '{"exception": "%s"}' % (traceback.format_exc(info[2]).replace('\n', '\\n').replace('"', '\\"')) ]
+
 
 
 if __name__ == "__main__":
@@ -356,7 +370,8 @@ if __name__ == "__main__":
         os.environ['QUERY_STRING']
     except KeyError:
         # started from non-cgi context, create request string for testing.
-        os.environ['QUERY_STRING']= 'action=query&format=html&chunked=true&lang=de&query=Sport&querydepth=2&flaws=NoImages%20Small'
+        #~ os.environ['QUERY_STRING']= 'action=query&format=html&chunked=true&lang=de&query=Sport&querydepth=2&flaws=NoImages%20Small'
+        os.environ['QUERY_STRING']= 'action=query&format=wikitext&lang=de&query=Sport&querydepth=2&flaws=Small&wikipage=Benutzer:Tlgbackend/Foo'
     WSGIServer(generator_app).run()
 
 
