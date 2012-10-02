@@ -83,8 +83,9 @@ registerTemplateFilter('TemplateMissingSources', _('Missing Sources/References T
     'enwiki_p': [ 'Refimprove' ]
 })
 
-registerTemplateFilter('Currentness:TemplateObsolete', _('Obsolete Template'), _('Page has \'obsolete\' template set.'), _('Currentness'), {
+registerTemplateFilter('Currentness:TemplateObsolete', _('Out of Date Template'), _('Page has \'out of date\' template set.'), _('Currentness'), {
     'dewiki_p': [ 'Veraltet' ],
+    'enwiki_p': [ 'Out_of_date' ],
 })
 
 registerTemplateFilter('TemplateCleanup', _('Cleanup Template'), _('Page has \'cleanup\' template set.'), None, {
@@ -229,13 +230,51 @@ class FNoImages(FlawFilter):
         def execute(self, resultQueue):
             cur= getCursors()[self.wiki]
             format_strings = ','.join(['%s'] * len(self.pageIDs))
-            # find all pages in set without any image links
-            # the double 'IN' clause seems fishy, maybe i will figure out a better way to do this in sql some time. 
-            sqlstr= 'SELECT * FROM page WHERE page_id IN (%s) AND page_namespace=0 AND page_is_redirect=0 AND page_id NOT IN (SELECT il_from FROM imagelinks WHERE il_from IN (%s))' % \
-                (format_strings,format_strings)
+            sqlstr= """SELECT * FROM page WHERE page_namespace=0 AND page_id IN (%s) 
+                AND page_id NOT IN (select il_from FROM imagelinks AS src WHERE il_from IN (%s) 
+                    AND (SELECT COUNT(*) FROM imagelinks WHERE il_to=src.il_to AND il_from IN (SELECT page_id FROM page WHERE page_namespace=10) LIMIT 1)=0);""" % \
+                    (format_strings, format_strings)
             dblpages= copy.copy(self.pageIDs)
             dblpages.extend(self.pageIDs)
             cur.execute(sqlstr, dblpages)
+            sqlres= cur.fetchall()
+
+            for row in sqlres:
+                resultQueue.put(TlgResult(self.wiki, row, self.parent))
+
+
+    def getPreferredPagesPerAction(self):
+        return 50
+
+    def createActions(self, language, pages, actionQueue):
+        actionQueue.put(self.Action(self, language, pages))
+
+FlawFilters.register(FNoImages)
+
+
+class FLonely(FlawFilter):
+    shortname= 'Lonely'
+    label= _('No Links to this page')
+    description= _('Article is not linked from any other article.')
+
+    # our action class
+    class Action(TlgAction):
+        def execute(self, resultQueue):
+            cur= getCursors()[self.wiki]
+            format_strings = ','.join(['%s'] * len(self.pageIDs))
+            #~ # find all pages in set without any image links
+            #~ # the double 'IN' clause seems fishy, maybe i will figure out a better way to do this in sql some time. 
+            #~ sqlstr= """SELECT * FROM page WHERE page_id IN (%s) AND page_namespace=0 AND page_is_redirect=0 AND page_id NOT IN 
+            #~  (SELECT il_from FROM imagelinks WHERE il_from IN (%s))""" % \
+                #~ (format_strings,format_strings)
+            #~ dblpages= copy.copy(self.pageIDs)
+            #~ dblpages.extend(self.pageIDs)
+            #~ cur.execute(sqlstr, dblpages)
+            #~ sqlres= cur.fetchall()
+            
+            sqlstr= """SELECT * FROM page WHERE page_id IN (%s) /*AND page_namespace=0*/ AND page_is_redirect=0 AND 
+                (SELECT COUNT(*) FROM pagelinks WHERE pl_from=page_id AND pl_namespace=0 LIMIT 1)=0""" % (format_strings)
+            cur.execute(sqlstr, self.pageIDs)
             sqlres= cur.fetchall()
             
             for row in sqlres:
@@ -248,6 +287,6 @@ class FNoImages(FlawFilter):
     def createActions(self, language, pages, actionQueue):
         actionQueue.put(self.Action(self, language, pages))
 
-FlawFilters.register(FNoImages)
+#~ FlawFilters.register(FLonely)
 
 
