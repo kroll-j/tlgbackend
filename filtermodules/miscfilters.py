@@ -244,7 +244,7 @@ class FNoImages(FlawFilter):
 
 
     def getPreferredPagesPerAction(self):
-        return 50
+        return 25
 
     def createActions(self, language, pages, actionQueue):
         actionQueue.put(self.Action(self, language, pages))

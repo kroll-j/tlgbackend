@@ -5,7 +5,7 @@ from gp import *
 from utils import *
 
 class CatGraphInterface:
-    def __init__(self, host='willow.toolserver.org', port=6666, graphname=None):
+    def __init__(self, host='ortelius.toolserver.org', port=6666, graphname=None):
         self.gp= client.Connection( client.ClientTransport(host, port), graphname )
         self.gp.connect()
         self.graphname= graphname

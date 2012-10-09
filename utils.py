@@ -23,8 +23,8 @@ cache_regions.update({
     },
     'disk24h': {        # cache 24h on disk, e. g. category title => ID mappings
         'expire': 60*60*24,
-        'type': 'file',
-        'data_dir': beakerCacheDir,
+        'type': 'memory',   #XXXX 'file',
+                            #XXXX 'data_dir': beakerCacheDir,
     }
 })
 
@@ -184,8 +184,11 @@ def logToDB(timestamp, level, *args):
         if threading.currentThread().name == 'MainThread':
             logCursor.execute('DELETE FROM logs WHERE timestamp < ?', (MakeTimestamp(time.time() - 60*60*24*30*3),) )  # remove logs older than 3 months
         return logCursor
-    logCursor= CachedThreadValue('logCursor', createLogCursor)
-    logCursor.execute('INSERT INTO logs VALUES (?, ?, ?)', (timestamp, level, unicode(str(*args).decode('utf-8'))))
+    try:
+        logCursor= CachedThreadValue('logCursor', createLogCursor)
+        logCursor.execute('INSERT INTO logs VALUES (?, ?, ?)', (timestamp, level, unicode(str(*args).decode('utf-8'))))
+    except sqlite3.OperationalError:
+        pass
 
 debuglevel= 1
 ## debug print. only shows on stderr if level >= debuglevel. everything is logged to sqlite file DATADIR/log.db.
