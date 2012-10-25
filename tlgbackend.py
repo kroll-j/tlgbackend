@@ -162,64 +162,6 @@ class TaskListGenerator:
     def listFlaws(self):
         print self.getFlawList()
     
-    ## find flaws and print results to output file.
-    # @param lang The wiki language code ('de', 'fr').
-    # @param queryString The query string. See CatGraphInterface.executeSearchString documentation.
-    # @param queryDepth Search recursion depth.
-    # @param flaws String of flaw detector names
-    def run(self, lang, queryString, queryDepth, flaws):
-        self.language= lang
-        self.wiki= lang + 'wiki'
-
-        # spawn the worker threads
-        self.initThreads()
-        
-        self.cg= CatGraphInterface(graphname=self.wiki)
-        self.pagesToTest= self.cg.executeSearchString(queryString, queryDepth)
-
-        # todo: add something like MaxWaitTime, instead of this
-        #~ if len(self.pagesToTest) > 50000:
-            #~ raise RuntimeError('result set of %d pages is too large to process in a reasonable time, please modify your search string.' % len(self.pagesToTest))
-        
-        # create the actions for every page x every flaw
-        for flawname in flaws.split():
-            try:
-                flaw= FlawFilters.classInfos[flawname](self)
-            except KeyError:
-                raise RuntimeError('Unknown flaw %s' % flawname)
-            self.createActions(flaw, self.language, self.pagesToTest)
-            
-        numActions= self.actionQueue.qsize()
-        dprint(0, "%d pages to test, %d actions to process" % (len(self.pagesToTest), numActions))
-        
-        # signal worker threads that they can run
-        self.runEvent.set()
-        
-        # process results as they are created
-        actionsProcessed= numActions-self.actionQueue.qsize()
-        while self.getActiveWorkerCount()>0:
-            self.drainResultQueue()
-            n= numActions-self.actionQueue.qsize()
-            if n!=actionsProcessed:
-                actionsProcessed= n
-                dprint(0, "%d/%d actions processed" % (actionsProcessed, numActions))
-            time.sleep(0.25)
-        for i in self.workerThreads:
-            i.join()
-        # process the last results
-        self.drainResultQueue()
-        
-        # sort by length of flaw list, flaw list, and page title
-        sortedResults= sorted(self.mergedResults, key= lambda result: \
-            (-len(self.mergedResults[result]['flaws']), sorted(self.mergedResults[result]['flaws']), self.mergedResults[result]['page']['page_title']))
-        
-        # print results
-        for i in sortedResults:
-            print json.dumps(self.mergedResults[i])
-        
-        return True
-    
-    
     ## evaluate a single query category.
     # 'wl:USER,TOKEN' special syntax queries USER's watchlist instead of CatGraph.
     def evalQueryCategory(self, string, defaultdepth):
@@ -274,7 +216,12 @@ class TaskListGenerator:
             n+= 1
         return list(result)
     
-    # testing generator stuff
+    
+    ## find flaws (generator function).
+    # @param lang The wiki language code ('de', 'fr').
+    # @param queryString The query string. See CatGraphInterface.executeSearchString documentation.
+    # @param queryDepth Search recursion depth.
+    # @param flaws String of flaw detector names
     def generateQuery(self, lang, queryString, queryDepth, flaws):
         try:
             begin= time.time()
@@ -451,7 +398,7 @@ if __name__ == '__main__':
     gettext.translation('tlgbackend', localedir= os.path.join(sys.path[0], 'messages'), languages=['de']).install()
     #~ TaskListGenerator().listFlaws()
     #~ TaskListGenerator().run('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'PageSize')
-    for line in TaskListGenerator().generateQuery('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'Timeliness:ChangeDetector'):
+    for line in TaskListGenerator().generateQuery('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'Currentness:ChangeDetector'):
     #~ for line in TaskListGenerator().generateQuery('de', 'Politik; +Physik', 3, 'ALL'):
     #~ for line in TaskListGenerator().generateQuery('de', '+wl:Johannes Kroll (WMDE),xxxxx', 3, 'ALL'):
         print line
