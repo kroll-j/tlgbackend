@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tlgbackend 0.1\n"
-"POT-Creation-Date: 2012-10-02 18:53+CEST\n"
+"POT-Creation-Date: 2012-10-25 18:03+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -140,37 +140,49 @@ msgstr "Seite wurde heute geändert."
 msgid "Timeliness"
 msgstr "Aktualität"
 
-#: tlgbackend.py:251 tlgcatgraph.py:42
+#: tlgbackend.py:177
+msgid "Watchlist syntax is: wl:USERNAME,TOKEN"
+msgstr "Watchlist-Syntax ist: wl:USERNAME,TOKEN"
+
+#: tlgbackend.py:185
+msgid "invalid query type: '%s'"
+msgstr "Ungültiger Anfragen-Typ: '%s'"
+
+#: tlgbackend.py:193 tlgcatgraph.py:42
 msgid "Empty category name specified."
 msgstr "Leerer Kategoriename angegeben."
 
-#: tlgbackend.py:293
+#: tlgbackend.py:240
 msgid "Empty category search string."
 msgstr "Leere Kategorie-Suchanfrage."
 
-#: tlgbackend.py:296
+#: tlgbackend.py:243
 msgid "evaluating query string '%s' with depth %d"
 msgstr "Bearbeite Suchanfrage: '%s', mit Suchtiefe %d"
 
-#: tlgbackend.py:302
+#: tlgbackend.py:249
 msgid "query found %d results."
 msgstr "Suche lieferte %d Ergebnisse zurück."
 
-#: tlgbackend.py:317
+#: tlgbackend.py:264
 msgid "%d pages to test, %d actions to process"
 msgstr "%d Seiten zu testen, %d Aktionen auszuführen"
 
-#: tlgbackend.py:331
+#: tlgbackend.py:278
 msgid "%d of %d actions processed (eta: %02d:%02d)"
 msgstr "%d von %d Aktionen verarbeitet (ETA: %02d:%02d)"
 
-#: tlgbackend.py:342
+#: tlgbackend.py:289
 msgid ""
 "%d pages tested in %d actions. %d pages in result set. processing took %.1f "
 "seconds."
 msgstr ""
 "%d Seiten getestet in %d Aktionen. %d Seiten in der Ergebnismenge. "
 "Verarbeitung dauerte %.1f Sekunden."
+
+#: tlgbackend.py:303
+msgid "Input validation failed"
+msgstr "Fehlerhafte Eingabe"
 
 #: tlgwsgi.py:76
 msgid ""
@@ -225,11 +237,11 @@ msgstr "Seite"
 
 #: wiki.py:41
 msgid "= Task List =\n"
-msgstr ""
+msgstr "= Arbeitsliste =\n"
 
 #: wiki.py:42
 msgid "Categories: %s, Search depth: %s, Selected filters: %s\n"
-msgstr ""
+msgstr "Kategorien: %s, Suchtiefe: %s, Gewählte Filter: %s\n"
 
 #~ msgid "Returns every page."
 #~ msgstr "Gibt jede Seite zurück."

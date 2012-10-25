@@ -174,15 +174,15 @@ class TaskListGenerator:
             if s[0]=='wl':  # watchlist
                 wlparams= s[1].split(',')
                 if len(wlparams)!=2:
-                    raise RuntimeError('watchlist syntax is: wl:USERNAME,TOKEN')
-                dprint(2, 'watchlist query: user %s, token %s' % (wlparams[0], wlparams[1]))
+                    raise InputValidationError(_('Watchlist syntax is: wl:USERNAME,TOKEN'))
+                #~ dprint(2, 'watchlist query: user %s, token %s' % (wlparams[0], wlparams[1]))
                 res= []
                 for pageid in self.simpleMW.getWatchlistPages(wlparams[0], wlparams[1]):
                     res.append(pageid)
                 #~ print res
                 return res
             else:
-                raise RuntimeError('invalid query type: \'%s\'' % s[0])
+                raise InputValidationError(_('invalid query type: \'%s\'') % s[0])
     
     def evalQueryString(self, string, depth):
         result= set()
@@ -190,7 +190,7 @@ class TaskListGenerator:
         for param in string.split(';'):
             param= param.strip()
             if len(param)==0:
-                raise RuntimeError(_('Empty category name specified.'))
+                raise InputValidationError(_('Empty category name specified.'))
             if param[0] in '+-':
                 category= param[1:].strip()
                 op= param[0]
@@ -257,7 +257,7 @@ class TaskListGenerator:
                 try:
                     flaw= FlawFilters.classInfos[flawname](self)
                 except KeyError:
-                    raise RuntimeError('Unknown flaw %s' % flawname)
+                    raise InputValidationError('Unknown flaw %s' % flawname)
                 self.createActions(flaw, self.language, self.pagesToTest)
             
             numActions= self.actionQueue.qsize()
@@ -298,6 +298,9 @@ class TaskListGenerator:
                 if 'page' in res:
                     res['page']['page_title']= res['page']['page_title'].replace('_', ' ')
                 yield json.dumps(res)
+        
+        except InputValidationError as e:
+            yield '{"exception": "%s: %s"}' % (_('Input validation failed'), str(e))
         
         except Exception as e:
             info= sys.exc_info()

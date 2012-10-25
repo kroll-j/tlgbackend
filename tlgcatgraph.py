@@ -39,7 +39,7 @@ class CatGraphInterface:
         for param in string.split(';'):
             param= param.strip()
             if len(param)==0:
-                raise RuntimeError(_('Empty category name specified.'))
+                raise InputValidationError(_('Empty category name specified.'))
             if param[0] in '+-':
                 category= param[1:].strip().replace(' ', '_')
                 op= param[0]

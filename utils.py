@@ -46,6 +46,10 @@ NS_CATEGORY = 14
 NS_CATEGORY_TALK = 15
 
 
+class InputValidationError(RuntimeError):
+    pass
+
+
 def GetTempCursors():
     t= threading.currentThread()
     try:

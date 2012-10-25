@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tlgbackend 0.1\n"
-"POT-Creation-Date: 2012-09-30 19:39+CEST\n"
+"POT-Creation-Date: 2012-10-02 18:53+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -140,31 +140,31 @@ msgstr "Seite wurde heute geändert."
 msgid "Timeliness"
 msgstr "Aktualität"
 
-#: tlgbackend.py:248 tlgcatgraph.py:42
+#: tlgbackend.py:251 tlgcatgraph.py:42
 msgid "Empty category name specified."
 msgstr "Leerer Kategoriename angegeben."
 
-#: tlgbackend.py:290
+#: tlgbackend.py:293
 msgid "Empty category search string."
 msgstr "Leere Kategorie-Suchanfrage."
 
-#: tlgbackend.py:293
+#: tlgbackend.py:296
 msgid "evaluating query string '%s' with depth %d"
 msgstr "Bearbeite Suchanfrage: '%s', mit Suchtiefe %d"
 
-#: tlgbackend.py:299
+#: tlgbackend.py:302
 msgid "query found %d results."
 msgstr "Suche lieferte %d Ergebnisse zurück."
 
-#: tlgbackend.py:314
+#: tlgbackend.py:317
 msgid "%d pages to test, %d actions to process"
 msgstr "%d Seiten zu testen, %d Aktionen auszuführen"
 
-#: tlgbackend.py:328
+#: tlgbackend.py:331
 msgid "%d of %d actions processed (eta: %02d:%02d)"
 msgstr "%d von %d Aktionen verarbeitet (ETA: %02d:%02d)"
 
-#: tlgbackend.py:339
+#: tlgbackend.py:342
 msgid ""
 "%d pages tested in %d actions. %d pages in result set. processing took %.1f "
 "seconds."
