@@ -232,9 +232,9 @@ class FNoImages(FlawFilter):
             format_strings = ','.join(['%s'] * len(self.pageIDs))
             sqlstr= """SELECT * FROM page WHERE page_namespace=0 AND page_id IN (%s) 
                 AND page_id NOT IN (select il_from FROM imagelinks AS src WHERE il_from IN (%s) 
-                    AND (SELECT COUNT(*) FROM imagelinks WHERE il_to=src.il_to AND il_from IN (SELECT page_id FROM page WHERE page_namespace=10) LIMIT 1)=0);""" % \
+                    AND NOT EXISTS (SELECT 1 FROM imagelinks WHERE il_to=src.il_to AND il_from IN (SELECT page_id FROM page WHERE page_namespace=10)));""" % \
                     (format_strings, format_strings)
-            # and exists / and not exist
+                    #~ AND (SELECT COUNT(*) FROM imagelinks WHERE il_to=src.il_to AND il_from IN (SELECT page_id FROM page WHERE page_namespace=10) LIMIT 1)=0);""" % \
             dblpages= copy.copy(self.pageIDs)
             dblpages.extend(self.pageIDs)
             cur.execute(sqlstr, dblpages)
