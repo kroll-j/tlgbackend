@@ -234,6 +234,7 @@ class FNoImages(FlawFilter):
                 AND page_id NOT IN (select il_from FROM imagelinks AS src WHERE il_from IN (%s) 
                     AND (SELECT COUNT(*) FROM imagelinks WHERE il_to=src.il_to AND il_from IN (SELECT page_id FROM page WHERE page_namespace=10) LIMIT 1)=0);""" % \
                     (format_strings, format_strings)
+            # and exists / and not exist
             dblpages= copy.copy(self.pageIDs)
             dblpages.extend(self.pageIDs)
             cur.execute(sqlstr, dblpages)

@@ -8,13 +8,19 @@ class SimpleMW:
     ## constructor.
     # @param lang language ('de', 'en' etc)
     def __init__(self, lang):
-        self.site= wiki.Wiki('http://%s.wikipedia.org/w/api.php' % lang)
-        self.site.setUserAgent('TLGBackend/0.1 (http://toolserver.org/~render/stools/tlg)')
-        self.site.cookiepath= os.path.expanduser('~')+'/.tlgbackend/'
-        try: os.mkdir(self.site.cookiepath)
-        except: pass    # assume it's already there
-        self.edittoken= False
-        self.login()
+        try:
+            self.site= wiki.Wiki('http://%s.wikipedia.org/w/api.php' % str(lang))
+            self.site.setUserAgent('TLGBackend/0.1 (http://toolserver.org/~render/stools/tlg)')
+            self.site.cookiepath= os.path.expanduser('~')+'/.tlgbackend/'
+            try: os.mkdir(self.site.cookiepath)
+            except: pass    # assume it's already there
+            self.edittoken= False
+            self.login()
+        except UnicodeEncodeError:  # FIXME/HACK happens for lang 'es' and possibly others. bug in wikitools?
+            dprint(0, '*** FIXME UnicodeEncodeError in wikitools')
+            info= sys.exc_info()
+            import traceback
+            dprint(0, traceback.format_exc(info[2])) 
     
     ## login to the api.
     # uses cookie file to remember previous login.
@@ -96,10 +102,12 @@ if __name__ == '__main__':
     _= ident
     from pprint import pprint
     
+    # XXX todo: use config files
+    
     mw= SimpleMW('de')
     #~ print mw.writeToPage('query string', 3, 'filter1 filter2 filter3', ('foo\n\n', 'bar\n\n', 'baz\n\n', 'etc\n\n'), 'query', 'Benutzer:Tlgbackend/Foo')
-    #~ pprint(mw.getWatchlist('Johannes Kroll (WMDE)', '5e936929bde94754ef270918c939cdd70d68cb5b'))
-    pprint(mw.getWatchlistPages('Johannes Kroll (WMDE)', '5e936929bde94754ef270918c939cdd70d68cb5b'))
+    #~ pprint(mw.getWatchlist('Johannes Kroll (WMDE)', ''))
+    pprint(mw.getWatchlistPages('Johannes Kroll (WMDE)', ''))
     
     sys.exit(0)
     
