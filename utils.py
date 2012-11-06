@@ -23,8 +23,8 @@ cache_regions.update({
     },
     'disk24h': {        # cache 24h on disk, e. g. category title => ID mappings
         'expire': 60*60*24,
-        'type': 'memory',   #XXXX 'file',
-                            #XXXX 'data_dir': beakerCacheDir,
+        'type': 'file',
+        'data_dir': beakerCacheDir,
     }
 })
 

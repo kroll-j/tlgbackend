@@ -112,7 +112,8 @@ class TaskListGenerator:
         self.workerThreads= []
         self.pagesToTest= []                # page IDs to test for flaws
         self.numWorkerThreads= 5
-        self.wiki= None
+        self.language= None                 # language code e.g. 'en'
+        self.wiki= None                     # e.g. 'enwiki'
         self.cg= None
         self.runEvent= threading.Event()
         self.loadFilterModules()
@@ -165,7 +166,8 @@ class TaskListGenerator:
     ## evaluate a single query category.
     # 'wl:USER,TOKEN' special syntax queries USER's watchlist instead of CatGraph.
     def evalQueryCategory(self, string, defaultdepth):
-        s= string.split(':', 1)
+        separatorChar= '#'  # special separator char for things like 'title#PAGETITLE'
+        s= string.split(separatorChar, 1)
         if len(s)==1:
             res= self.cg.getPagesInCategory(string.replace(' ', '_'), defaultdepth)
             #~ print res
@@ -174,13 +176,18 @@ class TaskListGenerator:
             if s[0]=='wl':  # watchlist
                 wlparams= s[1].split(',')
                 if len(wlparams)!=2:
-                    raise InputValidationError(_('Watchlist syntax is: wl:USERNAME,TOKEN'))
-                #~ dprint(2, 'watchlist query: user %s, token %s' % (wlparams[0], wlparams[1]))
+                    raise InputValidationError(_('Watchlist syntax is: wl%cUSERNAME,TOKEN') % separatorChar)
                 res= []
                 for pageid in self.simpleMW.getWatchlistPages(wlparams[0], wlparams[1]):
                     res.append(pageid)
-                #~ print res
                 return res
+            elif s[0]=='title': # single page
+                if len(s)!=2:
+                    raise InputValidationError(_('Use: \'title%c\'PAGETITLE') % separatorChar)
+                row= getPageByTitle(self.wiki + '_p', s[1], 0)
+                if len(row)==0:
+                    raise InputValidationError(_('Page not found in mainspace: %s') % s[1])
+                return (row[0]['page_id'], )
             else:
                 raise InputValidationError(_('invalid query type: \'%s\'') % s[0])
     
