@@ -4,7 +4,7 @@ from tlgflaws import *
 
 ## this filter finds articles listed in the ChangeDetector database.
 class FChangeDetector(FlawFilter):
-    shortname= 'Currentness:ChangeDetector' # the name indicates that this filter belongs to group Currentness.
+    shortname= 'ChangeDetector'
     label= 'ChangeDetector'
     # todo: insert changedetector link?
     description= _('Page seems to be outdated compared to the same article in other Wikipedia language versions (ChangeDetector data).')
@@ -24,9 +24,11 @@ class FChangeDetector(FlawFilter):
                 if len(unchanged):
                     # for each unchanged page, check whether the page was changed in other languages on that day.
                     for row in unchanged:
-                        cur.execute('SELECT identifier FROM changed_article WHERE identifier = %s AND day = %s GROUP BY language', (row['identifier'], date))
+                        #~ dprint(1, 'unchanged: %s' % str(row))
+                        cur.execute('SELECT identifier FROM changed_article WHERE identifier=%s AND day=%s AND only_major!=0 AND non_bot!=0 AND many_user!=0 GROUP BY language', (row['identifier'], date))
                         res= cur.fetchall()
-                        if len(res) > 4:    # xxx this value depends on the setting in change.ini 
+                        if len(res) > 5:    # xxx this value depends on the setting in change.ini 
+                            #~ dprint(1, 'ident: %s' % str(res))
                             resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, row['page_id'])[0], self.parent))
 
     def getPreferredPagesPerAction(self):
