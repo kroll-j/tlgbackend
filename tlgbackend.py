@@ -273,6 +273,17 @@ class TaskListGenerator:
             # signal worker threads that they can run
             self.runEvent.set()
             
+            def descriptiveETA(numActions, actionsLeft, eta):
+                if actionsLeft>1000:
+                    return _("Consider using the email option for this")
+                if actionsLeft>500:
+                    return _("Why don't you go outside for a bit?")
+                if actionsLeft>250:
+                    return _("Why don't you get another coffee?")
+                if actionsLeft>50:
+                    return _('Just a little more patience')
+                return _('Almost done')
+            
             # process results as they are created
             actionsProcessed= 0 #numActions-self.actionQueue.qsize()
             while self.getActiveWorkerCount()>0:
@@ -282,7 +293,8 @@ class TaskListGenerator:
                     actionsProcessed= n
                     eta= (time.time()-begin) / actionsProcessed * (numActions-actionsProcessed)
                     yield json.dumps( { 'progress': '%d/%d' % (actionsProcessed, numActions) } )
-                    yield self.mkStatus(_('%d of %d actions processed (eta: %02d:%02d)') % (actionsProcessed, numActions, int(eta)/60, int(eta)%60))
+                    #~ yield self.mkStatus(_('%d of %d actions processed (eta: %02d:%02d)') % (actionsProcessed, numActions, int(eta)/60, int(eta)%60))
+                    yield self.mkStatus(_('%d of %d actions processed') % (actionsProcessed, numActions))
                 time.sleep(0.25)
             for i in self.workerThreads:
                 i.join()
@@ -293,7 +305,7 @@ class TaskListGenerator:
             sortedResults= sorted(self.mergedResults, key= lambda result: \
                 (-len(self.mergedResults[result]['flaws']), sorted(self.mergedResults[result]['flaws']), self.mergedResults[result]['page']['page_title']))
             
-            yield self.mkStatus(_('%d pages tested in %d actions. %d pages in result set. processing took %.1f seconds.') % \
+            yield self.mkStatus(_('%d pages tested in %d actions. %d pages in result set. processing took %.1f seconds. please wait while the result list is being transferred.') % \
                 (len(self.pagesToTest), numActions, len(self.mergedResults), time.time()-begin))
             
             dprint(1, '%d pages tested in %d actions. %d pages in result set. processing took %.1f seconds.' % \
