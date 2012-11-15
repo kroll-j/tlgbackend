@@ -20,8 +20,8 @@ class CatGraphInterface:
                 result.append(i[0])
             return result
         else:
-            # category not found. return empty result. (would it be better to throw an exception here?)
-            return []
+            # category not found. 
+            raise InputValidationError(_('Category %s not found in database %s.') % (category, self.wikiname))
     
     ## execute a search engine-style string
     #  operators '+' (intersection) and '-' (difference) are supported

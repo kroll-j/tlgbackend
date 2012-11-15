@@ -111,7 +111,7 @@ class TaskListGenerator:
         self.mergedResults= {}              # final merged results, one entry per article
         self.workerThreads= []
         self.pagesToTest= []                # page IDs to test for flaws
-        self.numWorkerThreads= 5
+        self.numWorkerThreads= 10
         self.language= None                 # language code e.g. 'en'
         self.wiki= None                     # e.g. 'enwiki'
         self.cg= None
@@ -319,7 +319,7 @@ class TaskListGenerator:
                 yield json.dumps(res)
         
         except InputValidationError as e:
-            yield '{"exception": "%s: %s"}' % (_('Input validation failed'), str(e))
+            yield '{"exception": "%s:\\n%s"}' % (_('Input validation failed'), str(e))
         
         except Exception as e:
             info= sys.exc_info()
@@ -420,7 +420,8 @@ if __name__ == '__main__':
     gettext.translation('tlgbackend', localedir= os.path.join(sys.path[0], 'messages'), languages=['de']).install()
     #~ TaskListGenerator().listFlaws()
     #~ TaskListGenerator().run('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'PageSize')
-    for line in TaskListGenerator().generateQuery('de', 'Biologie; +Eukaryoten; -Rhizarien', 4, 'NoImages'):
+    #~ for line in TaskListGenerator().generateQuery('de', 'Biologie; +Eukaryoten; -Rhizarien', 4, 'NoImages'):
+    for line in TaskListGenerator().generateQuery('en', 'Politics', 2, 'ArticleFeedback'):
     #~ for line in TaskListGenerator().generateQuery('de', 'Politik; +Physik', 3, 'ALL'):
     #~ for line in TaskListGenerator().generateQuery('de', '+wl:Johannes Kroll (WMDE),xxxxx', 3, 'ALL'):
         print line

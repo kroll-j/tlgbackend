@@ -9,10 +9,11 @@ import sqlite3
 import MySQLdb
 import MySQLdb.cursors 
 import threading
+import getpass
 
 from beaker.cache import cache_region, cache_regions
 
-DATADIR= '/mnt/user-store/jkroll/tlgbackend/tip'
+DATADIR= '/mnt/user-store/%s/tlgbackend/tip' % getpass.getuser()
 
 beakerCacheDir= os.path.join(DATADIR, 'beaker-cache')
 

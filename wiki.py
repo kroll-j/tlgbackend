@@ -8,19 +8,24 @@ class SimpleMW:
     ## constructor.
     # @param lang language ('de', 'en' etc)
     def __init__(self, lang):
+        self.site= wiki.Wiki('http://%s.wikipedia.org/w/api.php' % str(lang))
+        self.site.setUserAgent('TLGBackend/0.1 (http://toolserver.org/~render/stools/tlg)')
+        self.site.cookiepath= os.path.expanduser('~')+'/.tlgbackend/'
+        try: os.mkdir(self.site.cookiepath)
+        except: pass    # assume it's already there
+        self.edittoken= False
+    
+    def tryLogin(self):
+        if self.site.isLoggedIn():
+            return
         try:
-            self.site= wiki.Wiki('http://%s.wikipedia.org/w/api.php' % str(lang))
-            self.site.setUserAgent('TLGBackend/0.1 (http://toolserver.org/~render/stools/tlg)')
-            self.site.cookiepath= os.path.expanduser('~')+'/.tlgbackend/'
-            try: os.mkdir(self.site.cookiepath)
-            except: pass    # assume it's already there
-            self.edittoken= False
             self.login()
         except UnicodeEncodeError:  # FIXME/HACK happens for lang 'es' and possibly others. bug in wikitools?
             dprint(0, '*** FIXME UnicodeEncodeError in wikitools')
             info= sys.exc_info()
             import traceback
             dprint(0, traceback.format_exc(info[2])) 
+        
     
     ## login to the api.
     # uses cookie file to remember previous login.
@@ -32,6 +37,7 @@ class SimpleMW:
 
     ## get edit token.
     def getEditToken(self):
+        self.tryLogin()
         if not self.edittoken: 
             params= {   'action': 'tokens',
                         'type': 'edit',
@@ -43,6 +49,7 @@ class SimpleMW:
 
     ## write query result to a wiki page. wip.
     def writeToPage(self, queryString, queryDepth, flaws, outputIterable, action, wikipage):
+        self.tryLogin()
         edittext= ''
         edittext+= _('= Task List =\n')
         edittext+= _('Categories: %s, Search depth: %s, Selected filters: %s\n') % (queryString, queryDepth, flaws)
@@ -66,6 +73,7 @@ class SimpleMW:
     ## get complete watchlist, starting from wlstart.
     # only retrieves pages in namespace 0 (articles).
     def getWatchlist(self, wlowner, wltoken, wlstart= None, wlend= None):
+        self.tryLogin()
         params= {   'action': 'query',
                     'list': 'watchlist',
                     'wlowner': wlowner,
@@ -87,6 +95,7 @@ class SimpleMW:
     
     
     def getWatchlistPages(self, wlowner, wltoken, wlstart= None, wlend= None):
+        self.tryLogin()
         wl= self.getWatchlist(wlowner, wltoken, wlstart, wlend)
         res= dict()
         for p in wl['query']['watchlist']:
