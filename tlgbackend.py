@@ -421,7 +421,7 @@ if __name__ == '__main__':
     #~ TaskListGenerator().listFlaws()
     #~ TaskListGenerator().run('de', 'Biologie +Eukaryoten -Rhizarien', 5, 'PageSize')
     #~ for line in TaskListGenerator().generateQuery('de', 'Biologie; +Eukaryoten; -Rhizarien', 4, 'NoImages'):
-    for line in TaskListGenerator().generateQuery('en', 'Politics', 2, 'ArticleFeedback'):
+    for line in TaskListGenerator().generateQuery('fr', 'Plante fruitière', 2, 'ALL'):
     #~ for line in TaskListGenerator().generateQuery('de', 'Politik; +Physik', 3, 'ALL'):
     #~ for line in TaskListGenerator().generateQuery('de', '+wl:Johannes Kroll (WMDE),xxxxx', 3, 'ALL'):
         print line

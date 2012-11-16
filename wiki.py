@@ -8,12 +8,18 @@ class SimpleMW:
     ## constructor.
     # @param lang language ('de', 'en' etc)
     def __init__(self, lang):
-        self.site= wiki.Wiki('http://%s.wikipedia.org/w/api.php' % str(lang))
-        self.site.setUserAgent('TLGBackend/0.1 (http://toolserver.org/~render/stools/tlg)')
-        self.site.cookiepath= os.path.expanduser('~')+'/.tlgbackend/'
-        try: os.mkdir(self.site.cookiepath)
-        except: pass    # assume it's already there
-        self.edittoken= False
+        try:
+            self.site= wiki.Wiki('http://%s.wikipedia.org/w/api.php' % str(lang))
+            self.site.setUserAgent('TLGBackend/0.1 (http://toolserver.org/~render/stools/tlg)')
+            self.site.cookiepath= os.path.expanduser('~')+'/.tlgbackend/'
+            try: os.mkdir(self.site.cookiepath)
+            except: pass    # assume it's already there
+            self.edittoken= False
+        except UnicodeEncodeError:  # FIXME/HACK happens for lang 'es' and possibly others. bug in wikitools?
+            dprint(0, '*** FIXME UnicodeEncodeError in wikitools')
+            info= sys.exc_info()
+            import traceback
+            dprint(0, traceback.format_exc(info[2])) 
     
     def tryLogin(self):
         if self.site.isLoggedIn():

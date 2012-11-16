@@ -44,7 +44,7 @@ class FAFT(FlawFilter):
 
     def createActions(self, language, pages, actionQueue):
         if not self.hasAFTData(language):
-            raise InputValidationError(_('Article Feedback Tool data is not yet available for the selected language.'))
+            raise InputValidationError(_('Article Feedback data is not yet available for the selected language.'))
         actionQueue.put(self.Action(self, language, pages))
 
 FlawFilters.register(FAFT)
