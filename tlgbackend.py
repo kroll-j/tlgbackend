@@ -183,7 +183,7 @@ class TaskListGenerator:
                 return res
             elif s[0]=='title': # single page
                 if len(s)!=2:
-                    raise InputValidationError(_('Use: \'title%c\'PAGETITLE') % separatorChar)
+                    raise InputValidationError(_('Use: \'title%cPAGETITLE\'') % separatorChar)
                 row= getPageByTitle(self.wiki + '_p', s[1], 0)
                 if len(row)==0:
                     raise InputValidationError(_('Page not found in mainspace: %s') % s[1])
