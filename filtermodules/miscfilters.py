@@ -76,21 +76,25 @@ def registerTemplateFilter(*args):
 registerTemplateFilter('TemplateNeutrality', _('Neutrality Template'), _('Page has \'neutrality\' template set.'), _('Neutrality'), {
     'dewiki_p': [ 'Neutralität' ],
     'enwiki_p': [ 'Neutrality' ],
+    'frwiki_p': [ 'Désaccord_de_neutralité' ],
 })
 
 registerTemplateFilter('TemplateMissingSources', _('Missing Sources/References Template'), _('Page has \'missing sources\' template set.'), _('Completeness'), {
     'dewiki_p': [ 'Belege_fehlen' ],
-    'enwiki_p': [ 'Refimprove' ]
+    'enwiki_p': [ 'Refimprove' ],
+    'frwiki_p': [ 'À_sourcer' ],
 })
 
 registerTemplateFilter('Currentness:TemplateObsolete', _('Out of Date Template'), _('Page has \'out of date\' template set.'), _('Currentness'), {
     'dewiki_p': [ 'Veraltet' ],
     'enwiki_p': [ 'Out_of_date' ],
+    'frwiki_p': [ 'Mettre_à_jour' ],
 })
 
 registerTemplateFilter('TemplateCleanup', _('Cleanup Template'), _('Page has \'cleanup\' template set.'), None, {
     'dewiki_p': [ 'Überarbeiten' ],
     'enwiki_p': [ 'Cleanup' ],
+    'frwiki_p': [ 'À_recycler' ],
 })
 
 registerTemplateFilter('TemplateTechnical', _('\'Too Technical\' Template'), _('Page has \'too technical\' template set.'), None, {
@@ -101,6 +105,7 @@ registerTemplateFilter('TemplateTechnical', _('\'Too Technical\' Template'), _('
 registerTemplateFilter('TemplateGlobalize', _('Globalize Template'), _('Page has \'globalize\' template set.'), _('Completeness'), {
     'dewiki_p': [ 'Staatslastig' ],
     'enwiki_p': [ 'Globalize' ],
+    'frwiki_p': [ 'Internationaliser' ],
 })
 
 # todo: extract template names of other languages from langlinks
