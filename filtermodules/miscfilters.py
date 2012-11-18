@@ -100,6 +100,7 @@ registerTemplateFilter('TemplateCleanup', _('Cleanup Template'), _('Page has \'c
 registerTemplateFilter('TemplateTechnical', _('\'Too Technical\' Template'), _('Page has \'too technical\' template set.'), None, {
     'dewiki_p': [ 'Allgemeinverständlichkeit' ],
     'enwiki_p': [ 'Technical' ],
+    'frwiki_p': [ 'Article_incompréhensible' ],
 })
 
 registerTemplateFilter('TemplateGlobalize', _('Globalize Template'), _('Page has \'globalize\' template set.'), _('Completeness'), {
