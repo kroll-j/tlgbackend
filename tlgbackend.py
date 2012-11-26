@@ -249,7 +249,7 @@ class TaskListGenerator:
             
             yield self.mkStatus(_('evaluating query string \'%s\' with depth %d') % (queryString, int(queryDepth)))
 
-            self.cg= CatGraphInterface(graphname=self.wiki)
+            self.cg= CatGraphInterface(host=config['graphserv-host'], port=int(config['graphserv-port']), graphname=self.wiki)
             #~ self.pagesToTest= self.cg.executeSearchString(queryString, queryDepth)
             self.pagesToTest= self.evalQueryString(queryString, queryDepth)
             

@@ -10,8 +10,14 @@ import MySQLdb
 import MySQLdb.cursors 
 import threading
 import getpass
+import json
 
 from beaker.cache import cache_region, cache_regions
+
+config= { 
+    'graphserv-host': 'ortelius',
+    'graphserv-port': '6666',
+}
 
 DATADIR= '/mnt/user-store/%s/tlgbackend/tip' % getpass.getuser()
 
@@ -261,6 +267,16 @@ def getConnections():
 if threading.currentThread().name == 'MainThread':
     # precache once in the main thread, not separately for each thread (which would work, but can be slow because of the locking)
     getWikiServerMap()
+
+
+try:
+    filecfg= json.load(file('tlgrc'))
+    for key in filecfg:
+        dprint(1, "config: %s = %s" % (key, filecfg[key]))
+        config[key]= filecfg[key]
+except Exception as ex:
+    dprint(1, "exception while loading config file tlgrc: %s" % str(ex))
+
 
 if __name__ == '__main__':
     dprint(1, "foo")
