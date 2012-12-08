@@ -15,9 +15,11 @@ class CatGraphInterface:
         catID= getCategoryID(self.wikiname, category)
         if catID!=None:
             result= []
-            # convert list of tuples to simple list. is there a faster (i.e. built-in) way to do this?
-            for i in self.gp.capture_traverse_successors(catID, depth):
-                result.append(i[0])
+            successors= self.gp.capture_traverse_successors(catID, depth)
+            if successors:  # result can be None for empty categories
+                # convert list of tuples to simple list. is there a faster (i.e. built-in) way to do this?
+                for i in successors:
+                    result.append(i[0])
             return result
         else:
             # category not found. 

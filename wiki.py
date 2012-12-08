@@ -37,6 +37,7 @@ class SimpleMW:
     # uses cookie file to remember previous login.
     def login(self):
         if not self.site.isLoggedIn():
+            # todo: put credentials into config file :)
             dprint(1, 'login: %s' % self.site.login('tlgbackend', 'wck8#0g', remember= True))
         else:
             dprint(1, 'login: already logged in')

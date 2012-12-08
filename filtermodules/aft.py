@@ -10,6 +10,15 @@ class FAFT(FlawFilter):
     label= _('Article Feedback')
     description= _('Less than 60% of readers found what they are looking for, according to Article Feedback Tool v5.')
     
+    def feedbackPageForTitle(self, title):
+        # todo: find translations automatically (where??)
+        feedback_translations= { "de": "Spezial:Artikelrückmeldungen_v5",
+                                 "en": "Special:ArticleFeedbackv5", 
+        }
+        if self.language in feedback_translations:
+            return "%s/%s" % ("Spezial:Artikelrückmeldungen_v5", title)
+        return title;
+    
     # our action class
     class Action(TlgAction):
         def execute(self, resultQueue):
@@ -27,6 +36,8 @@ class FAFT(FlawFilter):
                 format_strings = ','.join(['%s'] * len(pageIDs))
                 cur.execute('SELECT * FROM page WHERE page_id IN (%s) AND page_namespace=0' % format_strings, pageIDs)
                 for row in cur.fetchall():
+                    #~ row['page_title']= "%s/%s" % ("Spezial:Artikelrückmeldungen_v5", row['page_title'])
+                    row['page_title']= self.parent.feedbackPageForTitle(row['page_title']);
                     resultQueue.put(TlgResult(self.wiki, row, self.parent))
             
     
@@ -41,8 +52,9 @@ class FAFT(FlawFilter):
         except MySQLdb.ProgrammingError as ex:
             return False
         return True
-
+    
     def createActions(self, language, pages, actionQueue):
+        self.language= language
         if not self.hasAFTData(language):
             raise InputValidationError(_('Article Feedback data is not yet available for the selected language.'))
         actionQueue.put(self.Action(self, language, pages))
