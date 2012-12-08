@@ -16,7 +16,7 @@ class FAFT(FlawFilter):
                                  "en": "Special:ArticleFeedbackv5", 
         }
         if self.language in feedback_translations:
-            return "%s/%s" % ("Spezial:Artikelrückmeldungen_v5", title)
+            return "%s/%s" % (feedback_translations[self.language], title)
         return title;
     
     # our action class
