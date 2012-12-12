@@ -286,7 +286,7 @@ def makeHelpPage():
             on the first category, any '+' operator is ignored, while a '-' operator yields an empty result.
         * querydepth=&lt;integer> -- recursion depth for the search. applied to each category.
         * flaws=&lt;string> -- space-separated list of filters ("listflaws" for possible filters). 
-        * format=&lt;output format> -- select output format. possible values are 
+        * format=&lt;string> -- select output format. possible values are 
             * html - HTML format mostly used for debugging
             * json - one JSON dict per line
             * wikitext.
