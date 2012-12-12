@@ -262,6 +262,18 @@ def Wikify(tlgResult, action, chunked, params, showThreads, tlg):
 
 
 def makeHelpPage():
+    import gp
+    gp= gp.client.Connection( gp.client.ClientTransport(config['graphserv-host'], config['graphserv-port']) )
+    try:
+        gp.connect()
+        runningGraphs= ''
+        for i in gp.capture_list_graphs():
+            if 'wiki' in i[0]:
+                if len(runningGraphs): runningGraphs+= ', '
+                runningGraphs+= i[0].split('wiki')[0]
+    except Exception as ex:
+        runningGraphs= str(ex)
+    
     class htmlfoo(FileLikeList):
         def __init__(self):
             FileLikeList.__init__(self)
@@ -278,7 +290,8 @@ def makeHelpPage():
 * action
     * action=listflaws -- list available flaw filters
     * action=query -- query CatGraph for categories and filter articles
-        * lang=&lt;string> -- wiki language ('de', 'en', 'fr')
+        * lang=&lt;string> -- wiki language code ('de', 'en').
+            graphcore instances are currently running for <a href="http://ortelius.toolserver.org:8090/list-graphs">""" + str(runningGraphs) + """</a>.
         * query=&lt;string> -- execute a search-engine style query string using CatGraph. 
             separate category names by semicolons. operators '+' (intersection) and '-' (difference) are supported.
             e. g. "Biology; Art; +Apes; -Cats" searches for everything in Biology or Art and in Apes, not in Cats
