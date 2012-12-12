@@ -27,7 +27,7 @@ class CatGraphInterface:
     
     ## execute a search engine-style string
     #  operators '+' (intersection) and '-' (difference) are supported
-    #  e. g. "Biology Art +Apes -Cats" searches for everything in Biology or Art and in Apes, not in Cats
+    #  e. g. "Biology; Art; +Apes; -Cats" searches for everything in Biology or Art and in Apes, not in Cats
     #  search parameters are evaluated from left to right, i.e. results might differ depending on order.
     #  on the first category, any '+' operator is ignored, while a '-' operator yields an empty result.
     #  the "depth" parameter is applied to each category.

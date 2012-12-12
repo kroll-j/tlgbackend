@@ -288,8 +288,15 @@ def makeHelpPage():
         * flaws=&lt;string> -- space-separated list of filters ("listflaws" for possible filters). 
         * format=&lt;string> -- select output format. possible values are 
             * html - HTML format mostly used for debugging
-            * json - one JSON dict per line
-            * wikitext.
+            * json - one JSON dict per line. possible content:
+                * {"status": "localized human-readable text"}
+                    just some status text to show what's going on
+                * {"progress": "processed/total"}
+                    number of total and already processed actions. can be used to show some form of progress bar
+                * {"flaws": ["filter1", "filter2"], "page": {"page_title": "title", "page_id": int, "page_namespace": 0, .... }}
+                    filtered page result. "flaws" lists one or more filters which identified the page, "page" is the complete 
+                    entry from the <a href="http://www.mediawiki.org/wiki/Page_table">page table</a>.
+            * wikitext - this format can be used to copy to user pages or similar.
 * i18n=&lt;language code> -- select output language ('de', 'en')
 * chunked=true -- if specified, use chunked transfer encoding. for creating dynamic progress bars and the like.
 * showthreads=true -- debug output; show what threads are doing. use with format=html + chunked=true.
@@ -357,6 +364,8 @@ def generator_app(environ, start_response):
             queryString= getParam(params, 'query')
             queryDepth= getParam(params, 'querydepth', 1)
             flaws= getParam(params, 'flaws')
+            if lang is None or queryString is None or flaws is None:
+                raise InputValidationError("parameters lang, query, and flaws must be given")
             tlgResult= tlg.generateQuery(lang=lang, queryString=queryString, queryDepth=queryDepth, flaws=flaws)
         elif action=='listflaws':
             tlgResult= (tlg.getFlawList(),)
