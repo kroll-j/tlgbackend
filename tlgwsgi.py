@@ -280,8 +280,8 @@ def makeHelpPage():
     * action=query -- query CatGraph for categories and filter articles
         * lang=&lt;string> -- wiki language ('de', 'en', 'fr')
         * query=&lt;string> -- execute a search-engine style query string using CatGraph. 
-            operators '+' (intersection) and '-' (difference) are supported
-            e. g. "Biology Art +Apes -Cats" searches for everything in Biology or Art and in Apes, not in Cats
+            separate category names by semicolons. operators '+' (intersection) and '-' (difference) are supported.
+            e. g. "Biology; Art; +Apes; -Cats" searches for everything in Biology or Art and in Apes, not in Cats
             search parameters are evaluated from left to right, i.e. results might differ depending on order.
             on the first category, any '+' operator is ignored, while a '-' operator yields an empty result.
         * querydepth=&lt;integer> -- recursion depth for the search. applied to each category.
@@ -292,7 +292,7 @@ def makeHelpPage():
             * wikitext.
 * i18n=&lt;language code> -- select output language ('de', 'en')
 * chunked=true -- if specified, use chunked transfer encoding. for creating dynamic progress bars and the like.
-* showthreads=true -- debug output; show what threads are doing. use with html format + chunked=true.
+* showthreads=true -- debug output; show what threads are doing. use with format=html + chunked=true.
 </pre>""";
 
     html.write(helptext)
