@@ -46,7 +46,8 @@ def parseCGIargs(environ):
     if 'QUERY_STRING' in environ:
         for param in environ['QUERY_STRING'].split('&'):
             blah= param.split('=')
-            params[blah[0]]= unquote(blah[1])
+            if len(blah)>1:
+                params[blah[0]]= unquote(blah[1])
     return params
 
 def getParam(params, name, default= None):
@@ -258,12 +259,60 @@ def Wikify(tlgResult, action, chunked, params, showThreads, tlg):
         
     if results==0:
         yield 'No Results.\n'
+
+
+def makeHelpPage():
+    class htmlfoo(FileLikeList):
+        def __init__(self):
+            FileLikeList.__init__(self)
+            self.currentTableType= None
+
+    header= '<html><head><title>TLG backend</title></head><body>'
+    footer= '</body></html>'
+
+    html= htmlfoo()
+    
+    html.write(header)
+
+    helptext= """TLG backend parameters:<pre>
+* action
+    * action=listflaws -- list available flaw filters
+    * action=query -- query CatGraph for categories and filter articles
+        * lang=&lt;string> -- wiki language ('de', 'en', 'fr')
+        * query=&lt;string> -- execute a search-engine style query string using CatGraph. 
+            operators '+' (intersection) and '-' (difference) are supported
+            e. g. "Biology Art +Apes -Cats" searches for everything in Biology or Art and in Apes, not in Cats
+            search parameters are evaluated from left to right, i.e. results might differ depending on order.
+            on the first category, any '+' operator is ignored, while a '-' operator yields an empty result.
+        * querydepth=&lt;integer> -- recursion depth for the search. applied to each category.
+        * flaws=&lt;string> -- space-separated list of filters ("listflaws" for possible filters). 
+        * format=&lt;output format> -- select output format. possible values are 
+            * html - HTML format mostly used for debugging
+            * json - one JSON dict per line
+            * wikitext.
+* i18n=&lt;language code> -- select output language ('de', 'en')
+* chunked=true -- if specified, use chunked transfer encoding. for creating dynamic progress bars and the like.
+* showthreads=true -- debug output; show what threads are doing. use with html format + chunked=true.
+</pre>""";
+
+    html.write(helptext)
+
+    html.write(footer)
+    
+    while len(html.values)>0:
+        yield html.values.pop(0) + '\n'
+    
+    
     
 
 ############## wsgi generator function
 def generator_app(environ, start_response):
     try:
         params= parseCGIargs(environ)
+        
+        if len(params)==0:
+            start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8')])
+            return makeHelpPage()
         
         mailto= getParam(params, 'mailto', None)
         chunked= getBoolParam(params, 'chunked', False) and not bool(mailto)
@@ -371,7 +420,8 @@ if __name__ == "__main__":
     except KeyError:
         # started from non-cgi context, create request string for testing.
         #~ os.environ['QUERY_STRING']= 'action=query&format=html&chunked=true&lang=de&query=Sport&querydepth=2&flaws=NoImages%20Small'
-        os.environ['QUERY_STRING']= 'action=query&format=wikitext&lang=de&query=Sport&querydepth=2&flaws=Small&wikipage=Benutzer:Tlgbackend/Foo'
+        #~ os.environ['QUERY_STRING']= 'action=query&format=wikitext&lang=de&query=Sport&querydepth=2&flaws=Small'
+        os.environ['QUERY_STRING']= ''
     WSGIServer(generator_app).run()
 
 
