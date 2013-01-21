@@ -39,7 +39,7 @@ class FAFT(FlawFilter):
                 cur.execute('SELECT * FROM page WHERE page_id IN (%s) AND page_namespace=0' % format_strings, pageIDs)
                 for row in cur.fetchall():
                     #~ row['page_title']= "%s/%s" % ("Spezial:Artikelrückmeldungen_v5", row['page_title'])
-                    row['page_title']= self.parent.feedbackPageForTitle(row['page_title'])
+                    #~ row['page_title']= self.parent.feedbackPageForTitle(row['page_title'])
                     afrr= afrrByID[row['page_id']]
                     filtertitle= _('%s:%3d%% positive of %d') % (self.parent.shortname, afrr['arr_total']*100/afrr['arr_count'], afrr['arr_count'])
                     resultQueue.put(TlgResult(self.wiki, row, self.parent, filtertitle))
