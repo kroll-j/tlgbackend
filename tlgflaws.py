@@ -67,10 +67,13 @@ class TlgResult:
     #  @param wiki the name of the wiki this page was found in
     #  @param page a dict containing the full page result page_title, page_id etc.
     #  @param FlawFilter filter class which found this page
-    def __init__(self, wiki, page, FlawFilter):
+    #  @param filtertitle title of the filter to be displayed in the result list. can be changed to override sorting.
+    def __init__(self, wiki, page, FlawFilter, filtertitle= None):
         self.wiki= wiki
         self.page= page
         self.FlawFilter= FlawFilter
+        if filtertitle is None: self.filtertitle= FlawFilter.shortname
+        else: self.filtertitle= filtertitle
 
 
 ## an example flaw tester which does nothing

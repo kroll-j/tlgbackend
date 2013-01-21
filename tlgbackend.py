@@ -273,17 +273,6 @@ class TaskListGenerator:
             # signal worker threads that they can run
             self.runEvent.set()
             
-            def descriptiveETA(numActions, actionsLeft, eta):
-                if actionsLeft>1000:
-                    return _("Consider using the email option for this")
-                if actionsLeft>500:
-                    return _("Why don't you go outside for a bit?")
-                if actionsLeft>250:
-                    return _("Why don't you get another coffee?")
-                if actionsLeft>50:
-                    return _('Just a little more patience')
-                return _('Almost done')
-            
             # process results as they are created
             actionsProcessed= 0 #numActions-self.actionQueue.qsize()
             while self.getActiveWorkerCount()>0:
@@ -344,11 +333,12 @@ class TaskListGenerator:
         key= '%s:%d' % (result.wiki, result.page['page_id'])
         try:
             # append the name of the flaw to the list of flaws for this article 
-            self.mergedResults[key]['flaws'].append(result.FlawFilter.shortname)
+            #~ self.mergedResults[key]['flaws'].append(result.FlawFilter.shortname)
+            self.mergedResults[key]['flaws'].append(result.filtertitle)
             self.mergedResults[key]['flaws'].sort()
         except KeyError:
             # create a new article in the result set
-            self.mergedResults[key]= { 'page': result.page, 'flaws': [result.FlawFilter.shortname] }
+            self.mergedResults[key]= { 'page': result.page, 'flaws': [result.filtertitle] }
     
     def processWorkerException(self, exc_info):
         raise exc_info[0], exc_info[1], exc_info[2] # re-throw exception from worker thread
