@@ -6,8 +6,8 @@ from utils import *
 
 ## 
 class FAFT(FlawFilter):
-    shortname= 'ArticleFeedback'
-    label= _('Article Feedback')
+    shortname= 'ArticleFeedbackRatings'
+    label= _('Article Ratings')
     description= _('Less than 60% of readers found what they are looking for, according to Article Feedback Tool v5.')
     
     def feedbackPageForTitle(self, title):
@@ -41,7 +41,7 @@ class FAFT(FlawFilter):
                     #~ row['page_title']= "%s/%s" % ("Spezial:Artikelrückmeldungen_v5", row['page_title'])
                     row['page_title']= self.parent.feedbackPageForTitle(row['page_title'])
                     afrr= afrrByID[row['page_id']]
-                    filtertitle= '%s:%3d%% (%d total)' % (self.parent.shortname, afrr['arr_total']*100/afrr['arr_count'], afrr['arr_count'])
+                    filtertitle= _('%s:%3d%% positive of %d') % (self.parent.shortname, afrr['arr_total']*100/afrr['arr_count'], afrr['arr_count'])
                     resultQueue.put(TlgResult(self.wiki, row, self.parent, filtertitle))
             
     
