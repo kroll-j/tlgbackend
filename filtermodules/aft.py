@@ -29,7 +29,7 @@ class FAFT(FlawFilter):
             pageIDs= []
             afrrByID= {}
             for row in aftResult:
-                foundRatio= row['arr_total'] / row['arr_count']
+                foundRatio= float(row['arr_total']) / row['arr_count']
                 if foundRatio < 0.6:
                     pageIDs.append(row['arr_page_id'])
                     afrrByID[row['arr_page_id']]= row
@@ -41,7 +41,7 @@ class FAFT(FlawFilter):
                     #~ row['page_title']= "%s/%s" % ("Spezial:Artikelrückmeldungen_v5", row['page_title'])
                     #~ row['page_title']= self.parent.feedbackPageForTitle(row['page_title'])
                     afrr= afrrByID[row['page_id']]
-                    filtertitle= _('%s:%3d%% positive of %d') % (self.parent.shortname, afrr['arr_total']*100/afrr['arr_count'], afrr['arr_count'])
+                    filtertitle= _('%s:%3d%% positive of %d') % (self.parent.shortname, int(afrr['arr_total'])*100/int(afrr['arr_count']), afrr['arr_count'])
                     resultQueue.put(TlgResult(self.wiki, row, self.parent, filtertitle))
             
     
