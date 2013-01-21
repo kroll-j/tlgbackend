@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tlgbackend 0.1\n"
-"POT-Creation-Date: 2012-11-18 17:42+CET\n"
+"POT-Creation-Date: 2013-01-21 17:46+CET\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,16 +17,22 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 
 #: filtermodules/aft.py:10
-msgid "Article Feedback"
-msgstr "Artikel-Feedback"
+msgid "Article Ratings"
+msgstr "Artikelbewertungen"
 
 #: filtermodules/aft.py:11
 msgid ""
 "Less than 60% of readers found what they are looking for, according to "
 "Article Feedback Tool v5."
-msgstr "Weniger als 60% der Leser haben gefunden was sie suchten, nach Angaben aus dem Artikel-Feedback-Tool v5."
+msgstr ""
+"Weniger als 60% der Leser haben gefunden was sie suchten, nach Angaben aus "
+"dem Artikel-Feedback-Tool v5."
 
-#: filtermodules/aft.py:47
+#: filtermodules/aft.py:44
+msgid "%s:%3d%% positive of %d"
+msgstr "%s:%3d%% positiv von %d"
+
+#: filtermodules/aft.py:63
 msgid "Article Feedback data is not yet available for the selected language."
 msgstr "Artikel-Feedback ist für die gewählte Sprache noch nicht verfügbar."
 
@@ -70,7 +76,7 @@ msgstr "Fehlende Quellen/Referenzen-Vorlage"
 msgid "Page has 'missing sources' template set."
 msgstr "Seite hat 'Fehlende Quellen'-Vorlage gesetzt."
 
-#: filtermodules/miscfilters.py:82 filtermodules/miscfilters.py:105
+#: filtermodules/miscfilters.py:82 filtermodules/miscfilters.py:106
 msgid "Completeness"
 msgstr "Vollständigkeit"
 
@@ -98,47 +104,47 @@ msgstr "Allgemeinverständlichkeit-Vorlage"
 msgid "Page has 'too technical' template set."
 msgstr "Seite hat 'Allgemeinverständlichkeit'-Vorlage gesetzt."
 
-#: filtermodules/miscfilters.py:105
+#: filtermodules/miscfilters.py:106
 msgid "Globalize Template"
 msgstr "Staatslastig-Vorlage"
 
-#: filtermodules/miscfilters.py:105
+#: filtermodules/miscfilters.py:106
 msgid "Page has 'globalize' template set."
 msgstr "Seite hat 'Staatslastig'-Vorlage gesetzt."
 
-#: filtermodules/miscfilters.py:175
+#: filtermodules/miscfilters.py:176
 msgid "Small Pages"
 msgstr "Kleine Seiten"
 
-#: filtermodules/miscfilters.py:176
+#: filtermodules/miscfilters.py:177
 msgid "Page is very small, relative to mean page size in result set."
 msgstr ""
 "Seite ist sehr klein, verglichen mit der Durchschnitts-Seitengröße im "
 "Suchergebnis."
 
-#: filtermodules/miscfilters.py:203
+#: filtermodules/miscfilters.py:204
 msgid "Large Pages"
 msgstr "Große Seiten"
 
-#: filtermodules/miscfilters.py:204
+#: filtermodules/miscfilters.py:205
 msgid "Page is very large, relative to mean page size in result set."
 msgstr ""
 "Seite ist sehr groß, verglichen mit der Durchschnitts-Seitengröße im "
 "Suchergebnis."
 
-#: filtermodules/miscfilters.py:230
+#: filtermodules/miscfilters.py:231
 msgid "No Images"
 msgstr "Keine Bilder"
 
-#: filtermodules/miscfilters.py:231
+#: filtermodules/miscfilters.py:232
 msgid "Article has no image links."
 msgstr "Artikel verlinkt keine Bilder."
 
-#: filtermodules/miscfilters.py:263
+#: filtermodules/miscfilters.py:264
 msgid "No Links to this page"
 msgstr "Keine Links zu dieser Seite"
 
-#: filtermodules/miscfilters.py:264
+#: filtermodules/miscfilters.py:265
 msgid "Article is not linked from any other article."
 msgstr "Artikel wird von keinem anderen Artikel verlinkt."
 
@@ -170,7 +176,7 @@ msgstr "Seite im Artikel-Namensraum nicht gefunden: %s"
 msgid "invalid query type: '%s'"
 msgstr "Ungültiger Anfragen-Typ: '%s'"
 
-#: tlgbackend.py:200 tlgcatgraph.py:42
+#: tlgbackend.py:200 tlgcatgraph.py:44
 msgid "Empty category name specified."
 msgstr "Leerer Kategoriename angegeben."
 
@@ -190,47 +196,28 @@ msgstr "Suche lieferte %d Ergebnisse zurück."
 msgid "%d pages to test, %d actions to process"
 msgstr "%d Seiten zu testen, %d Aktionen auszuführen"
 
-#: tlgbackend.py:278
-msgid "Consider using the email option for this"
-msgstr ""
-
-#: tlgbackend.py:280
-msgid "Why don't you go outside for a bit?"
-msgstr ""
-
-#: tlgbackend.py:282
-msgid "Why don't you get another coffee?"
-msgstr ""
-
-#: tlgbackend.py:284
-msgid "Just a little more patience"
-msgstr ""
-
-#: tlgbackend.py:285
-msgid "Almost done"
-msgstr ""
-
-#: tlgbackend.py:297
+#: tlgbackend.py:286
 msgid "%d of %d actions processed"
 msgstr "%d von %d Aktionen verarbeitet"
 
-#: tlgbackend.py:308
+#: tlgbackend.py:297
 msgid ""
 "%d pages tested in %d actions. %d pages in result set. processing took %.1f "
 "seconds. please wait while the result list is being transferred."
 msgstr ""
 "%d Seiten getestet in %d Aktionen. %d Seiten in der Ergebnismenge. "
-"Verarbeitung dauerte %.1f Sekunden. Ergebnisliste wird übertragen, bitte warten."
+"Verarbeitung dauerte %.1f Sekunden. Ergebnisliste wird übertragen, bitte "
+"warten."
 
-#: tlgbackend.py:322
+#: tlgbackend.py:311
 msgid "Input validation failed"
 msgstr "Fehlerhafte Eingabe"
 
-#: tlgcatgraph.py:24
+#: tlgcatgraph.py:26
 msgid "Category %s not found in database %s."
 msgstr "Kann Kategorie %s nicht in Datenbank %s finden."
 
-#: tlgwsgi.py:76
+#: tlgwsgi.py:77
 msgid ""
 "Hi!\n"
 "\n"
@@ -257,7 +244,7 @@ msgstr ""
 "Arbeitsliste erfolgreich erstellt. Eingabe war:\n"
 "\n"
 
-#: tlgwsgi.py:85
+#: tlgwsgi.py:86
 msgid ""
 "\n"
 "\n"
@@ -273,21 +260,24 @@ msgstr ""
 "Emsige Grüße, \n"
 "Der Freundliche TLG-Roboter. \n"
 
-#: tlgwsgi.py:109
+#: tlgwsgi.py:110
 msgid "Filters"
 msgstr "Filter"
 
-#: tlgwsgi.py:110
+#: tlgwsgi.py:111
 msgid "Page"
 msgstr "Seite"
 
-#: wiki.py:60
+#: wiki.py:61
 msgid "= Task List =\n"
 msgstr "= Arbeitsliste =\n"
 
-#: wiki.py:61
+#: wiki.py:62
 msgid "Categories: %s, Search depth: %s, Selected filters: %s\n"
 msgstr "Kategorien: %s, Suchtiefe: %s, Gewählte Filter: %s\n"
+
+#~ msgid "Article Feedback"
+#~ msgstr "Artikel-Feedback"
 
 #~ msgid "Returns every page."
 #~ msgstr "Gibt jede Seite zurück."

@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tlgbackend 0.1\n"
-"POT-Creation-Date: 2012-11-18 17:42+CET\n"
+"POT-Creation-Date: 2012-11-18 17:48+CET\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -152,7 +152,7 @@ msgid "Watchlist syntax is: wl%cUSERNAME,TOKEN"
 msgstr ""
 
 #: tlgbackend.py:186
-msgid "Use: 'title%c'PAGETITLE"
+msgid "Use: 'title%cPAGETITLE'"
 msgstr ""
 
 #: tlgbackend.py:189
