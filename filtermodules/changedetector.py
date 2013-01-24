@@ -19,17 +19,24 @@ class FChangeDetector(FlawFilter):
                 params.extend(self.pageIDs)
                 params.append(date)
                 # get the changedetector identifiers of all pages which were NOT changed that day
+                # TODO: which language are we looking for?!
                 cur.execute('SELECT page_id,identifier FROM noticed_article WHERE page_id IN (%s) AND day = %%s AND detected_by_cta=0 AND detected_by_cts=0 AND detected_by_mdf=0' % format_strings, params)
                 unchanged= cur.fetchall()
                 if len(unchanged):
                     # for each unchanged page, check whether the page was changed in other languages on that day.
                     for row in unchanged:
                         #~ dprint(1, 'unchanged: %s' % str(row))
-                        cur.execute('SELECT identifier FROM changed_article WHERE identifier=%s AND day=%s AND only_major!=0 AND non_bot!=0 AND many_user!=0 GROUP BY language', (row['identifier'], date))
+                        cur.execute('SELECT identifier,language FROM changed_article WHERE identifier=%s AND day=%s AND only_major!=0 AND non_bot!=0 AND many_user!=0 GROUP BY language', (row['identifier'], date))
                         res= cur.fetchall()
                         if len(res) > 5:    # xxx this value depends on the setting in change.ini 
                             #~ dprint(1, 'ident: %s' % str(res))
-                            resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, row['page_id'])[0], self.parent))
+                            # fmt= ', '.join(['%s'] * len(res))
+                            # info= fmt % map(lambda x: x['language'], res) # "not enough arguments for format string", why?!
+                            info= ''
+                            for s in map(lambda x: x['language'], res):
+                                info+= ' '
+                                info+= s
+                            resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, row['page_id'])[0], self.parent, infotext= 'changed in: %s' % info))
 
     def getPreferredPagesPerAction(self):
         return 100

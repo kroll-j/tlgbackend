@@ -188,7 +188,7 @@ class FSmall(FPageSizeBase):
                     #~ if delta > self.stddev*8:
                         #~ resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, i)[0], self.parent))
                     if pageLengths[i] < threshold:
-                        resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, i)[0], self.parent))
+                        resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, i)[0], self.parent, '%d bytes' % pageLengths[i], sortkey= pageLengths[i]))
 
     def createActions(self, language, pages, actionQueue):
         actionQueue.put(FPageSizeBase.Action(self, language, pages))
@@ -212,7 +212,7 @@ class FLarge(FPageSizeBase):
             for i in pageLengths:
                 delta= pageLengths[i]-self.avg
                 if delta > self.stddev*8:
-                    resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, i)[0], self.parent))
+                    resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, i)[0], self.parent, infotext= '%d bytes' % pageLengths[i], sortkey= -pageLengths[i]))
 
     def createActions(self, language, pages, actionQueue):
         actionQueue.put(FPageSizeBase.Action(self, language, pages))

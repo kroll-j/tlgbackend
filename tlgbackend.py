@@ -290,9 +290,18 @@ class TaskListGenerator:
             # process the last results
             self.drainResultQueue()
             
-            # sort by length of flaw list, flaw list, and page title
-            sortedResults= sorted(self.mergedResults, key= lambda result: \
-                (-len(self.mergedResults[result]['flaws']), sorted(self.mergedResults[result]['flaws']), self.mergedResults[result]['page']['page_title']))
+            #~ # sort by length of flaw list, flaw list, and page title
+            #~ sortedResults= sorted(self.mergedResults, key= lambda result: \
+                #~ (-len(self.mergedResults[result]['flaws']), sorted(self.mergedResults[result]['flaws']), self.mergedResults[result]['page']['page_title']))
+            
+            # sort
+            sortedResults= sorted(self.mergedResults, key= lambda i: \
+                (-len(self.mergedResults[i]),                                                           # length of flaw list, 
+                 sorted( map(lambda x: x.FlawFilter.shortname, self.mergedResults[i]) ),                # flaw list (alphabetical), 
+                 map( lambda x: x[1], sorted( map(lambda x: (x.FlawFilter.shortname, x.sortkey), 
+                         self.mergedResults[i]), 
+                         key= lambda x: x[1]) ),  # sort key,  
+                 self.mergedResults[i][0].page['page_title']))                                          # page title (alphabetical)
             
             yield self.mkStatus(_('%d pages tested in %d actions. %d pages in result set. processing took %.1f seconds. please wait while the result list is being transferred.') % \
                 (len(self.pagesToTest), numActions, len(self.mergedResults), time.time()-begin))
@@ -302,10 +311,11 @@ class TaskListGenerator:
             
             # print results
             for i in sortedResults:
-                res= self.mergedResults[i]
-                if 'page' in res:
-                    res['page']['page_title']= res['page']['page_title'].replace('_', ' ')
-                yield json.dumps(res)
+                result= self.mergedResults[i]
+                d= { 'page': result[0].page,         #['page_title'].replace('_', ' '), 
+                     'flaws': map( lambda res: { 'name': res.FlawFilter.shortname, 'infotext': res.infotext, 'done': False }, result )
+                    }
+                yield json.dumps(d)
         
         except InputValidationError as e:
             yield '{"exception": "%s:\\n%s"}' % (_('Input validation failed'), str(e))
@@ -329,7 +339,7 @@ class TaskListGenerator:
             pagesLeft-= (pagesLeft-start)
             
     
-    def processResult(self, result):
+    def processResultOld(self, result):
         key= '%s:%d' % (result.wiki, result.page['page_id'])
         try:
             # append the name of the flaw to the list of flaws for this article 
@@ -339,6 +349,16 @@ class TaskListGenerator:
         except KeyError:
             # create a new article in the result set
             self.mergedResults[key]= { 'page': result.page, 'flaws': [result.filtertitle] }
+    
+    def processResult(self, result):
+        key= '%s:%d' % (result.wiki, result.page['page_id'])
+        try:
+            # append the name of the flaw to the list of flaws for this article 
+            self.mergedResults[key].append(result)
+            self.mergedResults[key].sort(key= lambda x: x.FlawFilter.shortname)
+        except KeyError:
+            # create a new article in the result set
+            self.mergedResults[key]= [ result ]
     
     def processWorkerException(self, exc_info):
         raise exc_info[0], exc_info[1], exc_info[2] # re-throw exception from worker thread
