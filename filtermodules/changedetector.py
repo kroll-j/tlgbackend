@@ -17,10 +17,10 @@ class FChangeDetector(FlawFilter):
                 date= time.strftime( '%Y%m%d', time.localtime(time.time()-60*60*24) )
                 params= []
                 params.extend(self.pageIDs)
+                params.append(self.language)
                 params.append(date)
                 # get the changedetector identifiers of all pages which were NOT changed that day
-                # TODO: which language are we looking for?!
-                cur.execute('SELECT page_id,identifier FROM noticed_article WHERE page_id IN (%s) AND day = %%s AND detected_by_cta=0 AND detected_by_cts=0 AND detected_by_mdf=0' % format_strings, params)
+                cur.execute('SELECT page_id,identifier FROM noticed_article WHERE page_id IN (%s) AND language = %%s AND day = %%s AND detected_by_cta=0 AND detected_by_cts=0 AND detected_by_mdf=0' % format_strings, params)
                 unchanged= cur.fetchall()
                 if len(unchanged):
                     # for each unchanged page, check whether the page was changed in other languages on that day.
@@ -41,8 +41,8 @@ class FChangeDetector(FlawFilter):
     def getPreferredPagesPerAction(self):
         return 100
 
-    def createActions(self, wiki, pages, actionQueue):
-        actionQueue.put(self.Action(self, wiki, pages))
+    def createActions(self, language, pages, actionQueue):
+        actionQueue.put(self.Action(self, language, pages))
 
 FlawFilters.register(FChangeDetector)
 
