@@ -387,7 +387,7 @@ class TaskListGenerator:
     def markAsDone(self, pageID, pageTitle, pageRev, filterName, unmark):
         from getpass import getuser
         import MySQLdb
-        dbname= 'u_%s_tlgbackend_u' % getuser()
+        dbname= 'p_%s_tlgbackend' % getuser()
         tablename= 'marked_as_done'
         conn= MySQLdb.connect(read_default_file=os.path.expanduser('~')+"/.my.cnf", host='sql', use_unicode=False, cursorclass=MySQLdb.cursors.DictCursor)
         cursor= conn.cursor()
