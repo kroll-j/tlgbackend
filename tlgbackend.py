@@ -355,7 +355,7 @@ class TaskListGenerator:
 
         # todo: maybe cache results and check for 'done' marks every N results
         marked= False
-        with TempCursor('sql', 'u_%s_tlgbackend_u' % getuser()) as cursor:
+        with TempCursor('sql', 'p_%s_tlgbackend' % getuser()) as cursor:
             cursor.execute("SELECT * FROM marked_as_done WHERE filter_name = %s AND page_latest = '%s'", (result.FlawFilter.shortname, result.page['page_latest']))
             if cursor.fetchone()!=None:
                 marked= True
