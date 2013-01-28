@@ -356,9 +356,13 @@ class TaskListGenerator:
         # todo: maybe cache results and check for 'done' marks every N results
         marked= False
         with TempCursor('sql', 'p_%s_tlgbackend' % getuser()) as cursor:
-            cursor.execute("SELECT * FROM marked_as_done WHERE filter_name = %s AND page_latest = '%s'", (result.FlawFilter.shortname, result.page['page_latest']))
-            if cursor.fetchone()!=None:
-                marked= True
+            try:
+                cursor.execute("SELECT * FROM marked_as_done WHERE filter_name = %s AND page_latest = '%s'", (result.FlawFilter.shortname, result.page['page_latest']))
+                if cursor.fetchone()!=None:
+                    marked= True
+            except MySQLdb.ProgrammingError:
+                # table doesn't exist (yet)
+                pass
         
         if marked: return   # maybe optionally return result with a special marker, later
         
