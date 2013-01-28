@@ -351,13 +351,22 @@ class TaskListGenerator:
             self.mergedResults[key]= { 'page': result.page, 'flaws': [result.filtertitle] }
     
     def processResult(self, result):
+        from getpass import getuser
+
+        # todo: maybe cache results and check for 'done' marks every N results
+        marked= False
+        with TempCursor('sql', 'u_%s_tlgbackend_u' % getuser()) as cursor:
+            cursor.execute("SELECT * FROM marked_as_done WHERE filter_name = %s AND page_latest = '%s'", (result.FlawFilter.shortname, result.page['page_latest']))
+            if cursor.fetchone()!=None:
+                marked= True
+        
+        if marked: return   # maybe optionally return result with a special marker, later
+        
         key= '%s:%d' % (result.wiki, result.page['page_id'])
         try:
-            # append the name of the flaw to the list of flaws for this article 
             self.mergedResults[key].append(result)
             self.mergedResults[key].sort(key= lambda x: x.FlawFilter.shortname)
         except KeyError:
-            # create a new article in the result set
             self.mergedResults[key]= [ result ]
     
     def processWorkerException(self, exc_info):
@@ -375,7 +384,34 @@ class TaskListGenerator:
             self.workerThreads.append(WorkerThread(self.actionQueue, self.resultQueue, self.wiki, self.runEvent))
             self.workerThreads[-1].start()
 
-
+    def markAsDone(self, pageID, pageTitle, pageRev, filterName, unmark):
+        from getpass import getuser
+        import MySQLdb
+        dbname= 'u_%s_tlgbackend_u' % getuser()
+        tablename= 'marked_as_done'
+        conn= MySQLdb.connect(read_default_file=os.path.expanduser('~')+"/.my.cnf", host='sql', use_unicode=False, cursorclass=MySQLdb.cursors.DictCursor)
+        cursor= conn.cursor()
+        cursor.execute('CREATE DATABASE IF NOT EXISTS %s' % conn.escape_string(dbname))
+        cursor.execute('USE %s' % conn.escape_string(dbname))
+        cursor.execute("""CREATE TABLE IF NOT EXISTS %s (
+            page_id INT(10) UNSIGNED,
+            page_title VARBINARY(255),
+            page_latest INT(10) UNSIGNED,
+            filter_name VARBINARY(255),
+            UNIQUE KEY (page_latest, filter_name),
+            KEY (page_id),
+            KEY (page_title),
+            KEY (page_latest),
+            KEY (filter_name))""" % tablename)
+        if unmark:
+            cursor.execute('DELETE FROM ' + tablename + " WHERE page_latest = %s AND filter_name = %s", 
+                (pageRev, filterName))
+        else:
+            cursor.execute('REPLACE INTO ' + tablename + ' VALUES (%s, %s, %s, %s)', 
+                (pageID, pageTitle, pageRev, filterName))
+        conn.commit()
+        cursor.close()
+        conn.close()
 
 
 class test:

@@ -382,6 +382,19 @@ def generator_app(environ, start_response):
             tlgResult= tlg.generateQuery(lang=lang, queryString=queryString, queryDepth=queryDepth, flaws=flaws)
         elif action=='listflaws':
             tlgResult= (tlg.getFlawList(),)
+        elif action=='markasdone':
+            page_id= getParam(params, 'page_id')
+            page_title= getParam(params, 'page_title')
+            page_latest= getParam(params, 'page_latest')
+            filter_name= getParam(params, 'filter_name')
+            unmark= getParam(params, 'unmark', False)
+            if page_id==None or page_title==None or page_latest==None or filter_name==None:
+                raise InputValidationError(_('page_id, page_title, page_latest and filter_name parameters are required'))
+            
+            tlg.markAsDone(page_id, page_title, page_latest, filter_name, unmark)
+            start_response('200 OK', [('Content-Type', 'text/plain; charset=utf-8')])
+            return ( '{ "status": "ok" }', )
+            
         
         if format=='html':
             # output something html-ish
