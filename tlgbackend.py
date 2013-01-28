@@ -350,19 +350,24 @@ class TaskListGenerator:
             # create a new article in the result set
             self.mergedResults[key]= { 'page': result.page, 'flaws': [result.filtertitle] }
     
-    def processResult(self, result):
+    #@cache_region(disk24h)
+    def getMarkDBname(self):
         from getpass import getuser
-
+        if 'project' in os.path.expanduser('~'): prefix= 'p_'
+        else: prefix= 'u_'
+        return '%s%s_tlgbackend' % (prefix, getuser())
+    
+    def processResult(self, result):
         # todo: maybe cache results and check for 'done' marks every N results
         marked= False
-        with TempCursor('sql', 'p_%s_tlgbackend' % getuser()) as cursor:
-            try:
+        try:
+            with TempCursor('sql', self.getMarkDBname()) as cursor:
                 cursor.execute("SELECT * FROM marked_as_done WHERE filter_name = %s AND page_latest = '%s'", (result.FlawFilter.shortname, result.page['page_latest']))
                 if cursor.fetchone()!=None:
                     marked= True
-            except MySQLdb.ProgrammingError:
-                # table doesn't exist (yet)
-                pass
+        except:
+            # table or db doesn't exist (yet)
+            pass
         
         if marked: return   # maybe optionally return result with a special marker, later
         
@@ -391,7 +396,7 @@ class TaskListGenerator:
     def markAsDone(self, pageID, pageTitle, pageRev, filterName, unmark):
         from getpass import getuser
         import MySQLdb
-        dbname= 'p_%s_tlgbackend' % getuser()
+        dbname= self.getMarkDBname()
         tablename= 'marked_as_done'
         conn= MySQLdb.connect(read_default_file=os.path.expanduser('~')+"/.my.cnf", host='sql', use_unicode=False, cursorclass=MySQLdb.cursors.DictCursor)
         cursor= conn.cursor()
