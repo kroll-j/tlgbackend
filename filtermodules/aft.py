@@ -41,8 +41,9 @@ class FAFT(FlawFilter):
                     #~ row['page_title']= "%s/%s" % ("Spezial:Artikelrückmeldungen_v5", row['page_title'])
                     #~ row['page_title']= self.parent.feedbackPageForTitle(row['page_title'])
                     afrr= afrrByID[row['page_id']]
-                    filtertitle= _('%d%% positive of %d') % (int(afrr['arr_total'])*100/int(afrr['arr_count']), afrr['arr_count'])
-                    resultQueue.put(TlgResult(self.wiki, row, self.parent, filtertitle))
+                    percentPositive= int(afrr['arr_total'])*100/int(afrr['arr_count'])
+                    filtertitle= _('%d%% positive of %d') % (percentPositive, afrr['arr_count'])
+                    resultQueue.put(TlgResult(self.wiki, row, self.parent, filtertitle, sortkey= percentPositive))
             
     
     def getPreferredPagesPerAction(self):

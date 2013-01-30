@@ -228,8 +228,8 @@ class TaskListGenerator:
     # @param lang The wiki language code ('de', 'fr').
     # @param queryString The query string. See CatGraphInterface.executeSearchString documentation.
     # @param queryDepth Search recursion depth.
-    # @param flaws String of flaw detector names
-    def generateQuery(self, lang, queryString, queryDepth, flaws):
+    # @param flaws String of filter names
+    def generateQuery(self, lang, queryString, queryDepth, flaws, include_hidden= False):
         try:
             begin= time.time()
             
@@ -276,7 +276,7 @@ class TaskListGenerator:
             # process results as they are created
             actionsProcessed= 0 #numActions-self.actionQueue.qsize()
             while self.getActiveWorkerCount()>0:
-                self.drainResultQueue()
+                self.drainResultQueue(include_hidden)
                 n= max(numActions-self.actionQueue.qsize()-(self.getActiveWorkerCount()), 0)
                 if n!=actionsProcessed:
                     actionsProcessed= n
@@ -288,7 +288,7 @@ class TaskListGenerator:
             for i in self.workerThreads:
                 i.join()
             # process the last results
-            self.drainResultQueue()
+            self.drainResultQueue(include_hidden)
             
             #~ # sort by length of flaw list, flaw list, and page title
             #~ sortedResults= sorted(self.mergedResults, key= lambda result: \
@@ -300,7 +300,7 @@ class TaskListGenerator:
                  sorted( map(lambda x: x.FlawFilter.shortname, self.mergedResults[i]) ),                # flaw list (alphabetical), 
                  map( lambda x: x[1], sorted( map(lambda x: (x.FlawFilter.shortname, x.sortkey), 
                          self.mergedResults[i]), 
-                         key= lambda x: x[1]) ),  # sort key,  
+                         key= lambda x: x[1]) ),                                                        # sort key,  
                  self.mergedResults[i][0].page['page_title']))                                          # page title (alphabetical)
             
             yield self.mkStatus(_('%d pages tested in %d actions. %d pages in result set. processing took %.1f seconds. please wait while the result list is being transferred.') % \
@@ -313,7 +313,7 @@ class TaskListGenerator:
             for i in sortedResults:
                 result= self.mergedResults[i]
                 d= { 'page': result[0].page,         #['page_title'].replace('_', ' '), 
-                     'flaws': map( lambda res: { 'name': res.FlawFilter.shortname, 'infotext': res.infotext, 'done': False }, result )
+                     'flaws': map( lambda res: { 'name': res.FlawFilter.shortname, 'infotext': res.infotext, 'hidden': res.marked_as_done }, result )
                     }
                 yield json.dumps(d)
         
@@ -357,7 +357,7 @@ class TaskListGenerator:
         else: prefix= 'u_'
         return '%s%s_tlgbackend' % (prefix, getuser())
     
-    def processResult(self, result):
+    def processResult(self, result, include_hidden= False):
         # todo: maybe cache results and check for 'done' marks every N results
         marked= False
         try:
@@ -369,8 +369,10 @@ class TaskListGenerator:
             # table or db doesn't exist (yet)
             pass
         
-        if marked: return   # maybe optionally return result with a special marker, later
-        
+        if marked:
+            if not include_hidden: return
+            result.marked_as_done= True
+                
         key= '%s:%d' % (result.wiki, result.page['page_id'])
         try:
             self.mergedResults[key].append(result)
@@ -381,10 +383,10 @@ class TaskListGenerator:
     def processWorkerException(self, exc_info):
         raise exc_info[0], exc_info[1], exc_info[2] # re-throw exception from worker thread
         
-    def drainResultQueue(self):
+    def drainResultQueue(self, include_hidden):
         while not self.resultQueue.empty():
             result= self.resultQueue.get()
-            if isinstance(result, tlgflaws.TlgResult): self.processResult(result)
+            if isinstance(result, tlgflaws.TlgResult): self.processResult(result, include_hidden)
             else: self.processWorkerException(result)
 
     # create and start worker threads

@@ -173,15 +173,16 @@ function setStatus(text, percentage) { document.getElementById("thestatus").inne
                 html.startTable('flaws')
                 html.write('<tr>')
                 html.write('<td class="nobr">')
-                for flaw in sorted(data['flaws']): 
-                    html.write('<span title="%s">' % tlgflaws.FlawFilters.classInfos[flaw].description)
-                    html.write(flaw + ' ')
-                    html.write('</span>')
+                for filter in data['flaws']:
+                    html.write(filter['name'])
+                    if filter['infotext']: html.write(' (%s)' % filter['infotext'])
+                    if filter['hidden']: html.write(_(' [hidden]'))
+                    html.write('<br/>')
                 html.write('</td>')
                 html.write('<td>')
                 title= data['page']['page_title'].encode('utf-8')
                 html.write('<a href="https://%s.wikipedia.org/wiki/%s">%s</a>' % (params['lang'], title, title))
-                html.write(' page_id = %d' % (data['page']['page_id']))
+                #~ html.write(' page_id = %d' % (data['page']['page_id']))
                 html.write('</td>')
                 html.write('</tr>\n')
             elif 'status' in data:
@@ -243,9 +244,11 @@ def Wikify(tlgResult, action, chunked, params, showThreads, tlg):
                 flaws= ''
                 for filter in data['flaws']: 
                     if flaws!='': flaws+= ', '
-                    flaws+= filter
+                    flaws+= filter['name']
+                    #~ if filter['infotext']: flaws+= ' (%s)' % filter['infotext']      # TODO new formatting
+                    #~ if filter['hidden']: flaws+= _(' [hidden]')
                 title= data['page']['page_title'].encode('utf-8')
-                wikitext.startHeading('== %s ==' % flaws)
+                wikitext.startHeading('== %s ==' % flaws)   # TODO with the new formatting, this doesn't work any more... 
                 wikitext.write('* [[%s]]' % title)
             elif 'status' in data or 'progress' in data:
                 pass
@@ -377,9 +380,10 @@ def generator_app(environ, start_response):
             queryString= getParam(params, 'query')
             queryDepth= getParam(params, 'querydepth', 1)
             flaws= getParam(params, 'flaws')
+            include_hidden= getBoolParam(params, 'include_hidden', False)
             if lang is None or queryString is None or flaws is None:
                 raise InputValidationError("parameters lang, query, and flaws must be given")
-            tlgResult= tlg.generateQuery(lang=lang, queryString=queryString, queryDepth=queryDepth, flaws=flaws)
+            tlgResult= tlg.generateQuery(lang=lang, queryString=queryString, queryDepth=queryDepth, flaws=flaws, include_hidden=include_hidden)
         elif action=='listflaws':
             tlgResult= (tlg.getFlawList(),)
         elif action=='markasdone':

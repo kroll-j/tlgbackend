@@ -73,6 +73,7 @@ class TlgResult:
         self.FlawFilter= FlawFilter
         self.infotext= infotext
         self.sortkey= sortkey
+        self.marked_as_done= False
 
 
 ## an example flaw tester which does nothing
