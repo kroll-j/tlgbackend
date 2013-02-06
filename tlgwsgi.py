@@ -42,16 +42,18 @@ def addLinebreaks(iterable):
 
 def parseCGIargs(environ):
     from urllib import unquote
+    from urlparse import parse_qs
     params= {}
-    if 'QUERY_STRING' in environ:
-        for param in environ['QUERY_STRING'].split('&'):
-            blah= param.split('=')
-            if len(blah)>1:
-                params[blah[0]]= unquote(blah[1])
+    if 'CONTENT_LENGTH' in environ and int(environ['CONTENT_LENGTH'])!=0:
+        dprint(0, "POST request, content length %s" % environ['CONTENT_LENGTH'])
+        request_body= environ['wsgi.input'].read(int(environ['CONTENT_LENGTH']))
+        params= parse_qs(request_body)
+    elif 'QUERY_STRING' in environ:
+        params= parse_qs(environ['QUERY_STRING'])
     return params
 
 def getParam(params, name, default= None):
-    if name in params: return params[name]
+    if name in params: return params[name][0]
     else: return default
 
 def getBoolParam(params, name, default= None):
@@ -398,6 +400,8 @@ def generator_app(environ, start_response):
             tlg.markAsDone(page_id, page_title, page_latest, filter_name, unmark)
             start_response('200 OK', [('Content-Type', 'text/plain; charset=utf-8')])
             return ( '{ "status": "ok" }', )
+        else:
+            raise InputValidationError('unknown action %s requested' % action)
             
         
         if format=='html':
@@ -454,13 +458,11 @@ if __name__ == "__main__":
     # enable pretty stack traces
     #~ import cgitb
     #~ cgitb.enable()
-    try:
-        os.environ['QUERY_STRING']
-    except KeyError:
-        # started from non-cgi context, create request string for testing.
+    #~ if (not 'QUERY_STRING' in os.environ) and (not 'CONTENT_LENGTH' in os.environ):
+        #~ # started from non-cgi context, create request string for testing.
         #~ os.environ['QUERY_STRING']= 'action=query&format=html&chunked=true&lang=de&query=Sport&querydepth=2&flaws=NoImages%20Small'
         #~ os.environ['QUERY_STRING']= 'action=query&format=wikitext&lang=de&query=Sport&querydepth=2&flaws=Small'
-        os.environ['QUERY_STRING']= ''
+    dprint(str(os.environ))
     WSGIServer(generator_app).run()
 
 
