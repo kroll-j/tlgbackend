@@ -211,7 +211,7 @@ class FLarge(FPageSizeBase):
             pageLengths= self.parent.pageLengths
             for i in pageLengths:
                 delta= pageLengths[i]-self.avg
-                if delta > self.stddev*8:
+                if delta > self.stddev*5:
                     resultQueue.put(TlgResult(self.wiki, getPageByID(self.wiki, i)[0], self.parent, infotext= '%d bytes' % pageLengths[i], sortkey= -pageLengths[i]))
 
     def createActions(self, language, pages, actionQueue):
