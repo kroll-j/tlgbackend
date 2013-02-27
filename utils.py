@@ -229,7 +229,7 @@ def getWikiServerMap():
                 cur= conn.cursor()
                 cur.execute("SELECT dbname, server FROM toolserver.wiki WHERE family = 'wikipedia'")
                 ret= dict(cur.fetchall())
-                for i in ret: ret[i]= 'sql-s%d' % ret[i]
+                for i in ret: ret[i]= 'sql-s%d-rr' % ret[i]
                 return ret
             WikiToServerMap= getWikiServerMapping()
         finally:

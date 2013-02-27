@@ -333,6 +333,7 @@ def makeHelpPage():
 ############## wsgi generator function
 def generator_app(environ, start_response):
     try:
+        dprint(0, str(environ))
         params= parseCGIargs(environ)
         
         if len(params)==0:
@@ -462,7 +463,7 @@ if __name__ == "__main__":
         #~ # started from non-cgi context, create request string for testing.
         #~ os.environ['QUERY_STRING']= 'action=query&format=html&chunked=true&lang=de&query=Sport&querydepth=2&flaws=NoImages%20Small'
         #~ os.environ['QUERY_STRING']= 'action=query&format=wikitext&lang=de&query=Sport&querydepth=2&flaws=Small'
-    dprint(str(os.environ))
+    #~ dprint(str(os.environ))
     WSGIServer(generator_app).run()
 
 
