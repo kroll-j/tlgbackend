@@ -236,7 +236,7 @@ class FNoImages(FlawFilter):
         def execute(self, resultQueue):
             cur= getCursors()[self.wiki]
             format_strings = ','.join(['%s'] * len(self.pageIDs))
-            sqlstr= """SELECT * FROM page WHERE page_namespace=0 AND page_id IN (%s) 
+            sqlstr= """SELECT * FROM page WHERE page_namespace=0 AND page_id IN (%s) AND page_is_redirect = 0 
                 AND page_id NOT IN (select il_from FROM imagelinks AS src WHERE il_from IN (%s) 
                     AND NOT EXISTS (SELECT 1 FROM imagelinks WHERE il_to=src.il_to AND il_from IN (SELECT page_id FROM page WHERE page_namespace=10)));""" % \
                     (format_strings, format_strings)
