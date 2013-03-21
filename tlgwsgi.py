@@ -333,7 +333,7 @@ def makeHelpPage():
 ############## wsgi generator function
 def generator_app(environ, start_response):
     try:
-        dprint(0, str(environ))
+        dprint(0, "environ: %s" % str(environ))
         params= parseCGIargs(environ)
         
         if len(params)==0:
@@ -449,6 +449,8 @@ def generator_app(environ, start_response):
 
 
 if __name__ == "__main__":
+    getRequestID()
+    
     if 'daemon' in os.environ and os.environ['daemon']=='True':
         for foo in generator_app(os.environ, None):
             pass

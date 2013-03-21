@@ -309,6 +309,8 @@ class TaskListGenerator:
             dprint(1, '%d pages tested in %d actions. %d pages in result set. processing took %.1f seconds.' % \
                 (len(self.pagesToTest), numActions, len(self.mergedResults), time.time()-begin))
             
+            beforeYield= time.time();
+            
             # print results
             for i in sortedResults:
                 result= self.mergedResults[i]
@@ -316,6 +318,8 @@ class TaskListGenerator:
                      'flaws': map( lambda res: { 'name': res.FlawFilter.shortname, 'infotext': res.infotext, 'hidden': res.marked_as_done }, result )
                     }
                 yield json.dumps(d)
+            
+            dprint(1, 'done. yielding results took %.2f seconds.' % (time.time()-beforeYield))
         
         except InputValidationError as e:
             yield '{"exception": "%s:\\n%s"}' % (_('Input validation failed'), str(e))

@@ -11,6 +11,7 @@ import MySQLdb.cursors
 import threading
 import getpass
 import json
+import uuid
 
 from beaker.cache import cache_region, cache_regions
 
@@ -183,13 +184,14 @@ def getUsername():
     return pwd.getpwuid( os.getuid() )[ 0 ]
 
 # logging to files makes filtering hard, logging to sql server is impractical too (what if we want to log an sql connection failure?), so we use sqlite.
-def logToDB(timestamp, level, *args):
+def logToDB(timestamp, level, requestID, *args):
     def createLogCursor():
         conn= sqlite3.connect(os.path.join(DATADIR, "log.db"), isolation_level= None, timeout= 30.0)
         logCursor= conn.cursor()
         try:
-            logCursor.execute('CREATE TABLE logs(timestamp VARBINARY, level INTEGER, message VARBINARY)')
+            logCursor.execute('CREATE TABLE logs(timestamp VARBINARY, level INTEGER, message VARBINARY, requestID CHARACTER)')
             logCursor.execute('CREATE INDEX timestamp ON logs (timestamp)')
+            logCursor.execute('CREATE INDEX requestID ON logs (requestID)')
         except sqlite3.OperationalError:
             pass    # table exists
         if threading.currentThread().name == 'MainThread':
@@ -197,16 +199,26 @@ def logToDB(timestamp, level, *args):
         return logCursor
     try:
         logCursor= CachedThreadValue('logCursor', createLogCursor)
-        logCursor.execute('INSERT INTO logs VALUES (?, ?, ?)', (timestamp, level, unicode(str(*args).decode('utf-8'))))
+        logCursor.execute('INSERT INTO logs VALUES (?, ?, ?, ?)', (timestamp, level, unicode(str(*args).decode('utf-8')), requestID))
     except sqlite3.OperationalError:
         pass
+
+# this returns a per-process key for logging.
+# make sure this is called at least once in the main thread before any child thread logs anything.
+# a unix timestamp is prepended to the ID so that it can be used for sorting by time as well.
+__requestID= None
+def getRequestID():
+    global __requestID
+    if __requestID==None:
+        __requestID= "%017.4f:%s" % (time.time(), str(uuid.uuid4()))
+    return __requestID
 
 debuglevel= 1
 ## debug print. only shows on stderr if level >= debuglevel. everything is logged to sqlite file DATADIR/log.db.
 def dprint(level, *args):
     timestamp= MakeTimestamp()
     
-    logToDB(timestamp, level, *args)
+    logToDB(timestamp, level, getRequestID(), *args)
     
     if(debuglevel>=level):
         sys.stderr.write('[%s] ' % timestamp)
