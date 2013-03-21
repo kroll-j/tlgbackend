@@ -322,6 +322,7 @@ class TaskListGenerator:
             dprint(1, 'done. yielding results took %.2f seconds.' % (time.time()-beforeYield))
         
         except InputValidationError as e:
+            dprint(0, 'Input validation failed: %s' % str(e))
             yield '{"exception": "%s:\\n%s"}' % (_('Input validation failed'), str(e))
         
         except Exception as e:
