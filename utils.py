@@ -290,6 +290,10 @@ except Exception as ex:
     dprint(1, "exception while loading config file tlgrc: %s" % str(ex))
 
 
+def logStats(statDict):
+    dprint(0, 'stats: %s' % json.dumps(statDict))
+
+
 if __name__ == '__main__':
     dprint(1, "foo")
     dprint(1, "bar")

@@ -237,7 +237,9 @@ class TaskListGenerator:
             self.wiki= lang + 'wiki'
             self.simpleMW= wiki.SimpleMW(lang)
 
-            dprint(0, 'generateQuery(): lang "%s", query string "%s", depth %s, flaws "%s"' % (lang, queryString, queryDepth, flaws))
+            #~ dprint(0, 'generateQuery(): lang "%s", query string "%s", depth %s, flaws "%s"' % (lang, queryString, queryDepth, flaws))
+            #~ dprint(0, 'stats: %s' % json.dumps( { 'lang': lang, 'querystring': queryString, 'depth': queryDepth, 'flaws': flaws } ))
+            logStats({ 'lang': lang, 'querystring': queryString, 'depth': queryDepth, 'flaws': flaws })
             
             # spawn the worker threads
             self.initThreads()
@@ -306,8 +308,10 @@ class TaskListGenerator:
             yield self.mkStatus(_('%d pages tested in %d actions. %d pages in result set. processing took %.1f seconds. please wait while the result list is being transferred.') % \
                 (len(self.pagesToTest), numActions, len(self.mergedResults), time.time()-begin))
             
-            dprint(1, '%d pages tested in %d actions. %d pages in result set. processing took %.1f seconds.' % \
-                (len(self.pagesToTest), numActions, len(self.mergedResults), time.time()-begin))
+            #~ dprint(1, '%d pages tested in %d actions. %d pages in result set. processing took %.1f seconds.' % \
+                #~ (len(self.pagesToTest), numActions, len(self.mergedResults), time.time()-begin))
+            logStats({'pagesTested': len(self.pagesToTest), 'actionCount': numActions, \
+                'resultSize': len(self.mergedResults), 'processingTime': time.time()-begin})
             
             beforeYield= time.time();
             
@@ -319,7 +323,8 @@ class TaskListGenerator:
                     }
                 yield json.dumps(d)
             
-            dprint(1, 'done. yielding results took %.2f seconds.' % (time.time()-beforeYield))
+            #~ dprint(1, 'done. yielding results took %.2f seconds.' % (time.time()-beforeYield))
+            logStats({'yieldTime': time.time()-beforeYield})
         
         except InputValidationError as e:
             dprint(0, 'Input validation failed: %s' % str(e))

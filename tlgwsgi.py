@@ -333,7 +333,7 @@ def makeHelpPage():
 ############## wsgi generator function
 def generator_app(environ, start_response):
     try:
-        dprint(0, "environ: %s" % str(environ))
+        logStats({'environment': str(environ)})
         params= parseCGIargs(environ)
         
         if len(params)==0:
@@ -366,7 +366,8 @@ def generator_app(environ, start_response):
                 context.stdout= open(os.path.join(DATADIR, 'mailer-stdout'), 'a')
                 context.stderr= open(os.path.join(DATADIR, 'mailer-stderr'), 'a')
                 context.open()
-                dprint(0, 'hello from background process, pid=%d, format=%s' % (os.getpid(), format))
+                #~ dprint(0, 'hello from background process, pid=%d, format=%s' % (os.getpid(), format))
+                logStats({'backgroundProcessPid': os.getpid(), 'backgroundProcessOutputFormat': format})
 
             else:
                 # cgi context, create background process
@@ -427,7 +428,7 @@ def generator_app(environ, start_response):
             sys.exit(0)
 
         elif wikipage:  # we are in the daemon if we get here, write output to wiki page
-            dprint(0, 'begin writing to wiki page %s' % wikipage)
+            logStats( {'backgroundProcessWikiPage': wikipage} )
             import wiki
             wiki.SimpleMW(lang).writeToPage(queryString, queryDepth, flaws, outputIterable, action, wikipage)
             dprint(0, 'finished writing to wiki page \'%s\'' % wikipage)
