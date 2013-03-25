@@ -118,6 +118,7 @@ class TaskListGenerator:
         self.runEvent= threading.Event()
         self.loadFilterModules()
         self.simpleMW= None # SimpleMW instance
+        self.resultsPerFilter= {}           # shortname => resultcount
     
     def getActiveWorkerCount(self):
         count= 0
@@ -236,6 +237,7 @@ class TaskListGenerator:
             self.language= lang
             self.wiki= lang + 'wiki'
             self.simpleMW= wiki.SimpleMW(lang)
+            self.resultsPerFilter= {}
 
             #~ dprint(0, 'generateQuery(): lang "%s", query string "%s", depth %s, flaws "%s"' % (lang, queryString, queryDepth, flaws))
             #~ dprint(0, 'stats: %s' % json.dumps( { 'lang': lang, 'querystring': queryString, 'depth': queryDepth, 'flaws': flaws } ))
@@ -284,18 +286,13 @@ class TaskListGenerator:
                     actionsProcessed= n
                     eta= (time.time()-begin) / actionsProcessed * (numActions-actionsProcessed)
                     yield json.dumps( { 'progress': '%d/%d' % (actionsProcessed, numActions) } )
-                    #~ yield self.mkStatus(_('%d of %d actions processed (eta: %02d:%02d)') % (actionsProcessed, numActions, int(eta)/60, int(eta)%60))
                     yield self.mkStatus(_('%d of %d actions processed') % (actionsProcessed, numActions))
                 time.sleep(0.25)
             for i in self.workerThreads:
                 i.join()
             # process the last results
             self.drainResultQueue(include_hidden)
-            
-            #~ # sort by length of flaw list, flaw list, and page title
-            #~ sortedResults= sorted(self.mergedResults, key= lambda result: \
-                #~ (-len(self.mergedResults[result]['flaws']), sorted(self.mergedResults[result]['flaws']), self.mergedResults[result]['page']['page_title']))
-            
+                        
             # sort
             sortedResults= sorted(self.mergedResults, key= lambda i: \
                 (-len(self.mergedResults[i]),                                                           # length of flaw list, 
@@ -308,10 +305,10 @@ class TaskListGenerator:
             yield self.mkStatus(_('%d pages tested in %d actions. %d pages in result set. processing took %.1f seconds. please wait while the result list is being transferred.') % \
                 (len(self.pagesToTest), numActions, len(self.mergedResults), time.time()-begin))
             
-            #~ dprint(1, '%d pages tested in %d actions. %d pages in result set. processing took %.1f seconds.' % \
-                #~ (len(self.pagesToTest), numActions, len(self.mergedResults), time.time()-begin))
-            logStats({'pagesTested': len(self.pagesToTest), 'actionCount': numActions, \
-                'resultSize': len(self.mergedResults), 'processingTime': time.time()-begin})
+            logStats({'pages_tested': len(self.pagesToTest), 'action_count': numActions, \
+                'result_size': len(self.mergedResults), 'processingtime': time.time()-begin})
+            
+            logStats({'results_per_filter': self.resultsPerFilter })
             
             beforeYield= time.time();
             
@@ -323,8 +320,7 @@ class TaskListGenerator:
                     }
                 yield json.dumps(d)
             
-            #~ dprint(1, 'done. yielding results took %.2f seconds.' % (time.time()-beforeYield))
-            logStats({'yieldTime': time.time()-beforeYield})
+            logStats({'generator_yieldtime': time.time()-beforeYield})
         
         except InputValidationError as e:
             dprint(0, 'Input validation failed: %s' % str(e))
@@ -348,18 +344,6 @@ class TaskListGenerator:
             flaw.createActions( self.language, pagesToTest[start:pagesLeft], self.actionQueue )
             pagesLeft-= (pagesLeft-start)
             
-    
-    def processResultOld(self, result):
-        key= '%s:%d' % (result.wiki, result.page['page_id'])
-        try:
-            # append the name of the flaw to the list of flaws for this article 
-            #~ self.mergedResults[key]['flaws'].append(result.FlawFilter.shortname)
-            self.mergedResults[key]['flaws'].append(result.filtertitle)
-            self.mergedResults[key]['flaws'].sort()
-        except KeyError:
-            # create a new article in the result set
-            self.mergedResults[key]= { 'page': result.page, 'flaws': [result.filtertitle] }
-    
     #@cache_region(disk24h)
     def getMarkDBname(self):
         from getpass import getuser
@@ -382,7 +366,12 @@ class TaskListGenerator:
         if marked:
             if not include_hidden: return
             result.marked_as_done= True
-                
+        
+        if not result.FlawFilter.shortname in self.resultsPerFilter:
+            self.resultsPerFilter[result.FlawFilter.shortname]= 1
+        else:
+            self.resultsPerFilter[result.FlawFilter.shortname]+= 1
+
         key= '%s:%d' % (result.wiki, result.page['page_id'])
         try:
             self.mergedResults[key].append(result)

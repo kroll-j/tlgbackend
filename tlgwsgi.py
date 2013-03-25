@@ -367,7 +367,7 @@ def generator_app(environ, start_response):
                 context.stderr= open(os.path.join(DATADIR, 'mailer-stderr'), 'a')
                 context.open()
                 #~ dprint(0, 'hello from background process, pid=%d, format=%s' % (os.getpid(), format))
-                logStats({'backgroundProcessPid': os.getpid(), 'backgroundProcessOutputFormat': format})
+                logStats({'backgroundprocess_pid': os.getpid(), 'backgroundProcessOutputFormat': format})
 
             else:
                 # cgi context, create background process
@@ -428,7 +428,7 @@ def generator_app(environ, start_response):
             sys.exit(0)
 
         elif wikipage:  # we are in the daemon if we get here, write output to wiki page
-            logStats( {'backgroundProcessWikiPage': wikipage} )
+            logStats( {'backgroundprocess_wikipage': wikipage} )
             import wiki
             wiki.SimpleMW(lang).writeToPage(queryString, queryDepth, flaws, outputIterable, action, wikipage)
             dprint(0, 'finished writing to wiki page \'%s\'' % wikipage)
