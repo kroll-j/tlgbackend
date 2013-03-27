@@ -10,7 +10,9 @@ import threading
 import traceback
 import tlgbackend
 import tlgflaws
+import utils
 from utils import *
+
 
 
 # general procedure of things (not accurate any more):
@@ -47,9 +49,11 @@ def parseCGIargs(environ):
     if 'CONTENT_LENGTH' in environ and int(environ['CONTENT_LENGTH'])!=0:
         dprint(0, "POST request, content length %s" % environ['CONTENT_LENGTH'])
         request_body= environ['wsgi.input'].read(int(environ['CONTENT_LENGTH']))
-        params= parse_qs(request_body)
+        params= parse_qs(request_body.replace(';', '%3B').replace('+', '%2B'))  # HACK to 'fix' wrongly encoded query string
     elif 'QUERY_STRING' in environ:
-        params= parse_qs(environ['QUERY_STRING'])
+        params= parse_qs(environ['QUERY_STRING'].replace(';', '%3B').replace('+', '%2B'),   # HACK to 'fix' wrongly encoded query string
+            strict_parsing= True)
+        logStats(params)
     return params
 
 def getParam(params, name, default= None):
@@ -333,7 +337,6 @@ def makeHelpPage():
 ############## wsgi generator function
 def generator_app(environ, start_response):
     try:
-        logStats({'environment': str(environ)})
         params= parseCGIargs(environ)
         
         if len(params)==0:
@@ -349,7 +352,11 @@ def generator_app(environ, start_response):
         i18n= getParam(params, 'i18n', 'de')
         wikipage= getParam(params, 'wikipage', None)
         if wikipage: format= 'wikitext' # writing to wiki page implies wikitext format
+        utils.testrun= getBoolParam(params, 'test', False)
         
+        dprint(0, "testrun: %s" % testrun);
+        logStats({'environment': str(environ)})
+
         try:
             gettext.translation('tlgbackend', localedir= os.path.join(sys.path[0], 'messages'), languages=[i18n]).install()
         except:

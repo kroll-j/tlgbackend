@@ -24,6 +24,8 @@ DATADIR= '/mnt/user-store/%s/tlgbackend/tip' % getpass.getuser()
 
 beakerCacheDir= os.path.join(DATADIR, 'beaker-cache')
 
+testrun= False
+
 cache_regions.update({
     'mem1h': {          # cache 1 hour in memory, e. g. page ID results
         'expire': 60*60,
@@ -291,7 +293,10 @@ except Exception as ex:
 
 
 def logStats(statDict):
-    dprint(0, 'stats: %s' % json.dumps(statDict))
+    global testrun
+    if testrun: s= 'testrunstats'
+    else: s= 'stats'
+    dprint(0, '%s: %s' % (s, json.dumps(statDict)))
 
 
 if __name__ == '__main__':
