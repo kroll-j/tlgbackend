@@ -49,9 +49,9 @@ def parseCGIargs(environ):
     if 'CONTENT_LENGTH' in environ and int(environ['CONTENT_LENGTH'])!=0:
         dprint(0, "POST request, content length %s" % environ['CONTENT_LENGTH'])
         request_body= environ['wsgi.input'].read(int(environ['CONTENT_LENGTH']))
-        params= parse_qs(request_body.replace(';', '%3B').replace('+', '%2B'))  # HACK to 'fix' wrongly encoded query string
+        params= parse_qs(request_body)
     elif 'QUERY_STRING' in environ:
-        params= parse_qs(environ['QUERY_STRING'].replace(';', '%3B').replace('+', '%2B'),   # HACK to 'fix' wrongly encoded query string
+        params= parse_qs(environ['QUERY_STRING'],
             strict_parsing= True)
         logStats(params)
     return params
@@ -187,7 +187,7 @@ function setStatus(text, percentage) { document.getElementById("thestatus").inne
                 html.write('</td>')
                 html.write('<td>')
                 title= data['page']['page_title'].encode('utf-8')
-                html.write('<a href="https://%s.wikipedia.org/wiki/%s">%s</a>' % (params['lang'], title, title))
+                html.write('<a href="https://%s.wikipedia.org/wiki/%s">%s</a>' % (params['lang'][0], title, title))
                 #~ html.write(' page_id = %d' % (data['page']['page_id']))
                 html.write('</td>')
                 html.write('</tr>\n')
