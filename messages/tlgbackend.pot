@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tlgbackend 0.1\n"
-"POT-Creation-Date: 2013-01-21 17:46+CET\n"
+"POT-Creation-Date: 2013-03-28 13:39+CET\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,11 +25,11 @@ msgid ""
 "Article Feedback Tool v5."
 msgstr ""
 
-#: filtermodules/aft.py:44
-msgid "%s:%3d%% positive of %d"
+#: filtermodules/aft.py:45
+msgid "%d%% positive of %d"
 msgstr ""
 
-#: filtermodules/aft.py:63
+#: filtermodules/aft.py:64
 msgid "Article Feedback data is not yet available for the selected language."
 msgstr ""
 
@@ -151,53 +151,53 @@ msgstr ""
 msgid "Timeliness"
 msgstr ""
 
-#: tlgbackend.py:179
+#: tlgbackend.py:180
 msgid "Watchlist syntax is: wl%cUSERNAME,TOKEN"
 msgstr ""
 
-#: tlgbackend.py:186
+#: tlgbackend.py:187
 msgid "Use: 'title%cPAGETITLE'"
 msgstr ""
 
-#: tlgbackend.py:189
+#: tlgbackend.py:190
 msgid "Page not found in mainspace: %s"
 msgstr ""
 
-#: tlgbackend.py:192
+#: tlgbackend.py:193
 msgid "invalid query type: '%s'"
 msgstr ""
 
-#: tlgbackend.py:200 tlgcatgraph.py:44
+#: tlgbackend.py:201 tlgcatgraph.py:44
 msgid "Empty category name specified."
 msgstr ""
 
-#: tlgbackend.py:247
+#: tlgbackend.py:251
 msgid "Empty category search string."
 msgstr ""
 
-#: tlgbackend.py:250
+#: tlgbackend.py:254
 msgid "evaluating query string '%s' with depth %d"
 msgstr ""
 
-#: tlgbackend.py:256
+#: tlgbackend.py:260
 msgid "query found %d results."
 msgstr ""
 
-#: tlgbackend.py:271
+#: tlgbackend.py:275
 msgid "%d pages to test, %d actions to process"
 msgstr ""
 
-#: tlgbackend.py:286
+#: tlgbackend.py:289
 msgid "%d of %d actions processed"
 msgstr ""
 
-#: tlgbackend.py:297
+#: tlgbackend.py:305
 msgid ""
 "%d pages tested in %d actions. %d pages in result set. processing took %.1f "
 "seconds. please wait while the result list is being transferred."
 msgstr ""
 
-#: tlgbackend.py:311
+#: tlgbackend.py:327
 msgid "Input validation failed"
 msgstr ""
 
@@ -205,7 +205,7 @@ msgstr ""
 msgid "Category %s not found in database %s."
 msgstr ""
 
-#: tlgwsgi.py:77
+#: tlgwsgi.py:83
 msgid ""
 "Hi!\n"
 "\n"
@@ -221,7 +221,7 @@ msgid ""
 "\n"
 msgstr ""
 
-#: tlgwsgi.py:86
+#: tlgwsgi.py:92
 msgid ""
 "\n"
 "\n"
@@ -231,12 +231,21 @@ msgid ""
 "The friendly task list generator robot. \n"
 msgstr ""
 
-#: tlgwsgi.py:110
+#: tlgwsgi.py:116
 msgid "Filters"
 msgstr ""
 
-#: tlgwsgi.py:111
+#: tlgwsgi.py:117
 msgid "Page"
+msgstr ""
+
+#: tlgwsgi.py:185
+msgid " [hidden]"
+msgstr ""
+
+#: tlgwsgi.py:405
+msgid ""
+"page_id, page_title, page_latest and filter_name parameters are required"
 msgstr ""
 
 #: wiki.py:61
