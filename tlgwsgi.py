@@ -372,7 +372,6 @@ def generator_app(environ, start_response):
                 context.stdout= open(os.path.join(DATADIR, 'mailer-stdout'), 'a')
                 context.stderr= open(os.path.join(DATADIR, 'mailer-stderr'), 'a')
                 context.open()
-                #~ dprint(0, 'hello from background process, pid=%d, format=%s' % (os.getpid(), format))
                 logStats({'backgroundprocess_pid': os.getpid(), 'backgroundProcessOutputFormat': format})
 
             else:
