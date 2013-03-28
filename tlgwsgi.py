@@ -354,7 +354,6 @@ def generator_app(environ, start_response):
         if wikipage: format= 'wikitext' # writing to wiki page implies wikitext format
         utils.testrun= getBoolParam(params, 'test', False)
         
-        dprint(0, "testrun: %s" % testrun);
         logStats({'environment': str(environ)})
 
         try:
