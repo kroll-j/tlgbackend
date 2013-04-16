@@ -85,7 +85,7 @@ registerTemplateFilter('TemplateMissingSources', _('Missing Sources/References T
     'frwiki_p': [ 'À_sourcer' ],
 })
 
-registerTemplateFilter('Currentness:TemplateObsolete', _('Out of Date Template'), _('Page has \'out of date\' template set.'), _('Currentness'), {
+registerTemplateFilter('TemplateObsolete', _('Out of Date Template'), _('Page has \'out of date\' template set.'), _('Currentness'), {
     'dewiki_p': [ 'Veraltet' ],
     'enwiki_p': [ 'Out_of_date' ],
     'frwiki_p': [ 'Mettre_à_jour' ],

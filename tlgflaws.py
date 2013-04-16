@@ -97,7 +97,7 @@ class FNop(FlawFilter):
 
 ## example flaw tester which detects pages whose ID mod 13 == 0
 class FUnlucky(FlawFilter):
-    shortname= 'Test:Unlucky'
+    shortname= 'Unlucky'
     label= 'Unlucky'
     description= 'Page ID mod 13 == 0. For testing only.'
     group= 'Test'
