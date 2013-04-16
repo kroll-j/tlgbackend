@@ -316,7 +316,7 @@ class TaskListGenerator:
             for i in sortedResults:
                 result= self.mergedResults[i]
                 d= { 'page': result[0].page,         #['page_title'].replace('_', ' '), 
-                     'flaws': map( lambda res: { 'name': res.FlawFilter.shortname, 'infotext': res.infotext, 'hidden': res.marked_as_done }, result )
+                     'flaws': map( lambda res: { 'name': res.FlawFilter.label, 'infotext': res.infotext, 'hidden': res.marked_as_done }, result )
                     }
                 yield json.dumps(d)
             
