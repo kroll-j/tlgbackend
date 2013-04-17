@@ -318,6 +318,7 @@ class TaskListGenerator:
                 d= { 'page': result[0].page,         #['page_title'].replace('_', ' '), 
                      'flaws': map( lambda res: { 'name': res.FlawFilter.label, 'infotext': res.infotext, 'hidden': res.marked_as_done }, result )
                     }
+                d['page']['page_title']= d['page']['page_title'].replace('_', ' ')
                 yield json.dumps(d)
             
             logStats({'generator_yieldtime': time.time()-beforeYield})
