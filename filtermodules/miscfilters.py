@@ -7,7 +7,7 @@ from tlgflaws import *
 class FAll(FlawFilter):
     shortname= 'ALL'
     label= _('All Pages')
-    description= _('Every page from CatGraph result.')
+    description= _('Show all pages without filtering.')
     
     # our action class
     class Action(TlgAction):
