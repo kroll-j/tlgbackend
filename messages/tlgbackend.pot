@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tlgbackend 0.1\n"
-"POT-Creation-Date: 2013-03-28 13:39+CET\n"
+"POT-Creation-Date: 2013-04-19 18:38+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -48,7 +48,7 @@ msgid "All Pages"
 msgstr ""
 
 #: filtermodules/miscfilters.py:10
-msgid "Every page from CatGraph result."
+msgid "Show all pages without filtering."
 msgstr ""
 
 #: filtermodules/miscfilters.py:76
@@ -197,7 +197,7 @@ msgid ""
 "seconds. please wait while the result list is being transferred."
 msgstr ""
 
-#: tlgbackend.py:327
+#: tlgbackend.py:328
 msgid "Input validation failed"
 msgstr ""
 

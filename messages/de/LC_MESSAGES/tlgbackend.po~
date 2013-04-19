@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tlgbackend 0.1\n"
-"POT-Creation-Date: 2013-01-21 17:46+CET\n"
+"POT-Creation-Date: 2013-03-28 13:39+CET\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,11 +28,12 @@ msgstr ""
 "Weniger als 60% der Leser haben gefunden was sie suchten, nach Angaben aus "
 "dem Artikel-Feedback-Tool v5."
 
-#: filtermodules/aft.py:44
-msgid "%s:%3d%% positive of %d"
+#: filtermodules/aft.py:45
+#, fuzzy
+msgid "%d%% positive of %d"
 msgstr "%s:%3d%% positiv von %d"
 
-#: filtermodules/aft.py:63
+#: filtermodules/aft.py:64
 msgid "Article Feedback data is not yet available for the selected language."
 msgstr "Artikel-Feedback ist für die gewählte Sprache noch nicht verfügbar."
 
@@ -53,8 +54,8 @@ msgid "All Pages"
 msgstr "Alle Seiten"
 
 #: filtermodules/miscfilters.py:10
-msgid "Every page from CatGraph result."
-msgstr "Jede Seite aus dem CatGraph-Suchergebnis."
+msgid "Show all pages without filtering."
+msgstr "Jede Seite anzeigen, ohne zu filtern."
 
 #: filtermodules/miscfilters.py:76
 msgid "Neutrality"
@@ -160,47 +161,47 @@ msgstr "Seite wurde heute geändert."
 msgid "Timeliness"
 msgstr "Aktualität"
 
-#: tlgbackend.py:179
+#: tlgbackend.py:180
 msgid "Watchlist syntax is: wl%cUSERNAME,TOKEN"
 msgstr "Watchlist-Syntax ist: wl%cUSERNAME,TOKEN"
 
-#: tlgbackend.py:186
+#: tlgbackend.py:187
 msgid "Use: 'title%cPAGETITLE'"
 msgstr "Benutzung: 'title%cPAGETITLE'"
 
-#: tlgbackend.py:189
+#: tlgbackend.py:190
 msgid "Page not found in mainspace: %s"
 msgstr "Seite im Artikel-Namensraum nicht gefunden: %s"
 
-#: tlgbackend.py:192
+#: tlgbackend.py:193
 msgid "invalid query type: '%s'"
 msgstr "Ungültiger Anfragen-Typ: '%s'"
 
-#: tlgbackend.py:200 tlgcatgraph.py:44
+#: tlgbackend.py:201 tlgcatgraph.py:44
 msgid "Empty category name specified."
 msgstr "Leerer Kategoriename angegeben."
 
-#: tlgbackend.py:247
+#: tlgbackend.py:251
 msgid "Empty category search string."
 msgstr "Leere Kategorie-Suchanfrage."
 
-#: tlgbackend.py:250
+#: tlgbackend.py:254
 msgid "evaluating query string '%s' with depth %d"
 msgstr "Bearbeite Suchanfrage: '%s', mit Suchtiefe %d"
 
-#: tlgbackend.py:256
+#: tlgbackend.py:260
 msgid "query found %d results."
 msgstr "Suche lieferte %d Ergebnisse zurück."
 
-#: tlgbackend.py:271
+#: tlgbackend.py:275
 msgid "%d pages to test, %d actions to process"
 msgstr "%d Seiten zu testen, %d Aktionen auszuführen"
 
-#: tlgbackend.py:286
+#: tlgbackend.py:289
 msgid "%d of %d actions processed"
 msgstr "%d von %d Aktionen verarbeitet"
 
-#: tlgbackend.py:297
+#: tlgbackend.py:305
 msgid ""
 "%d pages tested in %d actions. %d pages in result set. processing took %.1f "
 "seconds. please wait while the result list is being transferred."
@@ -209,7 +210,7 @@ msgstr ""
 "Verarbeitung dauerte %.1f Sekunden. Ergebnisliste wird übertragen, bitte "
 "warten."
 
-#: tlgbackend.py:311
+#: tlgbackend.py:327
 msgid "Input validation failed"
 msgstr "Fehlerhafte Eingabe"
 
@@ -217,7 +218,7 @@ msgstr "Fehlerhafte Eingabe"
 msgid "Category %s not found in database %s."
 msgstr "Kann Kategorie %s nicht in Datenbank %s finden."
 
-#: tlgwsgi.py:77
+#: tlgwsgi.py:83
 msgid ""
 "Hi!\n"
 "\n"
@@ -244,7 +245,7 @@ msgstr ""
 "Arbeitsliste erfolgreich erstellt. Eingabe war:\n"
 "\n"
 
-#: tlgwsgi.py:86
+#: tlgwsgi.py:92
 msgid ""
 "\n"
 "\n"
@@ -260,13 +261,22 @@ msgstr ""
 "Emsige Grüße, \n"
 "Der Freundliche TLG-Roboter. \n"
 
-#: tlgwsgi.py:110
+#: tlgwsgi.py:116
 msgid "Filters"
 msgstr "Filter"
 
-#: tlgwsgi.py:111
+#: tlgwsgi.py:117
 msgid "Page"
 msgstr "Seite"
+
+#: tlgwsgi.py:185
+msgid " [hidden]"
+msgstr ""
+
+#: tlgwsgi.py:405
+msgid ""
+"page_id, page_title, page_latest and filter_name parameters are required"
+msgstr ""
 
 #: wiki.py:61
 msgid "= Task List =\n"
