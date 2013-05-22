@@ -49,10 +49,16 @@ def parseCGIargs(environ):
     if 'CONTENT_LENGTH' in environ and int(environ['CONTENT_LENGTH'])!=0:
         dprint(0, "POST request, content length %s" % environ['CONTENT_LENGTH'])
         request_body= environ['wsgi.input'].read(int(environ['CONTENT_LENGTH']))
-        params= parse_qs(request_body)
+        if len(request_body):
+            params= parse_qs(request_body)
+        else:
+            params= {}
     elif 'QUERY_STRING' in environ:
-        params= parse_qs(environ['QUERY_STRING'],
-            strict_parsing= True)
+        if len(environ['QUERY_STRING']):
+            params= parse_qs(environ['QUERY_STRING'],
+                strict_parsing= True)
+        else:
+            params= {}
         logStats(params)
     return params
 
