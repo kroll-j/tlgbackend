@@ -15,13 +15,23 @@ import uuid
 
 from beaker.cache import cache_region, cache_regions
 
-config= { 
-    'graphserv-host': 'ortelius',
-    'graphserv-port': '6666',
-}
+TOOLSERVER= False   #todo: autodetect
 
-DATADIR= '/mnt/user-store/%s/tlgbackend/tip' % getpass.getuser()
+if TOOLSERVER:
+    config= { 
+        'graphserv-host': 'ortelius',
+        'graphserv-port': '6666',
+    }
 
+    DATADIR= '/mnt/user-store/%s/tlgbackend/tip' % getpass.getuser()
+else:
+    config= { 
+        'graphserv-host': 'sylvester',
+        'graphserv-port': '6666',
+    }
+
+    DATADIR= '/data/project/render-tests/tlgbackend/tip'
+    
 beakerCacheDir= os.path.join(DATADIR, 'beaker-cache')
 
 testrun= False
@@ -29,12 +39,14 @@ testrun= False
 cache_regions.update({
     'mem1h': {          # cache 1 hour in memory, e. g. page ID results
         'expire': 60*60,
-        'type': 'memory'
+        'type': 'memory',
+        'key_length': '250'
     },
     'disk24h': {        # cache 24h on disk, e. g. category title => ID mappings
         'expire': 60*60*24,
         'type': 'file',
         'data_dir': beakerCacheDir,
+        'key_length': '250'
     }
 })
 
@@ -59,6 +71,8 @@ NS_CATEGORY_TALK = 15
 class InputValidationError(RuntimeError):
     pass
 
+def GetSQLDefaultFile():
+    return os.path.expanduser('~')+"/.my.cnf" if TOOLSERVER else os.path.expanduser('~')+"/replica.my.cnf"
 
 def GetTempCursors():
     t= threading.currentThread()
@@ -86,7 +100,7 @@ class TempCursor:
         self.conn= None
         while self.conn==None:
             try:
-                self.conn= MySQLdb.connect( read_default_file=os.path.expanduser('~')+"/.my.cnf", host=self.host, \
+                self.conn= MySQLdb.connect( read_default_file=GetSQLDefaultFile(), host=self.host, \
                     use_unicode=False, cursorclass=MySQLdb.cursors.DictCursor )
             except MySQLdb.OperationalError as e:
                 if 'max_user_connections' in str(e):
@@ -111,9 +125,11 @@ class TempCursor:
 def getCursors():
     class Cursors(DictCache):
         def createEntry(self, key):
-            if key in getWikiServerMap(): ckey= getWikiServerMap()[key]
-            else: ckey= 'sql' # guess
-            #~ ckey= getWikiServerMap()[key]
+            if TOOLSERVER:
+                if key in getWikiServerMap(): ckey= getWikiServerMap()[key]
+                else: ckey= 'sql' # guess
+            else:
+                ckey= '%s.labsdb' % (key.split('_p')[0])
             conn= None
             while conn==None:
                 try:
@@ -182,6 +198,11 @@ def MakeTimestamp(unixtime= None):
     if unixtime==None: unixtime= time.time()
     return time.strftime("%Y%m%d %H:%M.%S", time.gmtime(unixtime))
 
+# unix time to mediawiki timestamp.
+def MakeMWTimestamp(unixtime= None):
+    if unixtime==None: unixtime= time.time()
+    return time.strftime("%Y%m%d%H%M%S", time.gmtime(unixtime))
+
 def getUsername():
     return pwd.getpwuid( os.getuid() )[ 0 ]
 
@@ -239,7 +260,7 @@ def getWikiServerMap():
         try:
             __WikiToServerMapLock.acquire() # just in case someone calls this from different threads in parallel.
             def getWikiServerMapping():
-                conn= MySQLdb.connect(read_default_file=os.path.expanduser('~')+'/.my.cnf')
+                conn= MySQLdb.connect(read_default_file=GetSQLDefaultFile())
                 cur= conn.cursor()
                 cur.execute("SELECT dbname, server FROM toolserver.wiki WHERE family = 'wikipedia'")
                 ret= dict(cur.fetchall())
@@ -275,10 +296,10 @@ class DictCache(dict):
 def getConnections():
     class Connections(DictCache):
         def createEntry(self, key):
-            return MySQLdb.connect( read_default_file=os.path.expanduser('~')+"/.my.cnf", host=key, use_unicode=False, cursorclass=MySQLdb.cursors.DictCursor )
+            return MySQLdb.connect( read_default_file=GetSQLDefaultFile(), host=key, use_unicode=False, cursorclass=MySQLdb.cursors.DictCursor )
     return CachedThreadValue('SQLConnections', Connections)
 
-if threading.currentThread().name == 'MainThread':
+if TOOLSERVER and threading.currentThread().name == 'MainThread':
     # precache once in the main thread, not separately for each thread (which would work, but can be slow because of the locking)
     getWikiServerMap()
 

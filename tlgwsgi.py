@@ -49,14 +49,13 @@ def parseCGIargs(environ):
     if 'CONTENT_LENGTH' in environ and int(environ['CONTENT_LENGTH'])!=0:
         dprint(0, "POST request, content length %s" % environ['CONTENT_LENGTH'])
         request_body= environ['wsgi.input'].read(int(environ['CONTENT_LENGTH']))
-        if len(request_body):
+        if len(request_body)!=0:
             params= parse_qs(request_body)
         else:
             params= {}
     elif 'QUERY_STRING' in environ:
-        if len(environ['QUERY_STRING']):
-            params= parse_qs(environ['QUERY_STRING'],
-                strict_parsing= True)
+        if len(environ['QUERY_STRING'])!=0:
+            params= parse_qs(environ['QUERY_STRING'], strict_parsing= True)
         else:
             params= {}
         logStats(params)
@@ -192,13 +191,13 @@ function setStatus(text, percentage) { document.getElementById("thestatus").inne
                     html.write('<br/>')
                 html.write('</td>')
                 html.write('<td>')
-                title= data['page']['page_title'].encode('utf-8')
+                title= data['page']['page_title']
                 html.write('<a href="https://%s.wikipedia.org/wiki/%s">%s</a>' % (params['lang'][0], title, title))
                 #~ html.write(' page_id = %d' % (data['page']['page_id']))
                 html.write('</td>')
                 html.write('</tr>\n')
             elif 'status' in data:
-                lastStatus= data['status'].encode('utf-8')
+                lastStatus= data['status']
                 if chunked:
                     if showThreads: statusText= lastStatus + getCurrentActions()
                     else: statusText= lastStatus
@@ -214,7 +213,7 @@ function setStatus(text, percentage) { document.getElementById("thestatus").inne
                 html.endTable()
                 html.write(line)
         while len(html.values)>0:
-            yield html.values.pop(0) + '\n'
+            yield (html.values.pop(0) + '\n').encode('utf-8')
     
     yield '<script>setMeter("100%");</script>'
     
@@ -227,7 +226,7 @@ function setStatus(text, percentage) { document.getElementById("thestatus").inne
     html.endTable()
     html.write('</body></html>')
     while len(html.values)>0:
-        yield html.values.pop(0) + '\n'
+        yield (html.values.pop(0) + '\n').encode('utf-8')
 
 def Wikify(tlgResult, action, chunked, params, showThreads, tlg):
     class wikifoo(FileLikeList):
@@ -270,7 +269,7 @@ def Wikify(tlgResult, action, chunked, params, showThreads, tlg):
                 wikitext.write(str(data))
             
         while len(wikitext.values)>0:
-            yield wikitext.values.pop(0) + '\n'
+            yield (wikitext.values.pop(0) + '\n').decode('utf-8')
         
     if results==0:
         yield 'No Results.\n'
@@ -306,7 +305,8 @@ def makeHelpPage():
     * action=listflaws -- list available flaw filters
     * action=query -- query CatGraph for categories and filter articles
         * lang=&lt;string> -- wiki language code ('de', 'en').
-            graphcore instances are currently running for <a href="http://ortelius.toolserver.org:8090/list-graphs">""" + str(runningGraphs) + """</a>.
+            graphcore instances are currently running for <a href="http://""" + ('ortelius.toolserver.org' if TOOLSERVER else 'sylvester.wmflabs.org') \
+                + ':8090/list-graphs">' + str(runningGraphs) + """</a>.
         * query=&lt;string> -- execute a search-engine style query string using CatGraph. 
             separate category names by semicolons. operators '+' (intersection) and '-' (difference) are supported.
             e. g. "Biology; Art; +Apes; -Cats" searches for everything in Biology or Art and in Apes, not in Cats
@@ -408,7 +408,7 @@ def generator_app(environ, start_response):
             filter_name= getParam(params, 'filter_name')
             unmark= getParam(params, 'unmark', False)
             if page_id==None or page_title==None or page_latest==None or filter_name==None:
-                raise InputValidationError(_('page_id, page_title, page_latest and filter_name parameters are required'))
+                raise InputValidationError('page_id, page_title, page_latest and filter_name parameters are required')
             
             tlg.markAsDone(page_id, page_title, page_latest, filter_name, unmark)
             start_response('200 OK', [('Content-Type', 'text/plain; charset=utf-8')])
@@ -446,8 +446,8 @@ def generator_app(environ, start_response):
             sys.exit(0)
 
         else:   # no email address or wiki page given. normal cgi context.
-            if chunked: 
-                start_response('200 OK', [('Content-Type', 'text/%s; charset=utf-8' % mimeSubtype), ('Transfer-Encoding', 'chunked')])
+            if chunked and False: # TODO: blah......
+                start_response('200 OK', [('Content-Type', 'text/%s; charset=utf-8' % mimeSubtype), ('Transfer-Encoding', 'chunked')]) 
             else:
                 start_response('200 OK', [('Content-Type', 'text/%s; charset=utf-8' % mimeSubtype)])
             return outputIterable
@@ -468,16 +468,17 @@ if __name__ == "__main__":
             pass
         sys.exit(0)
     
-    # change this to "flup.server.fcgi" when/if fcgid is installed on the toolserver
-    from flup.server.cgi import WSGIServer
     # enable pretty stack traces
-    #~ import cgitb
-    #~ cgitb.enable()
+    import cgitb
+    cgitb.enable()
     #~ if (not 'QUERY_STRING' in os.environ) and (not 'CONTENT_LENGTH' in os.environ):
         #~ # started from non-cgi context, create request string for testing.
         #~ os.environ['QUERY_STRING']= 'action=query&format=html&chunked=true&lang=de&query=Sport&querydepth=2&flaws=NoImages%20Small'
         #~ os.environ['QUERY_STRING']= 'action=query&format=wikitext&lang=de&query=Sport&querydepth=2&flaws=Small'
     #~ dprint(str(os.environ))
-    WSGIServer(generator_app).run()
 
+    # change this to "flup.server.fcgi" when/if fcgid is installed on the toolserver
+    #~ from flup.server.fcgi import WSGIServer
+    from flup.server.cgi import WSGIServer
+    WSGIServer(generator_app).run()
 

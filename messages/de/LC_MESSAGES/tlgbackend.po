@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tlgbackend 0.1\n"
-"POT-Creation-Date: 2013-04-19 18:38+CEST\n"
+"POT-Creation-Date: 2013-06-13 20:02+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,9 +29,8 @@ msgstr ""
 "dem Artikel-Feedback-Tool v5."
 
 #: filtermodules/aft.py:45
-#, fuzzy
 msgid "%d%% positive of %d"
-msgstr "%s:%3d%% positiv von %d"
+msgstr "%d%% positiv von %d"
 
 #: filtermodules/aft.py:64
 msgid "Article Feedback data is not yet available for the selected language."
@@ -40,12 +39,12 @@ msgstr "Artikel-Feedback ist für die gewählte Sprache noch nicht verfügbar."
 #: filtermodules/changedetector.py:10
 msgid ""
 "Page seems to be outdated compared to the same article in other Wikipedia "
-"language versions (ChangeDetector data)."
+"language versions (Change Detector data)."
 msgstr ""
 "Seite scheint veraltet zu sein, verglichen mit dem gleichen Artikel in "
-"anderen Sprachversionen der Wikipedia (ChangeDetector-Daten)."
+"anderen Sprachversionen der Wikipedia (Change Detector-Daten)."
 
-#: filtermodules/changedetector.py:11 filtermodules/miscfilters.py:88
+#: filtermodules/changedetector.py:11 filtermodules/miscfilters.py:93
 msgid "Currentness"
 msgstr "Aktualität"
 
@@ -57,97 +56,105 @@ msgstr "Alle Seiten"
 msgid "Show all pages without filtering."
 msgstr "Jede Seite anzeigen, ohne zu filtern."
 
-#: filtermodules/miscfilters.py:76
+#: filtermodules/miscfilters.py:80
 msgid "Neutrality"
 msgstr "Neutralität"
 
-#: filtermodules/miscfilters.py:76
-msgid "Neutrality Template"
-msgstr "Neutralitäts-Vorlage"
-
-#: filtermodules/miscfilters.py:76
+#: filtermodules/miscfilters.py:80
 msgid "Page has 'neutrality' template set."
 msgstr "Seite hat 'Neutralität'-Vorlage gesetzt."
 
-#: filtermodules/miscfilters.py:82
-msgid "Missing Sources/References Template"
-msgstr "Fehlende Quellen/Referenzen-Vorlage"
+#: filtermodules/miscfilters.py:80
+msgid "Template: Neutrality"
+msgstr "Vorlage: Neutralität"
 
-#: filtermodules/miscfilters.py:82
+#: filtermodules/miscfilters.py:87
 msgid "Page has 'missing sources' template set."
-msgstr "Seite hat 'Fehlende Quellen'-Vorlage gesetzt."
+msgstr "Seite hat 'Belege fehlen'-Vorlage gesetzt."
 
-#: filtermodules/miscfilters.py:82 filtermodules/miscfilters.py:106
+#: filtermodules/miscfilters.py:87
+msgid "Template: Refimprove"
+msgstr "Vorlage: Belege fehlen"
+
+#: filtermodules/miscfilters.py:87 filtermodules/miscfilters.py:114
 msgid "Completeness"
 msgstr "Vollständigkeit"
 
-#: filtermodules/miscfilters.py:88
-msgid "Out of Date Template"
-msgstr "Veraltet-Vorlage"
-
-#: filtermodules/miscfilters.py:88
+#: filtermodules/miscfilters.py:93
 msgid "Page has 'out of date' template set."
 msgstr "Seite hat 'Veraltet'-Vorlage gesetzt."
 
-#: filtermodules/miscfilters.py:94
-msgid "Cleanup Template"
-msgstr "Überarbeiten-Vorlage"
+#: filtermodules/miscfilters.py:93
+msgid "Template: Out of date"
+msgstr "Vorlage: Veraltet"
 
-#: filtermodules/miscfilters.py:94
+#: filtermodules/miscfilters.py:100
 msgid "Page has 'cleanup' template set."
 msgstr "Seite hat 'Überarbeiten'-Vorlage gesetzt."
 
 #: filtermodules/miscfilters.py:100
-msgid "'Too Technical' Template"
-msgstr "Allgemeinverständlichkeit-Vorlage"
+msgid "Template: Cleanup"
+msgstr "Vorlage: Überarbeiten"
 
-#: filtermodules/miscfilters.py:100
+#: filtermodules/miscfilters.py:107
 msgid "Page has 'too technical' template set."
 msgstr "Seite hat 'Allgemeinverständlichkeit'-Vorlage gesetzt."
 
-#: filtermodules/miscfilters.py:106
-msgid "Globalize Template"
-msgstr "Staatslastig-Vorlage"
+#: filtermodules/miscfilters.py:107
+msgid "Template: Technical"
+msgstr "Vorlage: Allgemeinverständlichkeit"
 
-#: filtermodules/miscfilters.py:106
+#: filtermodules/miscfilters.py:114
 msgid "Page has 'globalize' template set."
 msgstr "Seite hat 'Staatslastig'-Vorlage gesetzt."
 
-#: filtermodules/miscfilters.py:176
+#: filtermodules/miscfilters.py:114
+msgid "Template: Globalize"
+msgstr "Vorlage: Staatslastig"
+
+#: filtermodules/miscfilters.py:185
 msgid "Small Pages"
 msgstr "Kleine Seiten"
 
-#: filtermodules/miscfilters.py:177
+#: filtermodules/miscfilters.py:186
 msgid "Page is very small, relative to mean page size in result set."
 msgstr ""
 "Seite ist sehr klein, verglichen mit der Durchschnitts-Seitengröße im "
 "Suchergebnis."
 
-#: filtermodules/miscfilters.py:204
+#: filtermodules/miscfilters.py:213
 msgid "Large Pages"
 msgstr "Große Seiten"
 
-#: filtermodules/miscfilters.py:205
+#: filtermodules/miscfilters.py:214
 msgid "Page is very large, relative to mean page size in result set."
 msgstr ""
 "Seite ist sehr groß, verglichen mit der Durchschnitts-Seitengröße im "
 "Suchergebnis."
 
-#: filtermodules/miscfilters.py:231
+#: filtermodules/miscfilters.py:240
 msgid "No Images"
 msgstr "Keine Bilder"
 
-#: filtermodules/miscfilters.py:232
+#: filtermodules/miscfilters.py:241
 msgid "Article has no image links."
 msgstr "Artikel verlinkt keine Bilder."
 
-#: filtermodules/miscfilters.py:264
-msgid "No Links to this page"
-msgstr "Keine Links zu dieser Seite"
+#: filtermodules/miscfilters.py:274
+msgid "No Links to this article"
+msgstr "Keine Links zu diesem Artikel"
 
-#: filtermodules/miscfilters.py:265
+#: filtermodules/miscfilters.py:275
 msgid "Article is not linked from any other article."
 msgstr "Artikel wird von keinem anderen Artikel verlinkt."
+
+#: filtermodules/miscfilters.py:306
+msgid "Pending Changes (12h)"
+msgstr "Ungesichtete Änderungen (12 Std)"
+
+#: filtermodules/miscfilters.py:307
+msgid "Article has pending changes older than 12 hours."
+msgstr "Artikel hat länger als 12 Stunden ausstehende ungesichtete Änderungen."
 
 #: filtermodules/recent.py:9
 msgid "Recently Changed"
@@ -218,7 +225,7 @@ msgstr "Fehlerhafte Eingabe"
 msgid "Category %s not found in database %s."
 msgstr "Kann Kategorie %s nicht in Datenbank %s finden."
 
-#: tlgwsgi.py:83
+#: tlgwsgi.py:88
 msgid ""
 "Hi!\n"
 "\n"
@@ -245,7 +252,7 @@ msgstr ""
 "Arbeitsliste erfolgreich erstellt. Eingabe war:\n"
 "\n"
 
-#: tlgwsgi.py:92
+#: tlgwsgi.py:97
 msgid ""
 "\n"
 "\n"
@@ -261,22 +268,17 @@ msgstr ""
 "Emsige Grüße, \n"
 "Der Freundliche TLG-Roboter. \n"
 
-#: tlgwsgi.py:116
+#: tlgwsgi.py:121
 msgid "Filters"
 msgstr "Filter"
 
-#: tlgwsgi.py:117
+#: tlgwsgi.py:122
 msgid "Page"
 msgstr "Seite"
 
-#: tlgwsgi.py:185
+#: tlgwsgi.py:190
 msgid " [hidden]"
-msgstr ""
-
-#: tlgwsgi.py:405
-msgid ""
-"page_id, page_title, page_latest and filter_name parameters are required"
-msgstr ""
+msgstr " [versteckt]"
 
 #: wiki.py:61
 msgid "= Task List =\n"
@@ -285,6 +287,24 @@ msgstr "= Arbeitsliste =\n"
 #: wiki.py:62
 msgid "Categories: %s, Search depth: %s, Selected filters: %s\n"
 msgstr "Kategorien: %s, Suchtiefe: %s, Gewählte Filter: %s\n"
+
+#~ msgid "Neutrality Template"
+#~ msgstr "Neutralitäts-Vorlage"
+
+#~ msgid "Missing Sources/References Template"
+#~ msgstr "Fehlende Quellen/Referenzen-Vorlage"
+
+#~ msgid "Out of Date Template"
+#~ msgstr "Veraltet-Vorlage"
+
+#~ msgid "Cleanup Template"
+#~ msgstr "Überarbeiten-Vorlage"
+
+#~ msgid "'Too Technical' Template"
+#~ msgstr "Allgemeinverständlichkeit-Vorlage"
+
+#~ msgid "Globalize Template"
+#~ msgstr "Staatslastig-Vorlage"
 
 #~ msgid "Article Feedback"
 #~ msgstr "Artikel-Feedback"
