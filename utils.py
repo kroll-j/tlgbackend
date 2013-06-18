@@ -30,7 +30,7 @@ else:
         'graphserv-port': '6666',
     }
 
-    DATADIR= '/data/project/render-tests/tlgbackend/tip'
+    DATADIR= os.path.expanduser('~/tlgbackend')
     
 beakerCacheDir= os.path.join(DATADIR, 'beaker-cache')
 
