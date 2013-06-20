@@ -104,6 +104,7 @@ class TempCursor:
                     use_unicode=False, cursorclass=MySQLdb.cursors.DictCursor )
             except MySQLdb.OperationalError as e:
                 if 'max_user_connections' in str(e):
+                    dprint(0, str(e))
                     dprint(0, 'exceeded max connections, retrying...')
                     time.sleep(0.5)
                     #~ raise   #xxxxx
@@ -136,6 +137,7 @@ def getCursors():
                     conn= getConnections()[ckey]
                 except MySQLdb.OperationalError as e:
                     if 'max_user_connections' in str(e):
+                        dprint(0, str(e))
                         dprint(0, 'exceeded max connections, retrying...')
                         time.sleep(0.5)
                         #~ raise   #xxxxx
