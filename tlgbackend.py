@@ -207,7 +207,8 @@ class TaskListGenerator:
                 op= '|'
             if op=='|':
                 result|= set(self.evalQueryCategory(category, depth))
-                dprint(2, ' | "%s"' % category)
+                if 'wl#' in category: dprint(2, ' | "%s"' % 'wl#___,___')
+                else: dprint(2, ' | "%s"' % category)
             elif op=='+':
                 if n==0:
                     # '+' on first category should do the expected thing

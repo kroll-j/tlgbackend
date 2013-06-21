@@ -361,7 +361,7 @@ def generator_app(environ, start_response):
         utils.testrun= getBoolParam(params, 'test', False)
         numThreads= getParam(params, 'numthreads', 10)
         
-        logStats({'environment': str(environ)})
+        #~ logStats({'environment': str(environ)})
 
         try:
             gettext.translation('tlgbackend', localedir= os.path.join(sys.path[0], 'messages'), languages=[i18n]).install()
