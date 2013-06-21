@@ -359,6 +359,7 @@ def generator_app(environ, start_response):
         wikipage= getParam(params, 'wikipage', None)
         if wikipage: format= 'wikitext' # writing to wiki page implies wikitext format
         utils.testrun= getBoolParam(params, 'test', False)
+        numThreads= getParam(params, 'numthreads', 10)
         
         logStats({'environment': str(environ)})
 
@@ -388,7 +389,7 @@ def generator_app(environ, start_response):
                 start_response('200 OK', [('Content-Type', 'text/plain; charset=utf-8')])
                 return ( '{ "status": "background process started" }', )
         
-        tlg= tlgbackend.TaskListGenerator()
+        tlg= tlgbackend.TaskListGenerator(numthreads= numThreads)
         
         if action=='query':
             lang= getParam(params, 'lang')
