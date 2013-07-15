@@ -105,13 +105,13 @@ class QueueWrapper(collections.deque):
         
 ## main app class
 class TaskListGenerator:
-    def __init__(self):
+    def __init__(self, numthreads= 10):
         self.actionQueue= QueueWrapper()    #Queue.Queue()     # actions to process
         self.resultQueue= QueueWrapper()    #Queue.Queue()     # results of actions 
         self.mergedResults= {}              # final merged results, one entry per article
         self.workerThreads= []
         self.pagesToTest= []                # page IDs to test for flaws
-        self.numWorkerThreads= 10
+        self.numWorkerThreads= numthreads
         self.language= None                 # language code e.g. 'en'
         self.wiki= None                     # e.g. 'enwiki'
         self.cg= None
@@ -207,7 +207,8 @@ class TaskListGenerator:
                 op= '|'
             if op=='|':
                 result|= set(self.evalQueryCategory(category, depth))
-                dprint(2, ' | "%s"' % category)
+                if 'wl#' in category: dprint(2, ' | "%s"' % 'wl#___,___')
+                else: dprint(2, ' | "%s"' % category)
             elif op=='+':
                 if n==0:
                     # '+' on first category should do the expected thing

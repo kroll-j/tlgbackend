@@ -5,14 +5,20 @@ from tlgflaws import *
 ## this filter finds articles listed in the ChangeDetector database.
 class FChangeDetector(FlawFilter):
     shortname= 'ChangeDetector'
-    label= 'ChangeDetector'
+    label= 'Change Detector'
     # todo: insert changedetector link?
-    description= _('Page seems to be outdated compared to the same article in other Wikipedia language versions (ChangeDetector data).')
+    description= _('Page seems to be outdated compared to the same article in other Wikipedia language versions (Change Detector data).')
     group= _('Currentness')
 
     class Action(TlgAction):
         def execute(self, resultQueue):
-            with TempCursor('sql', 'p_render_change_detector_p') as cur:
+            if TOOLSERVER:
+                host= 'sql'
+                db= 'p_render_change_detector_p'
+            else:
+                host= 'tools-db'
+                db= 'p50380g50454__change_detector'
+            with TempCursor(host, db) as cur:
                 format_strings = ','.join(['%s'] * len(self.pageIDs))
                 date= time.strftime( '%Y%m%d', time.localtime(time.time()-60*60*24) )
                 params= []

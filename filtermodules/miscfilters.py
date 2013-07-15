@@ -13,14 +13,18 @@ class FAll(FlawFilter):
     class Action(TlgAction):
         def execute(self, resultQueue):
             cur= getCursors()[self.wiki]
-            format_strings = ','.join(['%s'] * len(self.pageIDs))
-            cur.execute('SELECT * FROM page WHERE page_id IN (%s)' % format_strings, self.pageIDs)
+            #~ format_strings = ','.join(['%s'] * len(self.pageIDs))
+            #~ cur.execute('SELECT * FROM page WHERE page_id IN (%s)' % format_strings, self.pageIDs)
+            format_strings = ' OR '.join(['page_id=%s'] * len(self.pageIDs))
+            cur.execute("""SELECT page_id, page_namespace, page_title, page_restrictions, page_counter, page_is_redirect, 
+page_is_new, page_random, page_touched, page_latest, page_len 
+FROM page WHERE page_namespace=0 AND page_is_redirect=0 AND (%s)""" % format_strings, self.pageIDs)
             result= cur.fetchall()
             for row in result:
                 resultQueue.put(TlgResult(self.wiki, row, self.parent))
     
     def getPreferredPagesPerAction(self):
-        return 100
+        return 500
 
     def createActions(self, language, pages, actionQueue):
         actionQueue.put(self.Action(self, language, pages))
@@ -73,40 +77,45 @@ def makeTemplateFilter(shortname, label, description, group, templateNames):
 def registerTemplateFilter(*args):
     FlawFilters.register(makeTemplateFilter(*args))
 
-registerTemplateFilter('TemplateNeutrality', _('Neutrality Template'), _('Page has \'neutrality\' template set.'), _('Neutrality'), {
+registerTemplateFilter('TemplateNeutrality', _('Template: Neutrality'), _('Page has \'neutrality\' template set.'), _('Neutrality'), {
     'dewiki_p': [ 'Neutralität' ],
     'enwiki_p': [ 'Neutrality' ],
     'frwiki_p': [ 'Désaccord_de_neutralité' ],
+    'cswiki_p': [ 'NPOV' ],
 })
 
-registerTemplateFilter('TemplateMissingSources', _('Missing Sources/References Template'), _('Page has \'missing sources\' template set.'), _('Completeness'), {
+registerTemplateFilter('TemplateMissingSources', _('Template: Refimprove'), _('Page has \'missing sources\' template set.'), _('Completeness'), {
     'dewiki_p': [ 'Belege_fehlen' ],
     'enwiki_p': [ 'Refimprove' ],
     'frwiki_p': [ 'À_sourcer' ],
 })
 
-registerTemplateFilter('TemplateObsolete', _('Out of Date Template'), _('Page has \'out of date\' template set.'), _('Currentness'), {
+registerTemplateFilter('TemplateObsolete', _('Template: Out of date'), _('Page has \'out of date\' template set.'), _('Currentness'), {
     'dewiki_p': [ 'Veraltet' ],
     'enwiki_p': [ 'Out_of_date' ],
     'frwiki_p': [ 'Mettre_à_jour' ],
+    'cswiki_p': [ 'Aktualizovat' ],
 })
 
-registerTemplateFilter('TemplateCleanup', _('Cleanup Template'), _('Page has \'cleanup\' template set.'), None, {
+registerTemplateFilter('TemplateCleanup', _('Template: Cleanup'), _('Page has \'cleanup\' template set.'), None, {
     'dewiki_p': [ 'Überarbeiten' ],
     'enwiki_p': [ 'Cleanup' ],
     'frwiki_p': [ 'À_recycler' ],
+    'cswiki_p': [ 'Upravit' ], 
 })
 
-registerTemplateFilter('TemplateTechnical', _('\'Too Technical\' Template'), _('Page has \'too technical\' template set.'), None, {
+registerTemplateFilter('TemplateTechnical', _('Template: Technical'), _('Page has \'too technical\' template set.'), None, {
     'dewiki_p': [ 'Allgemeinverständlichkeit' ],
     'enwiki_p': [ 'Technical' ],
     'frwiki_p': [ 'Article_incompréhensible' ],
+    'cswiki_p': [ '' ],
 })
 
-registerTemplateFilter('TemplateGlobalize', _('Globalize Template'), _('Page has \'globalize\' template set.'), _('Completeness'), {
+registerTemplateFilter('TemplateGlobalize', _('Template: Globalize'), _('Page has \'globalize\' template set.'), _('Completeness'), {
     'dewiki_p': [ 'Staatslastig' ],
     'enwiki_p': [ 'Globalize' ],
     'frwiki_p': [ 'Internationaliser' ],
+    'cswiki_p': [ 'Globalizovat' ],
 })
 
 # todo: extract template names of other languages from langlinks
@@ -236,6 +245,7 @@ class FNoImages(FlawFilter):
         def execute(self, resultQueue):
             cur= getCursors()[self.wiki]
             format_strings = ','.join(['%s'] * len(self.pageIDs))
+            # IN stuff possibly makes this slow...
             sqlstr= """SELECT * FROM page WHERE page_namespace=0 AND page_id IN (%s) AND page_is_redirect = 0 
                 AND page_id NOT IN (select il_from FROM imagelinks AS src WHERE il_from IN (%s) 
                     AND NOT EXISTS (SELECT 1 FROM imagelinks WHERE il_to=src.il_to AND il_from IN (SELECT page_id FROM page WHERE page_namespace=10)));""" % \
@@ -261,26 +271,19 @@ FlawFilters.register(FNoImages)
 
 class FLonely(FlawFilter):
     shortname= 'Lonely'
-    label= _('No Links to this page')
+    label= _('No Links to this article')
     description= _('Article is not linked from any other article.')
 
     # our action class
     class Action(TlgAction):
         def execute(self, resultQueue):
             cur= getCursors()[self.wiki]
-            format_strings = ','.join(['%s'] * len(self.pageIDs))
-            #~ # find all pages in set without any image links
-            #~ # the double 'IN' clause seems fishy, maybe i will figure out a better way to do this in sql some time. 
-            #~ sqlstr= """SELECT * FROM page WHERE page_id IN (%s) AND page_namespace=0 AND page_is_redirect=0 AND page_id NOT IN 
-            #~  (SELECT il_from FROM imagelinks WHERE il_from IN (%s))""" % \
-                #~ (format_strings,format_strings)
-            #~ dblpages= copy.copy(self.pageIDs)
-            #~ dblpages.extend(self.pageIDs)
-            #~ cur.execute(sqlstr, dblpages)
-            #~ sqlres= cur.fetchall()
+            format_strings = ' OR '.join(['page_id=%s'] * len(self.pageIDs))
             
-            sqlstr= """SELECT * FROM page WHERE page_id IN (%s) /*AND page_namespace=0*/ AND page_is_redirect=0 AND 
-                (SELECT COUNT(*) FROM pagelinks WHERE pl_from=page_id AND pl_namespace=0 LIMIT 1)=0""" % (format_strings)
+            sqlstr= """SELECT * FROM page WHERE (%s) AND page_namespace=0 AND page_is_redirect=0 
+                AND NOT EXISTS (SELECT 1 FROM pagelinks WHERE pl_title=page_title AND pl_namespace=0)""" \
+                % (format_strings)
+                #~ AND (SELECT COUNT(*) FROM pagelinks WHERE pl_from=page_id AND pl_namespace=0 LIMIT 1)=0""" 
             cur.execute(sqlstr, self.pageIDs)
             sqlres= cur.fetchall()
             
@@ -294,6 +297,52 @@ class FLonely(FlawFilter):
     def createActions(self, language, pages, actionQueue):
         actionQueue.put(self.Action(self, language, pages))
 
-#~ FlawFilters.register(FLonely)
+FlawFilters.register(FLonely)
+
+
+
+class FPendingChanges(FlawFilter):
+    shortname= 'PendingChanges'
+    label= _('Pending Changes (12h)')
+    description= _('Article has pending changes older than 12 hours.')
+
+    # our action class
+    class Action(TlgAction):
+        def __init__(self, parent, language, pages, timestamp):
+            TlgAction.__init__(self, parent, language, pages)
+            self.timestamp= timestamp
+        
+        def execute(self, resultQueue):
+            cur= getCursors()[self.wiki]
+
+            # get the page IDs of pages with pending changes first
+            format_strings= ' OR '.join(['fp_page_id=%s'] * len(self.pageIDs))
+            sqlstr= "SELECT fp_page_id FROM flaggedpages WHERE (%s) AND fp_reviewed=0 AND fp_pending_since < %s" % (format_strings, self.timestamp)
+            #~ dprint(3, sqlstr)
+            cur.execute(sqlstr, self.pageIDs)
+            res= cur.fetchall()
+            foundPageIDs= []
+            for row in res:
+                foundPageIDs.append(row['fp_page_id'])
+            
+            if len(foundPageIDs):
+                # then get info about the found articles from the page table
+                format_strings= ' OR '.join(['page_id=%s'] * len(foundPageIDs))
+                sqlstr= """SELECT * FROM page WHERE page_namespace=0 AND page_is_redirect=0 AND (%s)""" % (format_strings)
+                dprint(3, sqlstr)
+                cur.execute(sqlstr, foundPageIDs)
+                sqlres= cur.fetchall()
+                
+                for row in sqlres:
+                    resultQueue.put(TlgResult(self.wiki, row, self.parent))
+
+
+    def getPreferredPagesPerAction(self):
+        return 100
+
+    def createActions(self, language, pages, actionQueue):
+        actionQueue.put(self.Action(self, language, pages, MakeMWTimestamp(time.time()-60*60*12)))
+
+FlawFilters.register(FPendingChanges)
 
 

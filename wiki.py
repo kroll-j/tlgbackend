@@ -94,11 +94,14 @@ class SimpleMW:
         if wlstart: params['wlstart']= wlstart
         if wlend: params['wlend']= wlend
 
-        req= api.APIRequest(self.site, params)
-        res= req.query(querycontinue= True)
-        #~ if not 'edit' in res or not 'result' in res['edit'] or res['edit']['result']!='Success':
-            #~ raise RuntimeError(str(res))
-        return res
+        try:
+            req= api.APIRequest(self.site, params)
+            res= req.query(querycontinue= True)
+            #~ if not 'edit' in res or not 'result' in res['edit'] or res['edit']['result']!='Success':
+                #~ raise RuntimeError(str(res))
+            return res
+        except api.APIError as e:
+            raise InputValidationError('%s\\n%s' % (e[0], e[1]))
     
     
     def getWatchlistPages(self, wlowner, wltoken, wlstart= None, wlend= None):
