@@ -51,6 +51,7 @@ def parseCGIargs(environ):
         request_body= environ['wsgi.input'].read(int(environ['CONTENT_LENGTH']))
         if len(request_body)!=0:
             params= parse_qs(request_body)
+            environ['QUERY_STRING']= request_body   # save parameters for the background process case...
         else:
             params= {}
     elif 'QUERY_STRING' in environ:
@@ -101,7 +102,7 @@ Attached is the result of the command in %s format.
 Sincerely, 
 The friendly task list generator robot. 
 """) % format)
-    mail.sendFriendlyBotMessage(mailto, msgText, attachmentText, mimeSubtype)
+    mail.sendFriendlyBotMessage(mailto, msgText, attachmentText, mimeSubtype, host='tools-mail')
     
 def HTMLify(tlgResult, action, chunked, params, showThreads, tlg):
     class htmlfoo(FileLikeList):
@@ -362,6 +363,8 @@ def generator_app(environ, start_response):
         numThreads= getParam(params, 'numthreads', 10)
         
         #~ logStats({'environment': str(environ)})
+        #~ if 'daemon' in environ:
+            #~ logStats({'bgprocessparams': str(params)})
 
         try:
             gettext.translation('tlgbackend', localedir= os.path.join(sys.path[0], 'messages'), languages=[i18n]).install()
@@ -373,18 +376,22 @@ def generator_app(environ, start_response):
         
         if mailto or wikipage:
             if 'daemon' in environ and environ['daemon']=='True':
-                # we are in the background process, open daemon context
-                import daemon
-                context= daemon.DaemonContext()
-                context.stdout= open(os.path.join(DATADIR, 'mailer-stdout'), 'a')
-                context.stderr= open(os.path.join(DATADIR, 'mailer-stderr'), 'a')
-                context.open()
+                dprint(0, 'not opening daemon context...')  # XXXXXX on labs, this doesn't seem to work properly for some reason
+                #~ # we are in the background process, open daemon context
+                #~ dprint(0, 'opening daemon context')
+                #~ import daemon
+                #~ context= daemon.DaemonContext()
+                #~ context.stdout= open(os.path.join(DATADIR, 'mailer-stdout'), 'a')
+                #~ context.stderr= open(os.path.join(DATADIR, 'mailer-stderr'), 'a')
+                #~ context.open()
+                #~ dprint(0, 'daemon context opened')
                 logStats({'backgroundprocess_pid': os.getpid(), 'backgroundProcessOutputFormat': format})
 
             else:
                 # cgi context, create background process
                 import subprocess
                 scriptname= os.path.join(sys.path[0], sys.argv[0])
+                dprint(0, "starting background process: %s" % scriptname)
                 subprocess.Popen([scriptname], env= { 'QUERY_STRING': environ['QUERY_STRING'], 'daemon': 'True' })
                 start_response('200 OK', [('Content-Type', 'text/plain; charset=utf-8')])
                 return ( '{ "status": "background process started" }', )
@@ -465,6 +472,7 @@ if __name__ == "__main__":
     getRequestID()
     
     if 'daemon' in os.environ and os.environ['daemon']=='True':
+        dprint(0, 'hi from background process...')
         for foo in generator_app(os.environ, None):
             pass
         sys.exit(0)
