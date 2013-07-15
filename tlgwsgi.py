@@ -375,6 +375,8 @@ def generator_app(environ, start_response):
             _= ident
         
         if mailto or wikipage:
+            raise Exception("Sorry, sending email doesn't currently work on tool labs, \n see https://bugzilla.wikimedia.org/show_bug.cgi?id=51359") # XXXXX
+            
             if 'daemon' in environ and environ['daemon']=='True':
                 dprint(0, 'not opening daemon context...')  # XXXXXX on labs, this doesn't seem to work properly for some reason
                 #~ # we are in the background process, open daemon context
