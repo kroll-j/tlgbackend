@@ -105,7 +105,7 @@ class QueueWrapper(collections.deque):
         
 ## main app class
 class TaskListGenerator:
-    def __init__(self, numthreads= 10):
+    def __init__(self, numthreads= 10, testrun_= False):
         self.actionQueue= QueueWrapper()    #Queue.Queue()     # actions to process
         self.resultQueue= QueueWrapper()    #Queue.Queue()     # results of actions 
         self.mergedResults= {}              # final merged results, one entry per article
@@ -119,6 +119,8 @@ class TaskListGenerator:
         self.loadFilterModules()
         self.simpleMW= None # SimpleMW instance
         self.resultsPerFilter= {}           # shortname => resultcount
+        if testrun_: enableTestrun()
+
     
     def getActiveWorkerCount(self):
         count= 0
