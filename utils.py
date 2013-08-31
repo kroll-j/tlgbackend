@@ -34,7 +34,12 @@ else:
     
 beakerCacheDir= os.path.join(DATADIR, 'beaker-cache')
 
+#~ if not 'testrun' in globals():
 testrun= False
+
+def enableTestrun():
+    global testrun
+    testrun= True   # oh my god, the pain...
 
 cache_regions.update({
     'mem1h': {          # cache 1 hour in memory, e. g. page ID results
