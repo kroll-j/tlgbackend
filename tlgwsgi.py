@@ -10,7 +10,6 @@ import threading
 import traceback
 import tlgbackend
 import tlgflaws
-import utils
 from utils import *
 
 
@@ -47,7 +46,7 @@ def parseCGIargs(environ):
     from urlparse import parse_qs
     params= {}
     if 'CONTENT_LENGTH' in environ and int(environ['CONTENT_LENGTH'])!=0:
-        dprint(0, "POST request, content length %s" % environ['CONTENT_LENGTH'])
+        #~ dprint(0, "POST request, content length %s" % environ['CONTENT_LENGTH'])
         request_body= environ['wsgi.input'].read(int(environ['CONTENT_LENGTH']))
         if len(request_body)!=0:
             params= parse_qs(request_body)
@@ -59,7 +58,7 @@ def parseCGIargs(environ):
             params= parse_qs(environ['QUERY_STRING'], strict_parsing= True)
         else:
             params= {}
-        logStats(params)
+        #~ logStats(params)
     return params
 
 def getParam(params, name, default= None):
@@ -359,7 +358,9 @@ def generator_app(environ, start_response):
         i18n= getParam(params, 'i18n', 'de')
         wikipage= getParam(params, 'wikipage', None)
         if wikipage: format= 'wikitext' # writing to wiki page implies wikitext format
-        utils.testrun= getBoolParam(params, 'test', False)
+        global testrun
+        testrun= getBoolParam(params, 'test', False)
+        dprint(0, "testrun: %s" % str(testrun))
         numThreads= getParam(params, 'numthreads', 10)
         
         #~ logStats({'environment': str(environ)})
@@ -396,7 +397,7 @@ def generator_app(environ, start_response):
                 start_response('200 OK', [('Content-Type', 'text/plain; charset=utf-8')])
                 return ( '{ "status": "background process started" }', )
         
-        tlg= tlgbackend.TaskListGenerator(numthreads= numThreads)
+        tlg= tlgbackend.TaskListGenerator(numthreads= numThreads, testrun_= testrun)
         
         if action=='query':
             lang= getParam(params, 'lang')
