@@ -111,7 +111,7 @@ class TaskListGenerator:
         self.mergedResults= {}              # final merged results, one entry per article
         self.workerThreads= []
         self.pagesToTest= []                # page IDs to test for flaws
-        self.numWorkerThreads= numthreads
+        self.numWorkerThreads= int(numthreads)
         self.language= None                 # language code e.g. 'en'
         self.wiki= None                     # e.g. 'enwiki'
         self.cg= None
