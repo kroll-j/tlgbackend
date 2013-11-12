@@ -143,9 +143,9 @@ def getCursors():
                 except MySQLdb.OperationalError as e:
                     if 'max_user_connections' in str(e):
                         dprint(0, str(e))
-                        dprint(0, 'exceeded max connections, retrying...')
-                        time.sleep(0.5)
-                        #~ raise   #xxxxx
+                        #~ dprint(0, 'exceeded max connections, retrying...')
+                        #~ time.sleep(0.5)
+                        raise   #xxxxx
                     else:
                         raise
             cur= conn.cursor()
