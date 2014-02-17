@@ -18,7 +18,7 @@ class FAll(FlawFilter):
             format_strings = ' OR '.join(['page_id=%s'] * len(self.pageIDs))
             cur.execute("""SELECT page_id, page_namespace, page_title, page_restrictions, page_counter, page_is_redirect, 
 page_is_new, page_random, page_touched, page_latest, page_len 
-FROM page WHERE page_namespace=0 AND page_is_redirect=0 AND (%s)""" % format_strings, self.pageIDs)
+FROM page WHERE (page_namespace=0 OR page_namespace=6) AND page_is_redirect=0 AND (%s)""" % format_strings, self.pageIDs)
             result= cur.fetchall()
             for row in result:
                 resultQueue.put(TlgResult(self.wiki, row, self.parent))

@@ -6,6 +6,7 @@ import sys
 import time
 import json
 import gettext
+import csv
 import threading
 import traceback
 import tlgbackend
@@ -40,6 +41,13 @@ class FileLikeList:
 def addLinebreaks(iterable):
     for stuff in iterable:
         yield stuff + '\n'
+
+def maxifythefoo(iterable, maxresults):
+    i= 0
+    for stuff in iterable:
+        yield stuff
+        i+= 1
+        if i>=maxresults: return
 
 def parseCGIargs(environ):
     from urllib import unquote
@@ -275,6 +283,35 @@ def Wikify(tlgResult, action, chunked, params, showThreads, tlg):
         yield 'No Results.\n'
 
 
+def CSVify(tlgResult, action, chunked, params, showThreads, tlg):
+    results= 0
+    dummyfile= FileLikeList()
+    writer= csv.DictWriter(dummyfile, ( "filters", "page_title", "page_id", "page_namespace" ), extrasaction= 'ignore', dialect= 'excel-tab')
+    writer.writeheader()
+    for line in tlgResult:
+        if len(line.split()):   # don't try to json-decode empty lines
+            data= json.loads(line)
+            if action=='query' and 'flaws' in data:
+                results+= 1
+                res= data['page']
+                res['page_title']= res['page_title'].encode('utf-8')
+                res['filters']= '\r\n'.join( [ "%s%s" % (filter['name'], " (%s)" % filter['infotext'] if filter['infotext'] else '') for filter in data['flaws'] ] )
+                
+                writer.writerow(res)
+                #~ writer.writerow(dict((k, unicode(str(v)).encode('utf-8')) for k, v in res.iteritems()))
+
+            elif 'status' in data or 'progress' in data:
+                pass
+            else:
+                pass
+                
+        while len(dummyfile.values)>0:
+            yield (dummyfile.values.pop(0))
+
+    if results==0:
+        yield 'No Results.\n'
+
+
 def makeHelpPage():
     import gp
     gp= gp.client.Connection( gp.client.ClientTransport(config['graphserv-host'], config['graphserv-port']) )
@@ -325,6 +362,7 @@ def makeHelpPage():
                     filtered page result. "flaws" lists one or more filters which identified the page, "page" is the complete 
                     entry from the <a href="http://www.mediawiki.org/wiki/Page_table">page table</a>.
             * wikitext - this format can be used to copy to user pages or similar.
+            * csv - tabbed csv format.
 * i18n=&lt;language code> -- select output language ('de', 'en')
 * chunked=true -- if specified, use chunked transfer encoding. for creating dynamic progress bars and the like.
 * showthreads=true -- debug output; show what threads are doing. use with format=html + chunked=true.
@@ -342,6 +380,8 @@ def makeHelpPage():
 
 ############## wsgi generator function
 def generator_app(environ, start_response):
+    dprint(1, "generator_app")
+
     try:
         params= parseCGIargs(environ)
         
@@ -362,6 +402,7 @@ def generator_app(environ, start_response):
         testrun= getBoolParam(params, 'test', False)
         dprint(0, "testrun: %s" % str(testrun))
         numThreads= getParam(params, 'numthreads', 10)
+        maxresults= int(getParam(params, 'maxresults', 0))  # this only works for csv and possibly wikitext
         
         #~ logStats({'environment': str(environ)})
         #~ if 'daemon' in environ:
@@ -436,6 +477,12 @@ def generator_app(environ, start_response):
             outputIterable= Wikify(tlgResult, action, chunked, params, showThreads, tlg)
             mimeSubtype= 'plain'
         
+        elif format=='csv':
+            # format to csv
+            outputIterable= CSVify(tlgResult, action, chunked, params, showThreads, tlg)
+            if maxresults: outputIterable= maxifythefoo(outputIterable, maxresults+1)
+            mimeSubtype= 'plain'
+        
         else:
             # plain json
             outputIterable= addLinebreaks(tlgResult)
@@ -455,7 +502,7 @@ def generator_app(environ, start_response):
             sys.exit(0)
 
         else:   # no email address or wiki page given. normal cgi context.
-            if chunked and False: # TODO: blah......
+            if chunked:
                 start_response('200 OK', [('Content-Type', 'text/%s; charset=utf-8' % mimeSubtype), ('Transfer-Encoding', 'chunked')]) 
             else:
                 start_response('200 OK', [('Content-Type', 'text/%s; charset=utf-8' % mimeSubtype)])
@@ -471,6 +518,8 @@ def generator_app(environ, start_response):
 
 if __name__ == "__main__":
     getRequestID()
+    
+    dprint(1, "__main__")
     
     if 'daemon' in os.environ and os.environ['daemon']=='True':
         dprint(0, 'hi from background process...')
@@ -491,4 +540,5 @@ if __name__ == "__main__":
     #~ from flup.server.fcgi import WSGIServer
     from flup.server.cgi import WSGIServer
     WSGIServer(generator_app).run()
+    dprint(1, "__main__ exiting")
 

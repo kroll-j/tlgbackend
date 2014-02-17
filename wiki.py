@@ -9,7 +9,10 @@ class SimpleMW:
     # @param lang language ('de', 'en' etc)
     def __init__(self, lang):
         try:
-            self.site= wiki.Wiki('http://%s.wikipedia.org/w/api.php' % str(lang))
+            if str(lang)=='commons':
+                self.site= wiki.Wiki('http://commons.wikimedia.org/w/api.php')
+            else:
+                self.site= wiki.Wiki('http://%s.wikipedia.org/w/api.php' % str(lang))
             self.site.setUserAgent('TLGBackend/0.1 (http://toolserver.org/~render/stools/tlg)')
             self.site.cookiepath= os.path.expanduser('~')+'/.tlgbackend/'
             try: os.mkdir(self.site.cookiepath)
