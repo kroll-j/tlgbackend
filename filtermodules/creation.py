@@ -5,7 +5,7 @@ from tlgflaws import *
 
 class FSortByCreationTimestamp(FlawFilter):
     shortname= 'CreationTimestamp'                # Name, der den Filter identifiziert (nicht übersetzen!)
-    label= _('Sort By Creation Timestamp')                # Label, das im Frontend neben der Checkbox angezeigt wird
+    label= _('Creation Timestamp')                # Label, das im Frontend neben der Checkbox angezeigt wird
     description= _('Sort Pages by their creation timestamp.')   # Längerer Beschreibungstext für Tooltip
     group= _('Currentness')                      # Gruppe, in die der Filter eingeordnet wird
 
@@ -24,9 +24,9 @@ class FSortByCreationTimestamp(FlawFilter):
             cur.execute('SELECT page.*,revision.rev_timestamp FROM page INNER JOIN revision ON page_id=rev_page AND rev_parent_id=0 WHERE page_id IN (%s)' % format_strings, params)
             res= cur.fetchall()
             for row in res:
-                timestamp= row['timestamp']
-                del row['timestamp']
-                resultQueue.put(TlgResult(self.wiki, row, self.parent, 'creation timestamp: %s' % timestamp, sortkey= timestamp))
+                timestamp= row['rev_timestamp']
+                del row['rev_timestamp']
+                resultQueue.put(TlgResult(self.wiki, row, self.parent, '%s' % timestamp, sortkey= timestamp))
             
             # Subset der Seiten finden, die heute geändert wurden
             #~ cur.execute('SELECT * FROM page WHERE page_id IN (%s) AND page_touched >= %%s' % format_strings, params)
