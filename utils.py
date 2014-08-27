@@ -52,6 +52,12 @@ cache_regions.update({
         'type': 'file',
         'data_dir': beakerCacheDir,
         'key_length': '250'
+    },
+    'disklongterm': {
+        'expire': 60*60*24*30*3,    # 3 months
+        'type': 'file',
+        'data_dir': beakerCacheDir,
+        'key_length': '250'
     }
 })
 
@@ -163,7 +169,7 @@ def getPageByTitle(wiki, pageTitle, pageNamespace=None):
     cur= getCursors()[wiki]
     query= "SELECT * FROM page WHERE page_title = %s"
     params= [pageTitle]
-    if pageNamespace:
+    if pageNamespace != None:
         query+= " AND page_namespace = %s"
         params.append(pageNamespace)
     cur.execute(query, params)
@@ -314,7 +320,6 @@ if TOOLSERVER and threading.currentThread().name == 'MainThread':
 try:
     filecfg= json.load(file('tlgrc'))
     for key in filecfg:
-        dprint(1, "config: %s = %s" % (key, filecfg[key]))
         config[key]= filecfg[key]
 except Exception as ex:
     dprint(1, "exception while loading config file tlgrc: %s" % str(ex))

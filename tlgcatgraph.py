@@ -1,8 +1,15 @@
 #!/usr/bin/python
 # task list generator - interface to catgraph
 import time
+import requests
 from gp import *
 from utils import *
+
+def FindCGHost(graphname):
+    r= requests.get('http://sylvester/hostmap/%s' % graphname)
+    if r.status_code==200:
+        return r.text
+    return None
 
 class CatGraphInterface:
     def __init__(self, host='ortelius.toolserver.org', port=6666, graphname=None):
@@ -33,6 +40,7 @@ class CatGraphInterface:
     #  the "depth" parameter is applied to each category.
     #  @param string The search string.
     #  @param depth The search depth.
+    # --- this method isn't used in ALG any more, see tlgbackend.py/evalQueryString instead
     def executeSearchString(self, string, depth):
         # todo: something like "Category|3" to override search depth
         # todo: it would be cool to have this command in graphcore, possibly using threads for each category.

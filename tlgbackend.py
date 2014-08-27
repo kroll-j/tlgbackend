@@ -11,8 +11,9 @@ import traceback
 import threading
 import tlgflaws
 import wiki
+import geobbox
 
-from tlgcatgraph import CatGraphInterface
+from tlgcatgraph import CatGraphInterface, FindCGHost
 from tlgflaws import FlawFilters
 from utils import *
 
@@ -48,7 +49,9 @@ class WorkerThread(threading.Thread):
                     action= self.actionQueue.get(True, 0)
                     if action.canExecute():
                         self.setCurrentAction(action.parent.shortname)
+                        #~ dprint(1, 'executing action for %s' % action.parent.shortname)
                         action.execute(self.resultQueue)
+                        #~ dprint(1, 'done.')
                     else:
                         dprint(3, "re-queueing action " + str(action) + " from %s, queue len=%d" % (action.parent.shortname, self.actionQueue.qsize()))
                         self.actionQueue.put(action)
@@ -166,9 +169,27 @@ class TaskListGenerator:
     def listFlaws(self):
         print self.getFlawList()
     
+    def findGeoCoordsForPage(self, page_id):
+        cur= getCursors()[self.wiki+'_p']
+        dprint(1, 'finding geocoords for %s on %s' % (str(page_id), str(self.wiki)))
+        cur.execute('SELECT gt_lat, gt_lon FROM geo_tags WHERE gt_globe = "earth" AND gt_page_id = %s', str(page_id))
+        res= cur.fetchall()
+        if len(res): return [ res[0]['gt_lat'], res[0]['gt_lon'] ]
+        return None
+    
+    def findPageIDsInGeoBBox(self, lat, lon, distance):
+        bblat, bblon= geobbox.bounding_box(lat, lon, distance)
+        dprint(1, "looking for articles in %s at geocoord %s,%s with max distance %s" % (self.wiki, lat, lon, distance))
+        dprint(1, "bbox lat: %s, lon: %s" % (bblat, bblon))
+        cur= getCursors()[self.wiki+'_p']
+        cur.execute('SELECT gt_page_id FROM geo_tags WHERE gt_globe = "earth" AND gt_lat>=%s AND gt_lat<=%s AND gt_lon>=%s AND gt_lon<=%s', 
+            (lat-bblat,lat+bblat, lon-bblon,lon+bblon))
+        return [ row['gt_page_id'] for row in cur.fetchall() ]
+    
     ## evaluate a single query category.
-    # 'wl:USER,TOKEN' special syntax queries USER's watchlist instead of CatGraph.
-    def evalQueryCategory(self, string, defaultdepth):
+    # 'wl#USER,TOKEN' special syntax queries USER's watchlist instead of CatGraph.
+    # 'title#PAGETITLE' returns only a single page.
+    def evalQueryToken(self, string, defaultdepth):
         separatorChar= '#'  # special separator char for things like 'title#PAGETITLE'
         s= string.split(separatorChar, 1)
         if len(s)==1:
@@ -184,13 +205,33 @@ class TaskListGenerator:
                 for pageid in self.simpleMW.getWatchlistPages(wlparams[0], wlparams[1]):
                     res.append(pageid)
                 return res
+            
             elif s[0]=='title': # single page
                 if len(s)!=2:
                     raise InputValidationError(_('Use: \'title%cPAGETITLE\'') % separatorChar)
-                row= getPageByTitle(self.wiki + '_p', s[1], 0)
+                row= getPageByTitle(self.wiki + '_p', s[1].replace(' ', '_'), 0)
                 if len(row)==0:
                     raise InputValidationError(_('Page not found in mainspace: %s') % s[1])
                 return (row[0]['page_id'], )
+                
+            elif s[0]=='geobbox': # bounding box around geotagged page
+                if len(s)!=2:
+                    raise InputValidationError(_('Use: \'geobbox%cPAGETITLE,BBOXSIZE_IN_KM\'') % separatorChar)
+                params= s[1].split(',')
+                if len(params)<2 or len(params)>3:
+                    raise InputValidationError(_('Use: \'geobbox%cPAGETITLE,BBOXSIZE_IN_KM\' or \'geobbox%cLAT,LON,BBOXSIZE_IN_KM\'') % separatorChar)
+                if len(params)==2:
+                    row= getPageByTitle(self.wiki + '_p', params[0].replace(' ', '_'), 0)
+                    if len(row)==0:
+                        raise InputValidationError(_('Page not found: %s') % params[0])
+                    latlon= self.findGeoCoordsForPage(row[0]['page_id'])
+                    if latlon==None:
+                        raise InputValidationError("No geocoords found for '%s'" % params[0])
+                    return self.findPageIDsInGeoBBox(latlon[0], latlon[1], float(params[1]))
+                else:
+                    return self.findPageIDsInGeoBBox(float(params[0]), float(params[1]), float(params[2]))
+                
+            # todo (nice-to-have): feed tlg backend output to itself as search input, shell pipe-style?
             else:
                 raise InputValidationError(_('invalid query type: \'%s\'') % s[0])
     
@@ -208,21 +249,21 @@ class TaskListGenerator:
                 category= param
                 op= '|'
             if op=='|':
-                result|= set(self.evalQueryCategory(category, depth))
+                result|= set(self.evalQueryToken(category, depth))
                 if 'wl#' in category: dprint(2, ' | "%s"' % 'wl#___,___')
                 else: dprint(2, ' | "%s"' % category)
             elif op=='+':
                 if n==0:
                     # '+' on first category should do the expected thing
-                    result|= set(self.evalQueryCategory(category, depth))
+                    result|= set(self.evalQueryToken(category, depth))
                     dprint(2, ' | "%s"' % category)
                 else:
-                    result&= set(self.evalQueryCategory(category, depth))
+                    result&= set(self.evalQueryToken(category, depth))
                     dprint(2, ' & "%s"' % category)
             elif op=='-':
                 # '-' on first category has no effect
                 if n!=0:
-                    result-= set(self.evalQueryCategory(category, depth))
+                    result-= set(self.evalQueryToken(category, depth))
                     dprint(2, ' - "%s"' % category)
             n+= 1
         return list(result)
@@ -256,7 +297,12 @@ class TaskListGenerator:
             
             yield self.mkStatus(_('evaluating query string \'%s\' with depth %d') % (queryString, int(queryDepth)))
 
-            self.cg= CatGraphInterface(host=config['graphserv-host'], port=int(config['graphserv-port']), graphname=self.wiki)
+            #~ self.cg= CatGraphInterface(host=config['graphserv-host'], port=int(config['graphserv-port']), graphname=self.wiki)
+            cghost= FindCGHost(self.wiki)
+            if cghost==None:
+                raise RuntimeError("no catgraph host found for graph '%s'" % self.wiki)
+            #~ raise RuntimeError("host: %s" % cghost)
+            self.cg= CatGraphInterface(host= cghost, port= int(config['graphserv-port']), graphname= self.wiki)
             #~ self.pagesToTest= self.cg.executeSearchString(queryString, queryDepth)
             self.pagesToTest= self.evalQueryString(queryString, queryDepth)
             
@@ -282,7 +328,7 @@ class TaskListGenerator:
             
             # process results as they are created
             actionsProcessed= 0 #numActions-self.actionQueue.qsize()
-            while self.getActiveWorkerCount()>0:
+            while self.getActiveWorkerCount()>0 or (not self.resultQueue.empty()):
                 self.drainResultQueue(include_hidden)
                 n= max(numActions-self.actionQueue.qsize()-(self.getActiveWorkerCount()), 0)
                 if n!=actionsProcessed:
@@ -294,7 +340,7 @@ class TaskListGenerator:
             for i in self.workerThreads:
                 i.join()
             # process the last results
-            self.drainResultQueue(include_hidden)
+            self.drainResultQueue(include_hidden, 60*60)
                         
             # sort
             sortedResults= sorted(self.mergedResults, key= lambda i: \
@@ -356,6 +402,9 @@ class TaskListGenerator:
         return '%s%s_tlgbackend' % (prefix, getuser())
     
     def processResult(self, result, include_hidden= False):
+        """
+        # disabled "mark-as-done" stuff, as it is not useful and disabled in the frontend anyway
+        # todo: possibly re-enable per-user? (requires integration into mediawiki)
         # todo: maybe cache results and check for 'done' marks every N results
         marked= False
         try:
@@ -370,24 +419,47 @@ class TaskListGenerator:
         if marked:
             if not include_hidden: return
             result.marked_as_done= True
+        """
+        
+        #~ dprint(1, "processResult(%s %s %s)" % (str(result.page['page_id']), str(result.page['page_title']), str(result.FlawFilter.shortname)))
         
         if not result.FlawFilter.shortname in self.resultsPerFilter:
             self.resultsPerFilter[result.FlawFilter.shortname]= 1
         else:
             self.resultsPerFilter[result.FlawFilter.shortname]+= 1
 
-        key= '%s:%d' % (result.wiki, result.page['page_id'])
-        try:
-            self.mergedResults[key].append(result)
-            self.mergedResults[key].sort(key= lambda x: x.FlawFilter.shortname)
-        except KeyError:
+        #~ key= '%s:%d' % (result.wiki, result.page['page_id'])
+        #~ try:
+            #~ self.mergedResults[key].append(result)
+            #~ self.mergedResults[key].sort(key= lambda x: x.FlawFilter.shortname)
+        #~ except KeyError:
+            #~ self.mergedResults[key]= [ result ]
+
+        key= '%s:%s' % (result.wiki, str(result.page['page_id']))
+        if not key in self.mergedResults:
             self.mergedResults[key]= [ result ]
-    
+        else:
+            shortnames= [ x.FlawFilter.shortname for x in self.mergedResults[key] ]
+            if result.FlawFilter.shortname in shortnames:
+                #~ dprint(1, 'omitting duplicate %s result' % result.FlawFilter.shortname)
+                pass
+            else:
+                self.mergedResults[key].append(result)
+                self.mergedResults[key].sort(key= lambda x: x.FlawFilter.shortname)
+            #~ for x in self.mergedResults[key]:
+                #~ if x.FlawFilter.shortname == result.FlawFilter.shortname:
+                    #~ dprint(1, 'omitting duplicate %s result for %s' % (result.FlawFilter.shortname, result.page['page_title']))
+                    #~ return
+            #~ dprint(1, "adding result for %s" % result.FlawFilter.shortname)
+            #~ self.mergedResults[key].append(result)
+            #~ self.mergedResults[key].sort(key= lambda x: x.FlawFilter.shortname)
+
     def processWorkerException(self, exc_info):
         raise exc_info[0], exc_info[1], exc_info[2] # re-throw exception from worker thread
         
-    def drainResultQueue(self, include_hidden):
-        while not self.resultQueue.empty():
+    def drainResultQueue(self, include_hidden, timeout=2):
+        starttime= time.time()
+        while not self.resultQueue.empty() and time.time()-starttime<timeout:
             result= self.resultQueue.get()
             if isinstance(result, tlgflaws.TlgResult): self.processResult(result, include_hidden)
             else: self.processWorkerException(result)
