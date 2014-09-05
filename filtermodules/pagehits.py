@@ -67,4 +67,7 @@ FROM page WHERE (page_namespace=0 OR page_namespace=6) AND page_is_redirect=0 AN
     def createActions(self, language, pages, actionQueue):
         actionQueue.put(self.Action(self, language, pages))
 
-FlawFilters.register(FPagehits)
+
+import getpass
+if 'test' in getpass.getuser():
+    FlawFilters.register(FPagehits)
