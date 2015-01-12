@@ -7,7 +7,7 @@ from tlgflaws import *
 class FAll(FlawFilter):
     shortname= 'ALL'
     label= _('All Pages')
-    description= _('Show all pages without filtering.')
+    description= _('Show all articles without filtering.')
     
     # our action class
     class Action(TlgAction):
@@ -30,6 +30,32 @@ FROM page WHERE (page_namespace=0 OR page_namespace=6) AND page_is_redirect=0 AN
         actionQueue.put(self.Action(self, language, pages))
 
 FlawFilters.register(FAll)
+
+## 
+class FAllCategories(FlawFilter):
+    shortname= 'ALLCAT'
+    label= _('All Categories')
+    description= _('Show all categories without filtering.')
+    
+    # our action class
+    class Action(TlgAction):
+        def execute(self, resultQueue):
+            cur= getCursors()[self.wiki]
+            format_strings = ' OR '.join(['page_id=%s'] * len(self.pageIDs))
+            cur.execute("""SELECT page_id, page_namespace, page_title, page_restrictions, page_counter, page_is_redirect, 
+page_is_new, page_random, page_touched, page_latest, page_len 
+FROM page WHERE page_namespace=14 AND page_is_redirect=0 AND (%s)""" % format_strings, self.pageIDs)
+            result= cur.fetchall()
+            for row in result:
+                resultQueue.put(TlgResult(self.wiki, row, self.parent))
+    
+    def getPreferredPagesPerAction(self):
+        return 500
+
+    def createActions(self, language, pages, actionQueue):
+        actionQueue.put(self.Action(self, language, pages))
+
+FlawFilters.register(FAllCategories)
 
 ##  base class for filters which check for lists of templates.
 # todo: add entries for more languages (?)
